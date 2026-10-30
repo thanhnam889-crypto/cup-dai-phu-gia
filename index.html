@@ -965,22 +965,34 @@ var KQ={
         if(w>max||h>max){var s=Math.min(max/w,max/h);w=Math.round(w*s);h=Math.round(h*s);}
         var cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);
         var b64='';try{b64=cv.toDataURL('image/jpeg',0.85).split(',')[1];}catch(err){photoMsg.style.color='var(--red)';photoMsg.textContent='Không đọc được ảnh.';return;}
-        photoMsg.textContent='AI đang phân tích kết quả…';
-        fetch('/.netlify/functions/parse-ket-qua',{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({image:b64,mime:'image/jpeg',players:REG.map(function(r){return r[0]})})})
-          .then(function(r){return r.json()})
-          .then(function(d){
-            if(d.error){photoMsg.style.color='var(--red)';photoMsg.textContent='Lỗi: '+d.error;return;}
-            var games=d.games||[];
-            if(!games.length){photoMsg.style.color='var(--red)';photoMsg.textContent='Chưa đọc được ván nào. Thử ảnh rõ hơn, hoặc nhập tay.';return;}
-            var html='';games.forEach(function(g){
-              var res=g.kq==='a'?'a':g.kq==='b'?'b':g.kq==='hoa'?'draw':'none';
-              html+=rowHTML(g.a||'',g.b||'',res);
+        var attempt=0;
+        function callAI(){
+          attempt++;
+          photoMsg.style.color='var(--muted)';
+          photoMsg.textContent=attempt>1?('AI đang bận, thử lại ('+attempt+'/3)…'):'AI đang phân tích kết quả…';
+          fetch('/.netlify/functions/parse-ket-qua',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({image:b64,mime:'image/jpeg',players:REG.map(function(r){return r[0]})})})
+            .then(function(r){return r.text()})
+            .then(function(t){
+              var d;try{d=JSON.parse(t)}catch(e){d={error:'busy'}}
+              var busy=d.error&&/high demand|overload|unavailable|busy|try again|503|504|timeout|internal/i.test(d.error);
+              if(busy&&attempt<3){setTimeout(callAI,3500);return;}
+              if(d.error){photoMsg.style.color='var(--red)';photoMsg.textContent=busy?'AI đang quá tải. Bấm 📷 thử lại sau giây lát, hoặc nhập tay.':('Lỗi: '+d.error);return;}
+              var games=d.games||[];
+              if(!games.length){photoMsg.style.color='var(--red)';photoMsg.textContent='Chưa đọc được ván nào. Thử ảnh rõ hơn, hoặc nhập tay.';return;}
+              var html='';games.forEach(function(g){
+                var res=g.kq==='a'?'a':g.kq==='b'?'b':g.kq==='hoa'?'draw':'none';
+                html+=rowHTML(g.a||'',g.b||'',res);
+              });
+              rowsBox.innerHTML=html;bindRows();
+              photoMsg.style.color='var(--jade)';photoMsg.textContent='✓ Đã đọc '+games.length+' ván. Kiểm tra lại rồi bấm "Lưu kết quả vòng này".';
+            })
+            .catch(function(){
+              if(attempt<3){setTimeout(callAI,3500);return;}
+              photoMsg.style.color='var(--red)';photoMsg.textContent='Không gọi được máy chủ AI. Thử lại hoặc nhập tay.';
             });
-            rowsBox.innerHTML=html;bindRows();
-            photoMsg.style.color='var(--jade)';photoMsg.textContent='✓ Đã đọc '+games.length+' ván. Kiểm tra lại rồi bấm "Lưu kết quả vòng này".';
-          })
-          .catch(function(){photoMsg.style.color='var(--red)';photoMsg.textContent='Không gọi được máy chủ AI (chỉ chạy trên bản Netlify đã cấu hình khóa Gemini).';});
+        }
+        callAI();
       };
       img.src=fr.result;
     };
