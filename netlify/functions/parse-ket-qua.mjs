@@ -1,5 +1,5 @@
 // Netlify Function: đọc ảnh kết quả cờ tướng bằng Google Gemini, trả về JSON các ván đấu.
-// Cần biến môi trường GEMINI_API_KEY trên Netlify. (Tùy chọn GEMINI_MODEL, mặc định gemini-2.0-flash)
+// Cần biến môi trường GEMINI_API_KEY trên Netlify. (Tùy chọn GEMINI_MODEL, mặc định gemini-3.8-flash)
 export default async (req) => {
   if (req.method !== 'POST') return j({ error: 'Chỉ nhận POST' }, 405);
   const key = process.env.GEMINI_API_KEY;
@@ -20,7 +20,7 @@ Chỉ trả về DUY NHẤT một JSON hợp lệ, KHÔNG kèm giải thích, th
 {"games":[{"a":"Tên kỳ thủ bên trái","b":"Tên kỳ thủ bên phải","kq":"a"}]}
 Trong đó kq là: "a" nếu bên A thắng, "b" nếu bên B thắng, "hoa" nếu hòa, "none" nếu chưa có kết quả.`;
 
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
   const payload = {
     contents: [{ parts: [ { text: prompt }, { inline_data: { mime_type: mime, data: image } } ] }],
