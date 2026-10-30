@@ -1,0 +1,37 @@
+{
+  "name": "Giải Cờ Tướng – Cúp Đại Phú Gia 2026",
+  "short_name": "Cúp ĐPG 2026",
+  "description": "App đồng hành Giải Vô địch Cờ tướng, Cờ tướng úp Doanh nhân toàn quốc – Cúp Đại Phú Gia 2026",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F3EEE2",
+  "theme_color": "#C1272D",
+  "categories": [
+    "sports",
+    "events"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
