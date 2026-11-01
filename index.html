@@ -1181,13 +1181,13 @@ var KQ={
         return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation'});
       });});
   }
-  function dl(blob,fn){var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},3000);}
+  function dlFile(blob,fn){var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},3000);}
   function safeName(s){return String(s||'').replace(/[\\/:*?"<>|\n\r]/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Khach moi';}
   function genMsg(t,c){var g=document.getElementById('inv-gen');g.style.color=c||'var(--muted)';g.textContent=t;}
   function oneInvite(it){
     if(!it||!it.n){genMsg('Thiếu họ tên.','var(--red)');return;}
     genMsg('Đang tạo thư mời cho '+it.n+'…');
-    genBlob(it.n,it.cty).then(function(b){dl(b,'Thu moi - '+safeName(it.n)+'.pptx');genMsg('✓ Đã tải thư mời: '+it.n,'var(--jade)');})
+    genBlob(it.n,it.cty).then(function(b){dlFile(b,'Thu moi - '+safeName(it.n)+'.pptx');genMsg('✓ Đã tải thư mời: '+it.n,'var(--jade)');})
       .catch(function(e){genMsg('Lỗi: '+e.message,'var(--red)');});
   }
   document.getElementById('inv-all').onclick=function(){
@@ -1197,7 +1197,7 @@ var KQ={
       var out=new window.JSZip(),chain=Promise.resolve();
       list.forEach(function(it){ if(!it.n)return; chain=chain.then(function(){return genBlob(it.n,it.cty);}).then(function(b){out.file('Thu moi - '+safeName(it.n)+'.pptx',b);}); });
       return chain.then(function(){return out.generateAsync({type:'blob'});});
-    }).then(function(zb){dl(zb,'Thu moi - tat ca ('+list.length+').zip');genMsg('✓ Đã tải '+list.length+' thư mời (ZIP).','var(--jade)');})
+    }).then(function(zb){dlFile(zb,'Thu moi - tat ca ('+list.length+').zip');genMsg('✓ Đã tải '+list.length+' thư mời (ZIP).','var(--jade)');})
       .catch(function(e){genMsg('Lỗi tạo ZIP: '+e.message,'var(--red)');});
   };
   document.getElementById('inv-xlsx').onclick=function(){document.getElementById('inv-file').click()};
@@ -1222,7 +1222,7 @@ var KQ={
       ws['!cols']=[{wch:28},{wch:40}];
       var wb=window.XLSX.utils.book_new();window.XLSX.utils.book_append_sheet(wb,ws,'ThuMoi');
       var o=window.XLSX.write(wb,{type:'array',bookType:'xlsx'});
-      dl(new Blob([o],{type:'application/octet-stream'}),'Mau danh sach thu moi.xlsx');genMsg('✓ Đã tải file Excel mẫu.','var(--jade)');
+      dlFile(new Blob([o],{type:'application/octet-stream'}),'Mau danh sach thu moi.xlsx');genMsg('✓ Đã tải file Excel mẫu.','var(--jade)');
     }).catch(function(err){genMsg('Lỗi: '+err.message,'var(--red)');});
   };
 
