@@ -283,6 +283,8 @@ a.poi.food .go{color:var(--jade)}
 .invwho{flex:1;min-width:0;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .invst{flex:none;width:120px;padding:7px 8px!important}
 .invdel{flex:none;width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer;font-size:14px}
+.invdoc{flex:none;width:32px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--jade-soft);color:var(--jade);cursor:pointer;font-size:14px}
+.invwho .invcty{display:block;font-weight:400;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .invadd{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .demobadge{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.4px;
   text-transform:uppercase;color:var(--gold);background:rgba(169,120,31,.12);padding:4px 11px;border-radius:999px;margin-bottom:12px}
@@ -737,8 +739,12 @@ a.poi.food .go{color:var(--jade)}
       <div class="lbl">Quản lý thư mời</div>
       <div class="invsum" id="inv-sum"></div>
       <div id="inv-list"></div>
+
       <div class="invadd">
-        <input class="inp" id="inv-name" placeholder="Tên người / đơn vị được mời">
+        <div class="admrow2">
+          <input class="inp" id="inv-name" placeholder="Họ tên người được mời">
+          <input class="inp" id="inv-cty" placeholder="Công ty / đơn vị">
+        </div>
         <div class="admrow2">
           <select class="inp" id="inv-status">
             <option value="chua">Chưa gửi thư</option>
@@ -750,7 +756,14 @@ a.poi.food .go{color:var(--jade)}
         </div>
       </div>
       <div class="okmsg" id="inv-ok"></div>
-      <p class="note" style="padding:4px 2px 0">Danh sách chỉ hiển thị trong Trang quản trị. Lưu xong tự đồng bộ cho Ban tổ chức (đừng ghi số điện thoại ở đây).</p>
+
+      <div class="admbar" style="margin-top:12px">
+        <button class="btn ghost" id="inv-xlsx" style="flex:1">▤ Nhập từ Excel</button>
+        <button class="btn" id="inv-all" style="flex:1">⬇ Tải tất cả (ZIP)</button>
+      </div>
+      <input type="file" id="inv-file" accept=".xlsx,.xls" style="display:none">
+      <div class="okmsg" id="inv-gen"></div>
+      <p class="note" style="padding:4px 2px 0">Mỗi dòng bấm <b>📄</b> để tải thư mời PowerPoint (tự điền tên + công ty theo mẫu). Excel gồm 2 cột <b>Họ tên | Công ty</b> — <a id="inv-sample" href="#" style="color:var(--red)">tải file mẫu</a>. Đừng ghi số điện thoại ở đây.</p>
     </div>
 
     <div class="sec">
@@ -1108,10 +1121,13 @@ var KQ={
     }else ok.textContent='✓ Đã lưu trên máy này.';
   };
 
-  // Quản lý thư mời
+  // Quản lý thư mời + xuất file PowerPoint
   var INVST={chua:['Chưa gửi','var(--muted)'],dagui:['Đã gửi thư','var(--gold)'],xacnhan:['Đã xác nhận','var(--jade)'],tuchoi:['Từ chối','var(--red)']};
+  var JSZIP_URL='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  var XLSX_URL='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  var TPL_URL='thu-moi-mau.pptx', _tplBuf=null;
   function iesc(s){return String(s).replace(/[&<>"]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]})}
-  function invGet(){var c=(window.DPG&&window.DPG.config)||cfgGet();return (c&&Array.isArray(c.invites))?c.invites.map(function(x){return{n:x.n,st:x.st}}):[]}
+  function invGet(){var c=(window.DPG&&window.DPG.config)||cfgGet();return (c&&Array.isArray(c.invites))?c.invites.map(function(x){return{n:x.n,cty:x.cty||'',st:x.st}}):[]}
   function invSave(list,msg){
     var cfg=cfgGet();cfg.invites=list;try{localStorage.setItem('dpg-cfg',JSON.stringify(cfg))}catch(e){}
     if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.invites=list;}
@@ -1130,21 +1146,85 @@ var KQ={
     if(!n){box.innerHTML='<div class="invrow" style="color:var(--muted);justify-content:center">Chưa có — thêm bên dưới.</div>';return;}
     var h='';list.forEach(function(it,i){
       var opts=Object.keys(INVST).map(function(k){return '<option value="'+k+'"'+(it.st===k?' selected':'')+'>'+INVST[k][0]+'</option>'}).join('');
-      h+='<div class="invrow"><span class="invno">'+(i+1)+'</span><span class="invwho">'+iesc(it.n||'')+'</span>'
+      h+='<div class="invrow"><span class="invno">'+(i+1)+'</span>'
+        +'<span class="invwho">'+iesc(it.n||'')+(it.cty?'<span class="invcty">'+iesc(it.cty)+'</span>':'')+'</span>'
         +'<select class="inp invst" data-i="'+i+'">'+opts+'</select>'
+        +'<button class="invdoc" data-i="'+i+'" title="Tải thư mời">📄</button>'
         +'<button class="invdel" data-i="'+i+'" title="Xóa">✕</button></div>';
     });
     box.innerHTML=h;
     box.querySelectorAll('.invst').forEach(function(s){s.onchange=function(){var l=invGet();l[+s.dataset.i].st=s.value;invSave(l,'✓ Đã cập nhật trạng thái.')}});
     box.querySelectorAll('.invdel').forEach(function(b){b.onclick=function(){var l=invGet();l.splice(+b.dataset.i,1);invSave(l,'Đã xóa khỏi danh sách.')}});
+    box.querySelectorAll('.invdoc').forEach(function(b){b.onclick=function(){var it=invGet()[+b.dataset.i];oneInvite(it)}});
   }
   document.getElementById('inv-add').onclick=function(){
-    var inp=document.getElementById('inv-name'),nm=inp.value.trim();if(!nm)return;
+    var inp=document.getElementById('inv-name'),ci=document.getElementById('inv-cty'),nm=inp.value.trim();if(!nm)return;
     var st=document.getElementById('inv-status').value;
-    var l=invGet();l.push({n:nm,st:st});invSave(l,'✓ Đã thêm "'+nm+'".');inp.value='';inp.focus();
+    var l=invGet();l.push({n:nm,cty:ci.value.trim(),st:st});invSave(l,'✓ Đã thêm "'+nm+'".');inp.value='';ci.value='';inp.focus();
   };
-  document.getElementById('inv-name').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('inv-add').click()});
+  document.getElementById('inv-cty').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('inv-add').click()});
   window.__invitesRender=invRender;
+
+  // ----- Tạo file thư mời PowerPoint -----
+  function loadScript(src){return new Promise(function(res,rej){
+    if(document.querySelector('script[data-lib="'+src+'"]')){res();return;}
+    var s=document.createElement('script');s.src=src;s.setAttribute('data-lib',src);
+    s.onload=function(){res()};s.onerror=function(){rej(new Error('Không tải được thư viện'))};document.head.appendChild(s);});}
+  function xesc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function fetchTpl(){ if(_tplBuf)return Promise.resolve(_tplBuf);
+    return fetch(TPL_URL).then(function(r){if(!r.ok)throw new Error('Không tìm thấy mẫu thư mời');return r.arrayBuffer();}).then(function(b){_tplBuf=b;return b;}); }
+  function genBlob(name,cty){
+    return loadScript(JSZIP_URL).then(fetchTpl).then(function(buf){return window.JSZip.loadAsync(buf);})
+      .then(function(zip){ return zip.file('ppt/slides/slide2.xml').async('string').then(function(xml){
+        xml=xml.replace(/\{\{HOTEN\}\}/g,xesc(name)).replace(/\{\{CONGTY\}\}/g,xesc(cty));
+        zip.file('ppt/slides/slide2.xml',xml);
+        return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation'});
+      });});
+  }
+  function dl(blob,fn){var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},3000);}
+  function safeName(s){return String(s||'').replace(/[\\/:*?"<>|\n\r]/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Khach moi';}
+  function genMsg(t,c){var g=document.getElementById('inv-gen');g.style.color=c||'var(--muted)';g.textContent=t;}
+  function oneInvite(it){
+    if(!it||!it.n){genMsg('Thiếu họ tên.','var(--red)');return;}
+    genMsg('Đang tạo thư mời cho '+it.n+'…');
+    genBlob(it.n,it.cty).then(function(b){dl(b,'Thu moi - '+safeName(it.n)+'.pptx');genMsg('✓ Đã tải thư mời: '+it.n,'var(--jade)');})
+      .catch(function(e){genMsg('Lỗi: '+e.message,'var(--red)');});
+  }
+  document.getElementById('inv-all').onclick=function(){
+    var list=invGet();if(!list.length){genMsg('Chưa có ai trong danh sách.','var(--red)');return;}
+    genMsg('Đang tạo '+list.length+' thư mời…');
+    loadScript(JSZIP_URL).then(function(){
+      var out=new window.JSZip(),chain=Promise.resolve();
+      list.forEach(function(it){ if(!it.n)return; chain=chain.then(function(){return genBlob(it.n,it.cty);}).then(function(b){out.file('Thu moi - '+safeName(it.n)+'.pptx',b);}); });
+      return chain.then(function(){return out.generateAsync({type:'blob'});});
+    }).then(function(zb){dl(zb,'Thu moi - tat ca ('+list.length+').zip');genMsg('✓ Đã tải '+list.length+' thư mời (ZIP).','var(--jade)');})
+      .catch(function(e){genMsg('Lỗi tạo ZIP: '+e.message,'var(--red)');});
+  };
+  document.getElementById('inv-xlsx').onclick=function(){document.getElementById('inv-file').click()};
+  document.getElementById('inv-file').onchange=function(e){
+    var f=e.target.files&&e.target.files[0];if(!f)return;
+    genMsg('Đang đọc Excel…');
+    loadScript(XLSX_URL).then(function(){return f.arrayBuffer();}).then(function(buf){
+      var wb=window.XLSX.read(buf,{type:'array'});var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=window.XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});
+      var start=0;if(rows[0]&&/t[êe]n|h[oọ]\s*t[êe]n|name/i.test((rows[0][0]||'')+''))start=1;
+      var l=invGet(),added=0;
+      for(var r=start;r<rows.length;r++){var nm=((rows[r]||[])[0]||'').toString().trim();var ct=((rows[r]||[])[1]||'').toString().trim();if(!nm)continue;l.push({n:nm,cty:ct,st:'chua'});added++;}
+      if(!added){genMsg('Không đọc được dòng nào. Cột 1 = Họ tên, cột 2 = Công ty.','var(--red)');return;}
+      invSave(l,'');genMsg('✓ Đã nhập '+added+' người từ Excel.','var(--jade)');
+    }).catch(function(err){genMsg('Lỗi đọc Excel: '+err.message,'var(--red)');});
+    e.target.value='';
+  };
+  document.getElementById('inv-sample').onclick=function(e){
+    e.preventDefault();genMsg('Đang tạo file mẫu…');
+    loadScript(XLSX_URL).then(function(){
+      var ws=window.XLSX.utils.aoa_to_sheet([['Họ tên','Công ty'],['Nguyễn Văn A','Công ty TNHH ABC'],['Trần Thị B','Công ty CP XYZ']]);
+      ws['!cols']=[{wch:28},{wch:40}];
+      var wb=window.XLSX.utils.book_new();window.XLSX.utils.book_append_sheet(wb,ws,'ThuMoi');
+      var o=window.XLSX.write(wb,{type:'array',bookType:'xlsx'});
+      dl(new Blob([o],{type:'application/octet-stream'}),'Mau danh sach thu moi.xlsx');genMsg('✓ Đã tải file Excel mẫu.','var(--jade)');
+    }).catch(function(err){genMsg('Lỗi: '+err.message,'var(--red)');});
+  };
 
   function initPanel(){
     var nArr=[];for(var i=3;i<=11;i++)nArr.push([i,i+' vòng']);
