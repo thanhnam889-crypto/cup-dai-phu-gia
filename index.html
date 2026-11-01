@@ -276,6 +276,14 @@ a.poi.food .go{color:var(--jade)}
 :root[data-theme="dark"] .syncnote,:root:not([data-theme="light"]) .syncnote{background:rgba(215,177,92,.1)}
 .admrow2{display:flex;gap:8px}.admrow2>.field{flex:1}
 .okmsg{font-size:12.5px;color:var(--jade);font-weight:600;margin-top:8px;min-height:16px}
+.invsum{font-size:12.5px;color:var(--fg);margin:0 0 10px;padding:9px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
+.invsum b{color:var(--red);font-size:15px}
+.invrow{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:7px}
+.invno{flex:none;width:20px;text-align:center;font-weight:700;font-size:12px;color:var(--muted)}
+.invwho{flex:1;min-width:0;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.invst{flex:none;width:120px;padding:7px 8px!important}
+.invdel{flex:none;width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer;font-size:14px}
+.invadd{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .demobadge{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.4px;
   text-transform:uppercase;color:var(--gold);background:rgba(169,120,31,.12);padding:4px 11px;border-radius:999px;margin-bottom:12px}
 :root[data-theme="dark"] .demobadge,:root:not([data-theme="light"]) .demobadge{background:rgba(215,177,92,.14)}
@@ -726,6 +734,26 @@ a.poi.food .go{color:var(--jade)}
     </div>
 
     <div class="sec">
+      <div class="lbl">Quản lý thư mời</div>
+      <div class="invsum" id="inv-sum"></div>
+      <div id="inv-list"></div>
+      <div class="invadd">
+        <input class="inp" id="inv-name" placeholder="Tên người / đơn vị được mời">
+        <div class="admrow2">
+          <select class="inp" id="inv-status">
+            <option value="chua">Chưa gửi thư</option>
+            <option value="dagui">Đã gửi thư</option>
+            <option value="xacnhan">Đã xác nhận</option>
+            <option value="tuchoi">Từ chối</option>
+          </select>
+          <button class="btn" id="inv-add" style="flex:none;width:auto">＋ Thêm</button>
+        </div>
+      </div>
+      <div class="okmsg" id="inv-ok"></div>
+      <p class="note" style="padding:4px 2px 0">Danh sách chỉ hiển thị trong Trang quản trị. Lưu xong tự đồng bộ cho Ban tổ chức (đừng ghi số điện thoại ở đây).</p>
+    </div>
+
+    <div class="sec">
       <div class="lbl">Khác</div>
       <div class="admbar">
         <button class="btn ghost" id="adm-logout" style="flex:1">Đăng xuất</button>
@@ -1080,10 +1108,48 @@ var KQ={
     }else ok.textContent='✓ Đã lưu trên máy này.';
   };
 
+  // Quản lý thư mời
+  var INVST={chua:['Chưa gửi','var(--muted)'],dagui:['Đã gửi thư','var(--gold)'],xacnhan:['Đã xác nhận','var(--jade)'],tuchoi:['Từ chối','var(--red)']};
+  function iesc(s){return String(s).replace(/[&<>"]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]})}
+  function invGet(){var c=(window.DPG&&window.DPG.config)||cfgGet();return (c&&Array.isArray(c.invites))?c.invites.map(function(x){return{n:x.n,st:x.st}}):[]}
+  function invSave(list,msg){
+    var cfg=cfgGet();cfg.invites=list;try{localStorage.setItem('dpg-cfg',JSON.stringify(cfg))}catch(e){}
+    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.invites=list;}
+    invRender();
+    var ok=document.getElementById('inv-ok');ok.style.color='var(--jade)';
+    if(window.DPG&&window.DPG.pushConfig){ok.textContent='Đang đồng bộ…';
+      window.DPG.pushConfig({invites:list}).then(function(){ok.textContent=msg||'✓ Đã lưu & đồng bộ.'})
+        .catch(function(){ok.style.color='var(--red)';ok.textContent='⚠ Đã lưu máy này, chưa đồng bộ được.'});
+    }else ok.textContent=msg||'✓ Đã lưu trên máy này.';
+  }
+  function invRender(){
+    var box=document.getElementById('inv-list'),sum=document.getElementById('inv-sum');if(!box)return;
+    var list=invGet(),n=list.length;
+    var dg=list.filter(function(x){return x.st==='dagui'}).length,xn=list.filter(function(x){return x.st==='xacnhan'}).length;
+    sum.innerHTML='<b>'+n+'</b> lời mời &nbsp;·&nbsp; <span style="color:var(--gold)">'+dg+' đã gửi</span> &nbsp;·&nbsp; <span style="color:var(--jade)">'+xn+' xác nhận</span>';
+    if(!n){box.innerHTML='<div class="invrow" style="color:var(--muted);justify-content:center">Chưa có — thêm bên dưới.</div>';return;}
+    var h='';list.forEach(function(it,i){
+      var opts=Object.keys(INVST).map(function(k){return '<option value="'+k+'"'+(it.st===k?' selected':'')+'>'+INVST[k][0]+'</option>'}).join('');
+      h+='<div class="invrow"><span class="invno">'+(i+1)+'</span><span class="invwho">'+iesc(it.n||'')+'</span>'
+        +'<select class="inp invst" data-i="'+i+'">'+opts+'</select>'
+        +'<button class="invdel" data-i="'+i+'" title="Xóa">✕</button></div>';
+    });
+    box.innerHTML=h;
+    box.querySelectorAll('.invst').forEach(function(s){s.onchange=function(){var l=invGet();l[+s.dataset.i].st=s.value;invSave(l,'✓ Đã cập nhật trạng thái.')}});
+    box.querySelectorAll('.invdel').forEach(function(b){b.onclick=function(){var l=invGet();l.splice(+b.dataset.i,1);invSave(l,'Đã xóa khỏi danh sách.')}});
+  }
+  document.getElementById('inv-add').onclick=function(){
+    var inp=document.getElementById('inv-name'),nm=inp.value.trim();if(!nm)return;
+    var st=document.getElementById('inv-status').value;
+    var l=invGet();l.push({n:nm,st:st});invSave(l,'✓ Đã thêm "'+nm+'".');inp.value='';inp.focus();
+  };
+  document.getElementById('inv-name').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('inv-add').click()});
+  window.__invitesRender=invRender;
+
   function initPanel(){
     var nArr=[];for(var i=3;i<=11;i++)nArr.push([i,i+' vòng']);
     fillSelect(nSel,nArr,numRounds(cSel.value));
-    refreshRoundSel();loadRows();prefillLinks();
+    refreshRoundSel();loadRows();prefillLinks();invRender();
   }
   function unlock(){gate.hidden=true;panel.hidden=false;initPanel();try{sessionStorage.setItem('dpg-adm','1')}catch(e){}}
   document.getElementById('adm-login').onclick=function(){
@@ -1209,6 +1275,7 @@ var KQ={
       window.DPG.config=(snap&&snap.exists)?snap.data():{};
       try{localStorage.setItem('dpg-cfg',JSON.stringify(window.DPG.config));}catch(e){}
       if(window.__commRefresh)window.__commRefresh();
+      if(window.__invitesRender)window.__invitesRender();
     },function(){});
   }catch(e){}
 })();
