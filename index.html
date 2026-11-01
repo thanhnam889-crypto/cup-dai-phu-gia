@@ -1011,7 +1011,7 @@ var KQ={
           attempt++;
           photoMsg.style.color='var(--muted)';
           photoMsg.textContent=attempt>1?('AI đang bận, thử lại ('+attempt+'/3)…'):'AI đang phân tích kết quả…';
-          fetch('/.netlify/functions/parse-ket-qua',{method:'POST',headers:{'Content-Type':'application/json'},
+          fetch('/api/parse-ket-qua',{method:'POST',headers:{'Content-Type':'application/json'},
             body:JSON.stringify({image:b64,mime:'image/jpeg',players:REG.map(function(r){return r[0]})})})
             .then(function(r){return r.text()})
             .then(function(t){
