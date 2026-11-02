@@ -732,12 +732,6 @@ a.poi.food .go{color:var(--jade)}
     <div class="field"><label>Nhập cho vòng</label>
       <select class="inp" id="adm-round"></select></div>
 
-    <div class="field"><label>Nhập nhanh bằng ảnh (AI đọc kết quả)</label>
-      <input type="file" id="adm-photo" accept="image/*" capture="environment" style="display:none">
-      <button class="btn ghost" id="adm-photobtn" style="padding:12px">📷 Chụp / chọn ảnh kết quả</button>
-      <div class="okmsg" id="adm-photomsg" style="color:var(--muted)"></div>
-    </div>
-
     <div class="field"><label>Cặp đấu &amp; kết quả</label>
       <div id="adm-rows"></div>
       <button class="btn ghost" id="adm-add" style="margin-top:4px;padding:11px">＋ Thêm cặp đấu</button>
@@ -1031,54 +1025,6 @@ var KQ={
   }
   document.getElementById('adm-add').onclick=function(){rowsBox.insertAdjacentHTML('beforeend',rowHTML('','','none'));bindRows()};
 
-  // Nhập bằng ảnh (AI đọc)
-  var photoBtn=document.getElementById('adm-photobtn'),photoIn=document.getElementById('adm-photo'),photoMsg=document.getElementById('adm-photomsg');
-  photoBtn.onclick=function(){photoIn.click()};
-  photoIn.onchange=function(e){
-    var file=e.target.files&&e.target.files[0];if(!file)return;
-    photoMsg.style.color='var(--muted)';photoMsg.textContent='Đang xử lý ảnh…';
-    var fr=new FileReader();
-    fr.onload=function(){
-      var img=new Image();
-      img.onload=function(){
-        var max=1280,w=img.width,h=img.height;
-        if(w>max||h>max){var s=Math.min(max/w,max/h);w=Math.round(w*s);h=Math.round(h*s);}
-        var cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);
-        var b64='';try{b64=cv.toDataURL('image/jpeg',0.85).split(',')[1];}catch(err){photoMsg.style.color='var(--red)';photoMsg.textContent='Không đọc được ảnh.';return;}
-        var attempt=0;
-        function callAI(){
-          attempt++;
-          photoMsg.style.color='var(--muted)';
-          photoMsg.textContent=attempt>1?('AI đang bận, thử lại ('+attempt+'/3)…'):'AI đang phân tích kết quả…';
-          fetch('/api/parse-ket-qua',{method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({image:b64,mime:'image/jpeg',players:REG.map(function(r){return r[0]})})})
-            .then(function(r){return r.text()})
-            .then(function(t){
-              var d;try{d=JSON.parse(t)}catch(e){d={error:'busy'}}
-              var busy=d.error&&/high demand|overload|unavailable|busy|try again|503|504|timeout|internal/i.test(d.error);
-              if(busy&&attempt<3){setTimeout(callAI,3500);return;}
-              if(d.error){photoMsg.style.color='var(--red)';photoMsg.textContent=busy?'AI đang quá tải. Bấm 📷 thử lại sau giây lát, hoặc nhập tay.':('Lỗi: '+d.error);return;}
-              var games=d.games||[];
-              if(!games.length){photoMsg.style.color='var(--red)';photoMsg.textContent='Chưa đọc được ván nào. Thử ảnh rõ hơn, hoặc nhập tay.';return;}
-              var html='';games.forEach(function(g){
-                var res=g.kq==='a'?'a':g.kq==='b'?'b':g.kq==='hoa'?'draw':'none';
-                html+=rowHTML(g.a||'',g.b||'',res);
-              });
-              rowsBox.innerHTML=html;bindRows();
-              photoMsg.style.color='var(--jade)';photoMsg.textContent='✓ Đã đọc '+games.length+' ván. Kiểm tra lại rồi bấm "Lưu kết quả vòng này".';
-            })
-            .catch(function(){
-              if(attempt<3){setTimeout(callAI,3500);return;}
-              photoMsg.style.color='var(--red)';photoMsg.textContent='Không gọi được máy chủ AI. Thử lại hoặc nhập tay.';
-            });
-        }
-        callAI();
-      };
-      img.src=fr.result;
-    };
-    fr.readAsDataURL(file);
-    photoIn.value='';
-  };
 
   function scoreStr(res){return res==='a'?'1 - 0':res==='b'?'0 - 1':res==='draw'?'½ - ½':''}
   function pts(sc,side){ // side 0=left,1=right
