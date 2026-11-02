@@ -420,6 +420,20 @@ a.poi.food .go{color:var(--jade)}
     </div>
   </div>
 
+  <div class="sec">
+    <div class="lbl">Chia sẻ app cho bạn bè</div>
+    <div class="card" style="text-align:center">
+      <p style="margin:0">Quét mã hoặc gửi link để mời thêm người cùng theo dõi giải.</p>
+      <div class="qrbox"><div id="app-qr"></div></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px;word-break:break-all" id="app-url-txt"></div>
+      <div class="admrow2" style="margin-top:12px">
+        <button class="btn" id="share-btn" style="flex:1;margin-top:0">📤 Chia sẻ app</button>
+        <button class="btn ghost" id="qr-save" style="flex:none;width:auto;margin-top:0">⬇ Lưu QR</button>
+      </div>
+      <div class="okmsg" id="share-msg"></div>
+    </div>
+  </div>
+
   <div class="install">
     <div class="itt">★ Tạo lối tắt ra màn hình chính</div>
     <div class="inote"><b>Không bắt buộc</b> — quét QR hoặc mở link là vào app ngay. Nếu tạo lối tắt ra màn hình, biểu tượng sẽ mang tên &amp; icon <b>Claude</b> (vì app chạy trên nền Claude); anh có thể sửa lại tên khi tạo. Đang mở trong <b>Zalo / Facebook</b> thì bấm <b>⋮</b> → <b>Mở bằng trình duyệt</b> trước.</div>
@@ -1350,6 +1364,29 @@ var KQ={
   var FORM='https://docs.google.com/forms/d/e/1FAIpQLSeBM7vulEUK3vH-kyx1EEi8wNZZEQ042NXoK2LDJPkywub1lA/viewform';
   var el=document.getElementById('qr');if(!el||typeof QRCode==='undefined')return;
   try{new QRCode(el,{text:FORM,width:176,height:176,colorDark:'#1C1813',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});}catch(e){}
+})();
+
+/* ---- QR app + chia sẻ cho bạn bè ---- */
+(function(){
+  var APP_URL=location.origin+'/';
+  var box=document.getElementById('app-qr');
+  var txt=document.getElementById('app-url-txt');if(txt)txt.textContent=APP_URL;
+  if(box&&typeof QRCode!=='undefined'){try{new QRCode(box,{text:APP_URL,width:200,height:200,colorDark:'#C1272D',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}catch(e){}}
+  function smsg(t,c){var m=document.getElementById('share-msg');if(m){m.style.color=c||'var(--jade)';m.textContent=t;setTimeout(function(){m.textContent='';},2600);}}
+  var sb=document.getElementById('share-btn');
+  if(sb)sb.onclick=function(){
+    var data={title:'Cúp Đại Phú Gia 2026',text:'App đồng hành Giải Vô địch Cờ tướng, Cờ tướng úp Doanh nhân toàn quốc – Cúp Đại Phú Gia 2026',url:APP_URL};
+    if(navigator.share){navigator.share(data).catch(function(){});}
+    else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(APP_URL).then(function(){smsg('✓ Đã sao chép link app — dán gửi cho bạn.');}).catch(function(){window.prompt('Sao chép link app:',APP_URL);});}
+    else window.prompt('Sao chép link app:',APP_URL);
+  };
+  var qs=document.getElementById('qr-save');
+  if(qs)qs.onclick=function(){
+    if(!box)return;var cvs=box.querySelector('canvas'),img=box.querySelector('img');
+    var u=cvs?cvs.toDataURL('image/png'):(img?img.src:null);if(!u){smsg('Chưa tạo được QR.','var(--red)');return;}
+    var a=document.createElement('a');a.href=u;a.download='QR-Cup-Dai-Phu-Gia-2026.png';document.body.appendChild(a);a.click();a.remove();
+    smsg('✓ Đã lưu ảnh QR.');
+  };
 })();
 
 /* ---- Liên kết cộng đồng (Zoom/Zalo) ---- */
