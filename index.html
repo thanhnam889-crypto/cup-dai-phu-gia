@@ -763,7 +763,7 @@ a.poi.food .go{color:var(--jade)}
       </div>
       <input type="file" id="inv-file" accept=".xlsx,.xls" style="display:none">
       <div class="okmsg" id="inv-gen"></div>
-      <p class="note" style="padding:4px 2px 0">Mỗi dòng bấm <b>📄</b> để tải thư mời PowerPoint (tự điền tên + công ty theo mẫu). Excel gồm 2 cột <b>Họ tên | Công ty</b> — <a id="inv-sample" href="#" style="color:var(--red)">tải file mẫu</a>. Đừng ghi số điện thoại ở đây.</p>
+      <p class="note" style="padding:4px 2px 0">Mỗi dòng bấm <b>📄</b> để tải thư mời <b>ảnh JPG</b> (tự điền tên + công ty theo mẫu). Excel gồm 2 cột <b>Họ tên | Công ty</b> — <a id="inv-sample" href="#" style="color:var(--red)">tải file mẫu</a>. Đừng ghi số điện thoại ở đây.</p>
     </div>
 
     <div class="sec">
@@ -1173,13 +1173,36 @@ var KQ={
   function xesc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function fetchTpl(){ if(_tplBuf)return Promise.resolve(_tplBuf);
     return fetch(TPL_URL).then(function(r){if(!r.ok)throw new Error('Không tìm thấy mẫu thư mời');return r.arrayBuffer();}).then(function(b){_tplBuf=b;return b;}); }
+  // ----- Xuất thư mời ảnh JPG (vẽ tên/công ty lên nền render sẵn) -----
+  var BIA_URL='thu-moi-bia.jpg', NEN_URL='thu-moi-nen.jpg';
+  var _imgCache={};
+  function loadImg(url){ if(_imgCache[url])return _imgCache[url];
+    _imgCache[url]=new Promise(function(res,rej){var im=new Image();im.onload=function(){res(im)};im.onerror=function(){rej(new Error('Không tải được ảnh nền ('+url+')'))};im.src=url;});
+    return _imgCache[url]; }
+  var _fontReady=null;
+  function ensureFont(){ if(_fontReady)return _fontReady;
+    if(!document.getElementById('bvp-font')){var l=document.createElement('link');l.id='bvp-font';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;700&display=swap';document.head.appendChild(l);}
+    _fontReady=(document.fonts&&document.fonts.load)
+      ? Promise.all([document.fonts.load('700 40px "Be Vietnam Pro"'),document.fonts.load('400 40px "Be Vietnam Pro"')]).then(function(){return document.fonts.ready;}).catch(function(){})
+      : Promise.resolve();
+    return _fontReady; }
+  function drawInvText(ctx,W,H,name,cty){
+    ctx.fillStyle='#781A18';ctx.textAlign='center';ctx.textBaseline='middle';
+    function fit(txt,boxW,basePx,weight){var size=basePx,f;do{f=weight+' '+size+'px "Be Vietnam Pro","Segoe UI",sans-serif';ctx.font=f;if(ctx.measureText(txt).width<=W*boxW*0.96)break;size-=1;}while(size>10);return f;}
+    if(name){ctx.font=fit(name,0.263,Math.round(0.0182*H),'700');ctx.fillText(name,0.7489*W,0.2148*H);}
+    if(cty){ctx.font=fit(cty,0.431,Math.round(0.0188*H),'400');ctx.fillText(cty,0.7355*W,0.2556*H);}
+  }
   function genBlob(name,cty){
-    return loadScript(JSZIP_URL).then(fetchTpl).then(function(buf){return window.JSZip.loadAsync(buf);})
-      .then(function(zip){ return zip.file('ppt/slides/slide2.xml').async('string').then(function(xml){
-        xml=xml.replace(/\{\{HOTEN\}\}/g,xesc(name)).replace(/\{\{CONGTY\}\}/g,xesc(cty));
-        zip.file('ppt/slides/slide2.xml',xml);
-        return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation'});
-      });});
+    return Promise.all([loadImg(BIA_URL),loadImg(NEN_URL),ensureFont()]).then(function(r){
+      var bia=r[0],nen=r[1];
+      var cc=document.createElement('canvas');cc.width=nen.naturalWidth;cc.height=nen.naturalHeight;
+      var cx=cc.getContext('2d');cx.drawImage(nen,0,0);drawInvText(cx,cc.width,cc.height,name,cty);
+      var H=Math.max(bia.naturalHeight,cc.height),biaW=Math.round(bia.naturalWidth*H/bia.naturalHeight),gap=Math.round(H*0.012);
+      var out=document.createElement('canvas');out.width=biaW+gap+cc.width;out.height=H;
+      var o=out.getContext('2d');o.fillStyle='#fff';o.fillRect(0,0,out.width,out.height);
+      o.drawImage(bia,0,0,biaW,H);o.drawImage(cc,biaW+gap,0);
+      return new Promise(function(res,rej){out.toBlob(function(b){b?res(b):rej(new Error('Không tạo được ảnh'))},'image/jpeg',0.92);});
+    });
   }
   function dlFile(blob,fn){var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},3000);}
   function safeName(s){return String(s||'').replace(/[\\/:*?"<>|\n\r]/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Khach moi';}
@@ -1187,7 +1210,7 @@ var KQ={
   function oneInvite(it){
     if(!it||!it.n){genMsg('Thiếu họ tên.','var(--red)');return;}
     genMsg('Đang tạo thư mời cho '+it.n+'…');
-    genBlob(it.n,it.cty).then(function(b){dlFile(b,'Thu moi - '+safeName(it.n)+'.pptx');genMsg('✓ Đã tải thư mời: '+it.n,'var(--jade)');})
+    genBlob(it.n,it.cty).then(function(b){dlFile(b,'Thu moi - '+safeName(it.n)+'.jpg');genMsg('✓ Đã tải thư mời: '+it.n,'var(--jade)');})
       .catch(function(e){genMsg('Lỗi: '+e.message,'var(--red)');});
   }
   document.getElementById('inv-all').onclick=function(){
@@ -1195,7 +1218,7 @@ var KQ={
     genMsg('Đang tạo '+list.length+' thư mời…');
     loadScript(JSZIP_URL).then(function(){
       var out=new window.JSZip(),chain=Promise.resolve();
-      list.forEach(function(it){ if(!it.n)return; chain=chain.then(function(){return genBlob(it.n,it.cty);}).then(function(b){out.file('Thu moi - '+safeName(it.n)+'.pptx',b);}); });
+      list.forEach(function(it){ if(!it.n)return; chain=chain.then(function(){return genBlob(it.n,it.cty);}).then(function(b){out.file('Thu moi - '+safeName(it.n)+'.jpg',b);}); });
       return chain.then(function(){return out.generateAsync({type:'blob'});});
     }).then(function(zb){dlFile(zb,'Thu moi - tat ca ('+list.length+').zip');genMsg('✓ Đã tải '+list.length+' thư mời (ZIP).','var(--jade)');})
       .catch(function(e){genMsg('Lỗi tạo ZIP: '+e.message,'var(--red)');});
