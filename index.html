@@ -305,6 +305,20 @@ a.poi.food .go{color:var(--jade)}
   background:rgba(169,120,31,.12);padding:2px 8px;border-radius:999px}
 :root[data-theme="dark"] .ph .soon,
 :root:not([data-theme="light"]) .ph .soon{background:rgba(215,177,92,.14)}
+.gthumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.gt{position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:var(--surface-2);cursor:pointer;border:1px solid var(--line)}
+.gt img{width:100%;height:100%;object-fit:cover;display:block}
+.gt .vb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;background:rgba(0,0,0,.42)}
+.gt .gc{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;color:#fff;background:rgba(0,0,0,.5);padding:3px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.galempty{color:var(--muted);font-size:13px;padding:10px 2px}
+.glb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px}
+.glb img{max-width:95vw;max-height:88vh;border-radius:10px}
+.gadm{display:flex;gap:9px;align-items:center;padding:7px;border:1px solid var(--line);border-radius:11px;margin-bottom:7px}
+.gadm .gth{width:46px;height:46px;flex:none;border-radius:8px;overflow:hidden;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:20px}
+.gadm .gth img{width:100%;height:100%;object-fit:cover}
+.gadm .gmeta{flex:1;min-width:0;font-size:12.5px}
+.gadm .gmeta .gg{color:var(--muted);font-size:11px}
+.gadm .gdel{flex:none;background:none;border:none;color:var(--red);font-size:17px;cursor:pointer;padding:4px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;
   padding:13px;border-radius:12px;border:0;background:var(--red);color:#fff;font-weight:700;font-size:14px;
   text-decoration:none;cursor:pointer}
@@ -570,20 +584,14 @@ a.poi.food .go{color:var(--jade)}
 
   <div class="sec" style="margin-top:18px">
     <div class="lbl">Trước giải đấu</div>
-    <div class="gal">
-      <div class="ph"><div class="pi">◱</div><div class="pl">Bộ nhận diện giải</div><span class="soon">Đã có</span></div>
-      <div class="ph"><div class="pi">◱</div><div class="pl">Truyền thông trước giải</div><span class="soon">Đang cập nhật</span></div>
-    </div>
+    <div class="gthumbs" id="gal-truoc"></div>
+    <div class="galempty" id="gal-truoc-e">Đang cập nhật…</div>
   </div>
 
   <div class="sec">
     <div class="lbl">Trong giải đấu · 14 – 16/11</div>
-    <div class="gal">
-      <div class="ph"><div class="pi">▰</div><div class="pl">Khai mạc &amp; tập kết</div><span class="soon">Sắp có</span></div>
-      <div class="ph"><div class="pi">▰</div><div class="pl">Các ván đấu</div><span class="soon">Sắp có</span></div>
-      <div class="ph"><div class="pi">▰</div><div class="pl">Bế mạc &amp; trao giải</div><span class="soon">Sắp có</span></div>
-      <div class="ph"><div class="pi">▰</div><div class="pl">Gala vinh danh</div><span class="soon">Sắp có</span></div>
-    </div>
+    <div class="gthumbs" id="gal-trong"></div>
+    <div class="galempty" id="gal-trong-e">Đang cập nhật…</div>
   </div>
 
   <div class="sec">
@@ -733,6 +741,23 @@ a.poi.food .go{color:var(--jade)}
       <div class="field"><label>Link nhóm Zalo</label><input class="inp" id="adm-zalo" type="url" placeholder="Dán link nhóm Zalo (vd https://zalo.me/g/...)"></div>
       <button class="btn" id="adm-savelink">Lưu liên kết</button>
       <div class="okmsg" id="adm-oklink"></div>
+    </div>
+
+    <div class="sec">
+      <div class="lbl">Quản lý thư viện (ảnh & video)</div>
+      <p class="note" style="padding:0 2px 6px">Tải ảnh thẳng từ điện thoại, hoặc dán link video (YouTube / Facebook / Google Drive). Ảnh/video hiện ngay ở tab <b>Thư viện</b> cho mọi người.</p>
+      <div class="field"><label>Thuộc nhóm</label>
+        <select class="inp" id="gal-grp"><option value="truoc">Trước giải đấu</option><option value="trong">Trong giải đấu · 14–16/11</option></select>
+      </div>
+      <input class="inp" id="gal-cap" placeholder="Chú thích (không bắt buộc)" style="margin-bottom:8px">
+      <button class="btn" id="gal-upbtn">📷 Tải ảnh lên (chọn nhiều ảnh)</button>
+      <input type="file" id="gal-file" accept="image/*" multiple style="display:none">
+      <div class="admrow2" style="margin-top:8px">
+        <input class="inp" id="gal-vidurl" type="url" placeholder="Dán link video…">
+        <button class="btn ghost" id="gal-vidbtn" style="flex:none;width:auto">＋ Video</button>
+      </div>
+      <div class="okmsg" id="gal-msg"></div>
+      <div id="gal-admlist" style="margin-top:10px"></div>
     </div>
 
     <div class="sec">
@@ -1345,6 +1370,101 @@ var KQ={
   window.__commRefresh();
 })();
 
+/* ---- Thư viện: admin tải ảnh (Cloudinary) + link video, đồng bộ cho mọi người ---- */
+(function(){
+  var CLD_CLOUD='yjsnmpiw', CLD_PRESET='cup_gallery';
+  var GRPS={truoc:'Trước giải đấu', trong:'Trong giải đấu'};
+  function galArr(){
+    var a=(window.DPG&&window.DPG.config&&window.DPG.config.gallery);
+    if(!a){try{a=JSON.parse(localStorage.getItem('dpg-cfg')||'{}').gallery;}catch(e){a=null;}}
+    return Array.isArray(a)?a:[];
+  }
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function thumb(url,w){
+    if(/res\.cloudinary\.com/.test(url)&&url.indexOf('/image/upload/')>-1)
+      return url.replace('/image/upload/','/image/upload/w_'+w+',h_'+w+',c_fill,q_auto,f_auto/');
+    return url;
+  }
+  function openImg(url){var o=document.createElement('div');o.className='glb';o.innerHTML='<img src="'+esc(url)+'" alt="">';o.onclick=function(){o.remove();};document.body.appendChild(o);}
+  function card(it){
+    var el=document.createElement('div');el.className='gt';
+    if(it.t==='vid'){el.innerHTML='<div class="vb">▶</div>'+(it.cap?('<div class="gc">'+esc(it.cap)+'</div>'):'');el.onclick=function(){window.open(it.url,'_blank','noopener');};}
+    else{el.innerHTML='<img loading="lazy" src="'+esc(thumb(it.url,400))+'" alt="">'+(it.cap?('<div class="gc">'+esc(it.cap)+'</div>'):'');el.onclick=function(){openImg(it.url);};}
+    return el;
+  }
+  function renderGallery(){
+    var arr=galArr().slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+    ['truoc','trong'].forEach(function(g){
+      var box=document.getElementById('gal-'+g),em=document.getElementById('gal-'+g+'-e');if(!box)return;
+      box.innerHTML='';var items=arr.filter(function(x){return (x.grp||'truoc')===g;});
+      items.forEach(function(it){box.appendChild(card(it));});
+      if(em)em.style.display=items.length?'none':'';
+    });
+  }
+  window.__galRefresh=renderGallery;
+  function resizeBlob(file,max){return new Promise(function(res,rej){
+    var img=new Image();img.onload=function(){
+      var w=img.width,h=img.height;if(w>max||h>max){var s=Math.min(max/w,max/h);w=Math.round(w*s);h=Math.round(h*s);}
+      var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      c.toBlob(function(b){b?res(b):rej(new Error('ảnh lỗi'));},'image/jpeg',0.85);
+    };img.onerror=function(){rej(new Error('Không đọc được ảnh'));};img.src=URL.createObjectURL(file);
+  });}
+  function cloudUp(blob){var fd=new FormData();fd.append('file',blob);fd.append('upload_preset',CLD_PRESET);
+    return fetch('https://api.cloudinary.com/v1_1/'+CLD_CLOUD+'/image/upload',{method:'POST',body:fd})
+      .then(function(r){return r.json();}).then(function(d){if(d.secure_url)return d.secure_url;throw new Error((d.error&&d.error.message)||'Tải ảnh lỗi');});
+  }
+  function gmsg(t,c){var m=document.getElementById('gal-msg');if(m){m.style.color=c||'var(--muted)';m.textContent=t;}}
+  function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+  function saveArr(arr,done){
+    try{var c=JSON.parse(localStorage.getItem('dpg-cfg')||'{}');c.gallery=arr;localStorage.setItem('dpg-cfg',JSON.stringify(c));}catch(e){}
+    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.gallery=arr;}
+    renderGallery();renderAdm();
+    if(window.DPG&&window.DPG.pushConfig)window.DPG.pushConfig({gallery:arr}).then(function(){done&&done(true);}).catch(function(){done&&done(false);});
+    else done&&done(null);
+  }
+  function addItems(items){saveArr(galArr().concat(items),function(ok){gmsg(ok===false?'⚠ Đã lưu máy này, chưa đồng bộ (kiểm tra mạng).':'✓ Đã thêm '+items.length+' mục & đồng bộ.',ok===false?'var(--red)':'var(--jade)');});}
+  function delItem(id){saveArr(galArr().filter(function(x){return x.id!==id;}),function(ok){gmsg(ok===false?'⚠ Đã xóa máy này, chưa đồng bộ.':'✓ Đã xóa & đồng bộ.',ok===false?'var(--red)':'var(--jade)');});}
+  function renderAdm(){
+    var box=document.getElementById('gal-admlist');if(!box)return;
+    var arr=galArr().slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+    if(!arr.length){box.innerHTML='<p class="note" style="padding:2px">Chưa có ảnh/video nào.</p>';return;}
+    box.innerHTML='';
+    arr.forEach(function(it){
+      var row=document.createElement('div');row.className='gadm';
+      var th=it.t==='vid'?'<div class="gth">▶</div>':'<div class="gth"><img src="'+esc(thumb(it.url,120))+'"></div>';
+      row.innerHTML=th+'<div class="gmeta"><div>'+(it.t==='vid'?'Video':'Ảnh')+(it.cap?(' · '+esc(it.cap)):'')+'</div><div class="gg">'+(GRPS[it.grp||'truoc']||'')+'</div></div><button class="gdel" title="Xóa">✕</button>';
+      row.querySelector('.gdel').onclick=function(){if(confirm('Xóa mục này khỏi thư viện?'))delItem(it.id);};
+      box.appendChild(row);
+    });
+  }
+  window.__galAdmRender=renderAdm;
+  var upbtn=document.getElementById('gal-upbtn'),file=document.getElementById('gal-file');
+  if(upbtn&&file){
+    upbtn.onclick=function(){file.click();};
+    file.onchange=function(e){
+      var fs=Array.prototype.slice.call(e.target.files||[]);if(!fs.length)return;
+      var grp=(document.getElementById('gal-grp')||{}).value||'truoc';
+      var cap=((document.getElementById('gal-cap')||{}).value||'').trim();
+      var items=[],i=0;
+      (function next(){
+        if(i>=fs.length){if(items.length)addItems(items);else gmsg('Không tải được ảnh nào.','var(--red)');return;}
+        var f=fs[i++];gmsg('Đang tải ảnh '+i+'/'+fs.length+'…');
+        resizeBlob(f,1600).then(cloudUp).then(function(url){items.push({id:uid(),t:'img',url:url,cap:cap,grp:grp,ts:Date.now()+i});}).catch(function(err){gmsg('Lỗi ảnh '+i+': '+err.message,'var(--red)');}).then(next);
+      })();
+      e.target.value='';
+    };
+  }
+  var vb=document.getElementById('gal-vidbtn');
+  if(vb)vb.onclick=function(){
+    var inp=document.getElementById('gal-vidurl'),u=(inp.value||'').trim();
+    if(!/^https?:\/\//i.test(u)){gmsg('Dán link video hợp lệ (bắt đầu bằng http).','var(--red)');return;}
+    var grp=(document.getElementById('gal-grp')||{}).value||'truoc';
+    var cap=((document.getElementById('gal-cap')||{}).value||'').trim();
+    addItems([{id:uid(),t:'vid',url:u,cap:cap,grp:grp,ts:Date.now()}]);inp.value='';
+  };
+  renderGallery();renderAdm();
+})();
+
 /* ---- Firebase: đồng bộ kết quả trực tiếp cho mọi người ---- */
 (function(){
   var cfg={
@@ -1379,6 +1499,8 @@ var KQ={
       try{localStorage.setItem('dpg-cfg',JSON.stringify(window.DPG.config));}catch(e){}
       if(window.__commRefresh)window.__commRefresh();
       if(window.__invitesRender)window.__invitesRender();
+      if(window.__galRefresh)window.__galRefresh();
+      if(window.__galAdmRender)window.__galAdmRender();
     },function(){});
   }catch(e){}
 })();
