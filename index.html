@@ -290,6 +290,8 @@ a.poi.food .go{color:var(--jade)}
 .invgenhd{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12.5px;color:var(--fg);padding:9px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
 .invgenhd b{color:var(--jade);font-size:15px}
 .invgenrs{margin-left:auto}
+.invgenlock{display:flex;gap:8px;margin-top:8px}
+.invgenlock .inp{flex:1;min-width:0}
 .invgenlist{margin-top:8px;max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:6px}
 .invgenrow{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
 .invgenwho{flex:1;min-width:0;font-weight:600;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -807,7 +809,16 @@ a.poi.food .go{color:var(--jade)}
       <input type="file" id="inv-file" accept=".xlsx,.xls" style="display:none">
       <div class="okmsg" id="inv-gen"></div>
       <p class="note" style="padding:4px 2px 0">Mỗi dòng bấm <b>📄</b> để tải thư mời <b>ảnh JPG</b> (tự điền tên + công ty theo mẫu). Excel gồm 2 cột <b>Họ tên | Công ty</b> — <a id="inv-sample" href="#" style="color:var(--red)">tải file mẫu</a>. Đừng ghi số điện thoại ở đây.</p>
-      <div id="inv-genbox" class="invgenbox"></div>
+      <div id="inv-genbox" class="invgenbox">
+        <div class="invgenhd"><span id="invgen-sum">📄 Đã tạo thư mời: <b>0</b> lượt</span><button class="btn ghost invgenrs" id="invgen-rs" hidden style="flex:none;width:auto;padding:4px 10px;font-size:12px">🔒 Xóa đếm</button></div>
+        <div class="invgenlock" id="invgen-lock" hidden>
+          <input class="inp" id="invgen-pin" type="password" inputmode="numeric" autocomplete="off" placeholder="Mã tác giả">
+          <button class="btn" id="invgen-ok" style="flex:none;width:auto">Xóa</button>
+          <button class="btn ghost" id="invgen-cancel" style="flex:none;width:auto">Hủy</button>
+        </div>
+        <div class="okmsg" id="invgen-msg"></div>
+        <div class="invgenlist" id="invgen-list"></div>
+      </div>
     </div>
 
     <div class="sec">
@@ -1220,22 +1231,50 @@ var KQ={
   }
   function invgenLog(name,cty){var arr=invgenBump(invgenGet(),name,cty);invgenPersist(arr);invgenRender();}
   function invgenFmt(ts){if(!ts)return '';var d=new Date(ts);function p(x){return(x<10?'0':'')+x;}return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes());}
+  // Chỉ TÁC GIẢ mới xóa được bộ đếm: mã tác giả riêng (khác mật khẩu admin), lưu dạng băm SHA-256.
+  // Đổi mã: OWNER_HASH = sha256('dpg2026|' + mã mới).
+  var OWNER_HASH='b51a85b713af0a69b82ad962c6392ad66ef92a21e7f0de10571c777124b50d1b';
+  var _ownFail=0,_ownLockUntil=0;
+  function sha256hex(s){
+    if(!(window.crypto&&crypto.subtle&&window.TextEncoder))return Promise.reject(new Error('Trình duyệt không hỗ trợ kiểm tra mã'));
+    return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(function(b){var h='';new Uint8Array(b).forEach(function(x){h+=(x<16?'0':'')+x.toString(16)});return h;});
+  }
+  function invgenMsg(t,c){var m=document.getElementById('invgen-msg');if(!m)return;m.style.color=c||'var(--muted)';m.textContent=t||'';}
   function invgenRender(){
-    var box=document.getElementById('inv-genbox');if(!box)return;
+    var sum=document.getElementById('invgen-sum'),list=document.getElementById('invgen-list'),rs=document.getElementById('invgen-rs');if(!sum||!list)return;
     var arr=invgenGet(),total=0;arr.forEach(function(x){total+=(x.c||0)});
-    if(!total){box.innerHTML='<div class="invgenhd">📄 Đã tạo thư mời: <b>0</b> lượt</div>';return;}
-    var rows=arr.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0)}).map(function(x){
+    sum.innerHTML='📄 Đã tạo thư mời: <b>'+total+'</b> lượt'+(total?' · <b>'+arr.length+'</b> người':'');
+    if(rs)rs.hidden=!total;
+    if(!total){list.innerHTML='';var lk=document.getElementById('invgen-lock');if(lk)lk.hidden=true;return;}
+    list.innerHTML=arr.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0)}).map(function(x){
       return '<div class="invgenrow"><span class="invgenwho">'+iesc(x.n||'')+(x.cty?'<span class="invcty">'+iesc(x.cty)+'</span>':'')+'</span>'
         +'<span class="invgenc">×'+(x.c||0)+'</span><span class="invgents">'+invgenFmt(x.ts)+'</span></div>';
     }).join('');
-    box.innerHTML='<div class="invgenhd">📄 Đã tạo thư mời: <b>'+total+'</b> lượt · <b>'+arr.length+'</b> người'
-      +'<button class="btn ghost invgenrs" style="flex:none;width:auto;padding:4px 10px;font-size:12px">Xóa đếm</button></div>'
-      +'<div class="invgenlist">'+rows+'</div>';
-    var rs=box.querySelector('.invgenrs');if(rs)rs.onclick=function(){
-      if(!confirm('Xóa toàn bộ bộ đếm thư mời đã tạo? (Không ảnh hưởng danh sách khách mời.)'))return;
-      invgenPersist([]);invgenRender();
-    };
   }
+  (function(){
+    var rs=document.getElementById('invgen-rs'),lk=document.getElementById('invgen-lock'),pin=document.getElementById('invgen-pin'),
+        ok=document.getElementById('invgen-ok'),cc=document.getElementById('invgen-cancel');
+    if(!rs||!lk||!pin||!ok||!cc)return;
+    rs.onclick=function(){lk.hidden=!lk.hidden;invgenMsg('');if(!lk.hidden){pin.value='';pin.focus();}};
+    cc.onclick=function(){lk.hidden=true;pin.value='';invgenMsg('');};
+    pin.addEventListener('keydown',function(e){if(e.key==='Enter')ok.click()});
+    ok.onclick=function(){
+      var now=Date.now();
+      if(now<_ownLockUntil){invgenMsg('Nhập sai nhiều lần — thử lại sau '+Math.ceil((_ownLockUntil-now)/1000)+' giây.','var(--red)');return;}
+      var v=pin.value.trim();if(!v){invgenMsg('Nhập mã tác giả.','var(--red)');return;}
+      sha256hex('dpg2026|'+v).then(function(h){
+        pin.value='';
+        if(h!==OWNER_HASH){
+          _ownFail++;if(_ownFail>=5){_ownFail=0;_ownLockUntil=Date.now()+60000;}
+          invgenMsg('✕ Sai mã tác giả — chỉ tác giả mới xóa được bộ đếm.','var(--red)');return;
+        }
+        _ownFail=0;lk.hidden=true;
+        invgenPersist([]).then(function(){invgenMsg('✓ Đã xóa bộ đếm & đồng bộ.','var(--jade)')})
+          .catch(function(){invgenMsg('⚠ Đã xóa trên máy này, chưa đồng bộ được.','var(--red)')});
+        invgenRender();
+      }).catch(function(e){invgenMsg('Lỗi: '+e.message,'var(--red)');});
+    };
+  })();
   window.__invgenRender=invgenRender;
 
   function oneInvite(it){
