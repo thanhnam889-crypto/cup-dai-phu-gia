@@ -286,6 +286,16 @@ a.poi.food .go{color:var(--jade)}
 .invdoc{flex:none;width:32px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--jade-soft);color:var(--jade);cursor:pointer;font-size:14px}
 .invwho .invcty{display:block;font-weight:400;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .invadd{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.invgenbox{margin-top:12px}
+.invgenhd{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12.5px;color:var(--fg);padding:9px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
+.invgenhd b{color:var(--jade);font-size:15px}
+.invgenrs{margin-left:auto}
+.invgenlist{margin-top:8px;max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.invgenrow{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+.invgenwho{flex:1;min-width:0;font-weight:600;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.invgenwho .invcty{display:block;font-weight:400;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.invgenc{flex:none;font-weight:700;font-size:12px;color:var(--jade);background:var(--jade-soft);padding:2px 8px;border-radius:999px}
+.invgents{flex:none;font-size:11px;color:var(--muted);min-width:64px;text-align:right}
 .demobadge{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.4px;
   text-transform:uppercase;color:var(--gold);background:rgba(169,120,31,.12);padding:4px 11px;border-radius:999px;margin-bottom:12px}
 :root[data-theme="dark"] .demobadge,:root:not([data-theme="light"]) .demobadge{background:rgba(215,177,92,.14)}
@@ -797,6 +807,7 @@ a.poi.food .go{color:var(--jade)}
       <input type="file" id="inv-file" accept=".xlsx,.xls" style="display:none">
       <div class="okmsg" id="inv-gen"></div>
       <p class="note" style="padding:4px 2px 0">Mỗi dòng bấm <b>📄</b> để tải thư mời <b>ảnh JPG</b> (tự điền tên + công ty theo mẫu). Excel gồm 2 cột <b>Họ tên | Công ty</b> — <a id="inv-sample" href="#" style="color:var(--red)">tải file mẫu</a>. Đừng ghi số điện thoại ở đây.</p>
+      <div id="inv-genbox" class="invgenbox"></div>
     </div>
 
     <div class="sec">
@@ -1192,20 +1203,56 @@ var KQ={
   function dlFile(blob,fn){var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},3000);}
   function safeName(s){return String(s||'').replace(/[\\/:*?"<>|\n\r]/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Khach moi';}
   function genMsg(t,c){var g=document.getElementById('inv-gen');g.style.color=c||'var(--muted)';g.textContent=t;}
+  // ----- Bộ đếm: lưu số lần & tên đã tạo thư mời (đồng bộ qua Firestore) -----
+  function invgenGet(){var c=(window.DPG&&window.DPG.config)||cfgGet();return (c&&Array.isArray(c.invgen))?c.invgen.slice():[]}
+  function invgenKey(n,cty){return String(n||'').trim().toLowerCase()+'|'+String(cty||'').trim().toLowerCase();}
+  function invgenBump(arr,name,cty){
+    var k=invgenKey(name,cty),now=Date.now(),hit=null;
+    for(var i=0;i<arr.length;i++){if(invgenKey(arr[i].n,arr[i].cty)===k){hit=arr[i];break;}}
+    if(hit){hit.c=(hit.c||0)+1;hit.ts=now;}else{arr.push({n:name,cty:cty||'',c:1,ts:now});}
+    return arr;
+  }
+  function invgenPersist(arr){
+    var cfg=cfgGet();cfg.invgen=arr;try{localStorage.setItem('dpg-cfg',JSON.stringify(cfg))}catch(e){}
+    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.invgen=arr;
+      if(window.DPG.pushConfig)return window.DPG.pushConfig({invgen:arr});}
+    return Promise.resolve();
+  }
+  function invgenLog(name,cty){var arr=invgenBump(invgenGet(),name,cty);invgenPersist(arr);invgenRender();}
+  function invgenFmt(ts){if(!ts)return '';var d=new Date(ts);function p(x){return(x<10?'0':'')+x;}return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes());}
+  function invgenRender(){
+    var box=document.getElementById('inv-genbox');if(!box)return;
+    var arr=invgenGet(),total=0;arr.forEach(function(x){total+=(x.c||0)});
+    if(!total){box.innerHTML='<div class="invgenhd">📄 Đã tạo thư mời: <b>0</b> lượt</div>';return;}
+    var rows=arr.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0)}).map(function(x){
+      return '<div class="invgenrow"><span class="invgenwho">'+iesc(x.n||'')+(x.cty?'<span class="invcty">'+iesc(x.cty)+'</span>':'')+'</span>'
+        +'<span class="invgenc">×'+(x.c||0)+'</span><span class="invgents">'+invgenFmt(x.ts)+'</span></div>';
+    }).join('');
+    box.innerHTML='<div class="invgenhd">📄 Đã tạo thư mời: <b>'+total+'</b> lượt · <b>'+arr.length+'</b> người'
+      +'<button class="btn ghost invgenrs" style="flex:none;width:auto;padding:4px 10px;font-size:12px">Xóa đếm</button></div>'
+      +'<div class="invgenlist">'+rows+'</div>';
+    var rs=box.querySelector('.invgenrs');if(rs)rs.onclick=function(){
+      if(!confirm('Xóa toàn bộ bộ đếm thư mời đã tạo? (Không ảnh hưởng danh sách khách mời.)'))return;
+      invgenPersist([]);invgenRender();
+    };
+  }
+  window.__invgenRender=invgenRender;
+
   function oneInvite(it){
     if(!it||!it.n){genMsg('Thiếu họ tên.','var(--red)');return;}
     genMsg('Đang tạo thư mời cho '+it.n+'…');
-    genBlob(it.n,it.cty).then(function(b){dlFile(b,'Thu moi - '+safeName(it.n)+'.jpg');genMsg('✓ Đã tải thư mời: '+it.n,'var(--jade)');})
+    genBlob(it.n,it.cty).then(function(b){dlFile(b,'Thu moi - '+safeName(it.n)+'.jpg');invgenLog(it.n,it.cty);genMsg('✓ Đã tải thư mời: '+it.n,'var(--jade)');})
       .catch(function(e){genMsg('Lỗi: '+e.message,'var(--red)');});
   }
   document.getElementById('inv-all').onclick=function(){
     var list=invGet();if(!list.length){genMsg('Chưa có ai trong danh sách.','var(--red)');return;}
     genMsg('Đang tạo '+list.length+' thư mời…');
+    var garr=invgenGet();
     loadScript(JSZIP_URL).then(function(){
       var out=new window.JSZip(),chain=Promise.resolve();
-      list.forEach(function(it){ if(!it.n)return; chain=chain.then(function(){return genBlob(it.n,it.cty);}).then(function(b){out.file('Thu moi - '+safeName(it.n)+'.jpg',b);}); });
+      list.forEach(function(it){ if(!it.n)return; chain=chain.then(function(){return genBlob(it.n,it.cty);}).then(function(b){out.file('Thu moi - '+safeName(it.n)+'.jpg',b);invgenBump(garr,it.n,it.cty);}); });
       return chain.then(function(){return out.generateAsync({type:'blob'});});
-    }).then(function(zb){dlFile(zb,'Thu moi - tat ca ('+list.length+').zip');genMsg('✓ Đã tải '+list.length+' thư mời (ZIP).','var(--jade)');})
+    }).then(function(zb){dlFile(zb,'Thu moi - tat ca ('+list.length+').zip');invgenPersist(garr);invgenRender();genMsg('✓ Đã tải '+list.length+' thư mời (ZIP).','var(--jade)');})
       .catch(function(e){genMsg('Lỗi tạo ZIP: '+e.message,'var(--red)');});
   };
   document.getElementById('inv-xlsx').onclick=function(){document.getElementById('inv-file').click()};
@@ -1237,7 +1284,7 @@ var KQ={
   function initPanel(){
     var nArr=[];for(var i=3;i<=11;i++)nArr.push([i,i+' vòng']);
     fillSelect(nSel,nArr,numRounds(cSel.value));
-    refreshRoundSel();loadRows();prefillLinks();invRender();
+    refreshRoundSel();loadRows();prefillLinks();invRender();invgenRender();
   }
   function unlock(){gate.hidden=true;panel.hidden=false;initPanel();try{sessionStorage.setItem('dpg-adm','1')}catch(e){}}
   document.getElementById('adm-login').onclick=function(){
@@ -1482,6 +1529,7 @@ var KQ={
       try{localStorage.setItem('dpg-cfg',JSON.stringify(window.DPG.config));}catch(e){}
       if(window.__commRefresh)window.__commRefresh();
       if(window.__invitesRender)window.__invitesRender();
+      if(window.__invgenRender)window.__invgenRender();
       if(window.__galRefresh)window.__galRefresh();
       if(window.__galAdmRender)window.__galAdmRender();
     },function(){});
