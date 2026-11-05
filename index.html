@@ -419,6 +419,7 @@ a.poi.food .go{color:var(--jade)}
 .blvar{border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:999px;padding:5px 11px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit}
 .blvar.main{border-color:var(--jade);color:var(--jade)}
 .blvar.act{background:transparent;color:var(--muted);font-weight:600}
+#v-binh-luan .inp{font-size:16px}
 .blnote{width:100%;box-sizing:border-box;margin-top:10px;resize:vertical;min-height:70px;font-family:inherit;line-height:1.45}
 .blacts{display:flex;gap:8px;margin-top:8px}.blacts .btn{flex:1}
 .blsave{display:flex;gap:8px;margin-top:8px}.blsave .inp{flex:1;min-width:0}
@@ -1133,6 +1134,17 @@ var KQ={
 (function(){
   var REG_URL='https://script.google.com/macros/s/AKfycbw1YTArxbZBpJ9TroDFvi3z-p9Ji50sjykDc_rN6a3t1PKMG9YfJKIU3IqyGn-k2-iM/exec'; // URL Web App Apps Script (…/exec). Để trống = dùng danh sách dự phòng bên dưới.
   window.DPG_SCRIPT=REG_URL; // máy chủ Apps Script: danh sách đăng ký + AI (Gemini)
+  // Chẩn đoán khi gọi AI thất bại -> nói rõ đang thiếu bước nào
+  window.DPG_AIERR=function(err){
+    var m=String((err&&err.message)||err||'');
+    if(!/failed to fetch|networkerror|load failed|network/i.test(m))return Promise.resolve(m);
+    if(navigator.onLine===false)return Promise.resolve('Máy đang mất mạng — kiểm tra kết nối rồi thử lại.');
+    return fetch(REG_URL,{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+      if(!j||!j.ai)return 'Máy chủ AI chưa được bật — Ban tổ chức cần dán bản Apps Script mới nhất rồi Deploy → Manage deployments → New version.';
+      if(!j.key)return 'Apps Script chưa có key Gemini — dán key vào dòng GEMINI_API_KEY rồi Deploy → Manage deployments → New version.';
+      return 'Apps Script chưa được cấp quyền gọi AI — mở Apps Script, chạy hàm kiemTraGemini 1 lần, rồi Deploy → Manage deployments → New version.';
+    },function(){return 'Không kết nối được máy chủ AI — có thể Apps Script chưa được cấp quyền, hoặc mạng yếu.'});
+  };
   var DEF={updated:'29/10',list:[
     {n:'Nguyễn Thành Nam',cv:'Giám đốc',cty:'Công ty TNHH Tư vấn K.A.N'},
     {n:'Nguyễn Ngọc Cường',cv:'Phó Giám đốc',cty:'Công ty TNHH Vật Tư Điện Lạnh Gia Lai'},
@@ -1264,7 +1276,7 @@ var KQ={
               if(!g.length)throw new Error('Không thấy cặp đấu nào trong ảnh');
               rowsBox.innerHTML=g.map(function(x){var r=x.kq==='a'?'a':x.kq==='b'?'b':x.kq==='hoa'?'draw':'none';return rowHTML(ea(x.a),ea(x.b),r)}).join('');
               bindRows();m('✓ AI đọc được '+g.length+' cặp đấu. Kiểm tra lại từng dòng rồi bấm “Lưu kết quả vòng này”.','var(--jade)');
-            }).catch(function(e){m('Lỗi: '+e.message,'var(--red)')}).then(function(){btn.disabled=false});
+            }).catch(function(e){return (window.DPG_AIERR?window.DPG_AIERR(e):Promise.resolve(e.message)).then(function(t){m('Lỗi: '+t,'var(--red)')});}).then(function(){btn.disabled=false});
         };im.src=fr.result;};
       fr.readAsDataURL(f);
     };
@@ -2108,7 +2120,7 @@ var XQ=(function(){
       var b=fromRows(d.rows,d.red);
       if(!b.some(Boolean))throw new Error('AI không thấy quân cờ nào trong ảnh');
       enterEdit(b,'r',shot.url,'🤖 AI đã xếp '+b.filter(Boolean).length+' quân. <b>So với ảnh gốc</b>, chạm để sửa ô sai, chọn lượt đi rồi bấm <b>Xong</b>.'+(d.note?'<br><i>AI ghi chú: '+esc(d.note)+'</i>':''));
-    }).catch(function(err){msg('Lỗi: '+esc(err.message)+'<br>Có thể chụp lại rõ hơn, hoặc bấm “Tự xếp quân”.','var(--red)');})
+    }).catch(function(err){return (window.DPG_AIERR?window.DPG_AIERR(err):Promise.resolve(err.message)).then(function(t){msg('Lỗi: '+esc(t)+'<br>Trong lúc chờ, bấm “Tự xếp quân” để xếp tay.','var(--red)');});})
       .then(function(){btn.disabled=false;});
   };
 

@@ -26,6 +26,8 @@ function doGet() {
   if (hit) return out_(hit);
   var data;
   try { data = build_(); } catch (e) { data = { updated: null, count: 0, list: [], error: String(e && e.message || e) }; }
+  data.ai = 2; // báo cho app biết máy chủ đã có AI
+  try { data.key = !!geminiKey_(); } catch (e) { data.key = null; }
   var json = JSON.stringify(data);
   if (!data.error) { try { cache.put('reg', json, 60); } catch (e) {} }
   return out_(json);
