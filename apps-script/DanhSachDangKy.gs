@@ -82,10 +82,10 @@ function pickSheet_(ss) {
   return sh[0];
 }
 
-function build_() {
-  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
-  var v = pickSheet_(ss).getDataRange().getValues();
-  if (v.length < 2) return { updated: null, count: 0, dup: 0, list: [] };
+// Đọc tab câu trả lời Form: gộp người gửi nhiều lần
+function readForm_(sheet) {
+  var v = sheet.getDataRange().getValues();
+  if (v.length < 2) return { latest: 0, dup: 0, list: [] };
   var h = v[0].map(norm_);
   function col(test) { for (var i = 0; i < h.length; i++) if (test(h[i])) return i; return -1; }
   function priv(x) { return /dien thoai|sdt|so dt|e-?mail|zalo|\bmail\b|dia chi|address|phone/.test(x); }
@@ -96,7 +96,7 @@ function build_() {
   var cName = col(function (x) { return !priv(x) && !/cong ty|don vi|doanh nghiep|co quan|company/.test(x) && /ho (va )?ten|^ten\b|full ?name|^name$/.test(x); });
   var cNd   = col(function (x) { return !priv(x) && /noi dung|thi dau|\bmon\b/.test(x); });
   var cHide = col(function (x) { return /^(an|hide|an dong)$/.test(x); });
-  if (cName < 0) return { updated: null, count: 0, dup: 0, list: [], error: 'Không tìm thấy cột Tên' };
+  if (cName < 0) return { latest: 0, dup: 0, list: [], error: 'Không tìm thấy cột Tên' };
 
   var list = [], byName = {}, latest = 0, dup = 0;
   for (var r = 1; r < v.length; r++) {
@@ -120,7 +120,67 @@ function build_() {
       dup++;
     } else { arr.push(list.length); list.push(it); }
   }
-  return { updated: latest ? new Date(latest).toISOString() : null, count: list.length, dup: dup, list: list };
+  return { latest: latest, dup: dup, list: list };
+}
+
+// Tìm trang "danh sách tham dự" chính thức (ưu tiên tab tên có "tham dự"; nhận dạng theo tiêu đề Họ tên + Đơn vị).
+// Hỗ trợ cả mẫu có dòng tiêu đề phụ "Nội dung thi đấu" -> "Cờ tướng" | "Cờ tướng úp" (đánh X).
+function readOfficial_(ss, skip) {
+  var sheets = ss.getSheets().filter(function (sh) { return !skip || sh.getSheetId() !== skip.getSheetId(); });
+  sheets.sort(function (a, b) { return (/tham du/.test(norm_(b.getName())) ? 1 : 0) - (/tham du/.test(norm_(a.getName())) ? 1 : 0); });
+  for (var s = 0; s < sheets.length; s++) {
+    var sh = sheets[s], lr = sh.getLastRow(), lc = sh.getLastColumn();
+    if (lr < 2 || lc < 3) continue;
+    var v = sh.getRange(1, 1, Math.min(lr, 500), Math.min(lc, 30)).getValues();
+    var hr = -1, cName = -1, cCty = -1, r, k;
+    for (r = 0; r < Math.min(v.length, 15) && hr < 0; r++) {
+      var h = v[r].map(norm_), n = -1, c = -1;
+      for (k = 0; k < h.length; k++) {
+        if (n < 0 && /^ho (va )?ten$/.test(h[k])) n = k;
+        if (c < 0 && /^(don vi|co quan|cong ty|doanh nghiep)/.test(h[k])) c = k;
+      }
+      if (n >= 0 && c >= 0) { hr = r; cName = n; cCty = c; }
+    }
+    if (hr < 0) continue;
+    var H = v[hr].map(norm_), H2 = (v[hr + 1] || []).map(norm_);
+    var find = function (re) { for (var q = 0; q < H.length; q++) if (re.test(H[q]) || re.test(H2[q] || '')) return q; return -1; };
+    var cCv = find(/^chuc (vu|danh)/), cTuong = find(/^co tuong$/), cUp = find(/^co tuong up$/), cHide = find(/^(an|hide)$/);
+    var start = H2.some(function (x) { return /^co tuong/.test(x); }) ? hr + 2 : hr + 1;
+    var list = [], seen = {};
+    for (r = start; r < v.length; r++) {
+      var raw = sp_(v[r][cName]);
+      if (/^tong (ky thu|cong|so)/.test(norm_(raw))) break;             // dòng tổng cuối bảng
+      var nm = name_(raw.replace(/^(ông|bà|ong|ba)\s+/i, ''));
+      if (!nm || seen[norm_(nm)]) continue;                             // bỏ dòng trống + tên trùng
+      if (cHide >= 0 && sp_(v[r][cHide])) continue;
+      seen[norm_(nm)] = 1;
+      var t = cTuong >= 0 && sp_(v[r][cTuong]) !== '', u = cUp >= 0 && sp_(v[r][cUp]) !== '';
+      list.push({ n: nm, cv: cCv >= 0 ? role_(v[r][cCv]) : '', cty: sp_(v[r][cCty]),
+        nd: t && u ? 'Cờ tướng, Cờ tướng úp' : t ? 'Cờ tướng' : u ? 'Cờ tướng úp' : '' });
+    }
+    if (list.length) return { name: sh.getName(), list: list };
+  }
+  return null;
+}
+
+// Danh sách cho app = danh sách tham dự chính thức (nếu có) + người mới đăng ký qua Form chưa có trong đó
+function build_() {
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+  var formSh = pickSheet_(ss), form = readForm_(formSh), off = readOfficial_(ss, formSh);
+  var upd = form.latest ? new Date(form.latest).toISOString() : null;
+  if (!off) {
+    if (form.error) return { updated: null, count: 0, dup: 0, list: [], error: form.error };
+    return { updated: upd, count: form.list.length, dup: form.dup, list: form.list };
+  }
+  var idx = {}, extra = [], dup = form.dup;
+  off.list.forEach(function (it, i) { idx[norm_(it.n)] = i; });
+  form.list.forEach(function (it) {
+    var k = norm_(it.n);
+    if (k in idx) { var o = off.list[idx[k]]; if (!o.cv) o.cv = it.cv; if (!o.cty) o.cty = it.cty; dup++; }
+    else extra.push(it);
+  });
+  var list = off.list.concat(extra);
+  return { updated: upd, count: list.length, dup: dup, official: off.list.length, extra: extra.length, sheet: off.name, list: list };
 }
 
 

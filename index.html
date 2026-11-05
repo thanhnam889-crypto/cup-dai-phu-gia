@@ -763,8 +763,8 @@ a.poi.food .go{color:var(--jade)}
   <div class="sec">
     <div class="lbl">Kỳ thủ đã đăng ký</div>
     <div class="dkhead">
-      <span class="cnt" id="reg-count">11</span>
-      <span class="ct" id="reg-upd">doanh nhân đã ghi danh · cập nhật 29/10</span>
+      <span class="cnt" id="reg-count">41</span>
+      <span class="ct" id="reg-upd">doanh nhân đã ghi danh · 24 Cờ tướng · 17 Cờ úp · cập nhật 5/11</span>
     </div>
     <div class="card" id="reg-list">
       <div class="reg"><span class="no">1</span><div class="ri"><div class="rn">Nguyễn Thành Nam</div><div class="ru">Giám đốc · Công ty TNHH Tư vấn K.A.N</div></div></div>
@@ -1160,18 +1160,48 @@ var KQ={
       return 'Apps Script chưa được cấp quyền gọi AI — mở Apps Script, chạy hàm kiemTraGemini 1 lần, rồi Deploy → Manage deployments → New version.';
     },function(){return 'Không kết nối được máy chủ AI — có thể Apps Script chưa được cấp quyền, hoặc mạng yếu.'});
   };
-  var DEF={updated:'29/10',list:[
-    {n:'Nguyễn Thành Nam',cv:'Giám đốc',cty:'Công ty TNHH Tư vấn K.A.N'},
-    {n:'Nguyễn Ngọc Cường',cv:'Phó Giám đốc',cty:'Công ty TNHH Vật Tư Điện Lạnh Gia Lai'},
-    {n:'Nguyễn Hợp',cv:'Giám đốc',cty:'Công ty TNHH Hợp Thảo'},
-    {n:'Nguyễn Anh Huy',cv:'Phó Giám đốc sản xuất',cty:'Công ty TNHH MTV Gỗ Phú Tài Bình Định'},
-    {n:'Mai Đức Thiện',cv:'Giám đốc',cty:'Công ty Nhôm đúc Lý Thiện Phát'},
-    {n:'Lê Quang Tri',cv:'Giám đốc',cty:'Công ty TNHH Quang Tri'},
-    {n:'Lê Tấn Thuỷ',cv:'Phó Giám đốc',cty:'Công ty TNHH Thương Mại Baby Love'},
-    {n:'Nguyễn An Thái',cv:'Phó Giám đốc',cty:'Công ty TNHH Đại Lý Vận Tải ELITE'},
-    {n:'Nguyễn Văn Khánh',cv:'Phó Giám đốc',cty:'Công ty XD Tân Phương'},
-    {n:'Nguyễn Văn Hà',cv:'',cty:'Viettel Construction Đăk Lăk'},
-    {n:'Nguyễn Văn Thanh',cv:'Phó Giám đốc',cty:'Cty TNHH Nông nghiệp AGreen Cao Nguyên'}
+  var DEF={updated:'5/11',list:[
+    {n:'Phạm Hoàng Dương',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam - Nhiệm kỳ I',nd:'Cờ tướng úp'},
+    {n:'Nguyễn Văn Bình',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
+    {n:'Tôn Thất Lương Chính',cv:'Phó Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
+    {n:'Bùi Trung Hiếu',cv:'Phó Giám đốc',cty:'Sở Văn hóa, Thể thao và Du lịch tỉnh Gia Lai',nd:'Cờ tướng úp'},
+    {n:'Dương Minh Quang',cv:'Tổng Giám đốc',cty:'Công ty Cổ phần Xây dựng 47',nd:'Cờ tướng úp'},
+    {n:'Lục Văn Dũng',cv:'Giám đốc',cty:'Trung tâm Huấn luyện và Thi đấu thể thao tỉnh Gia Lai',nd:'Cờ tướng úp'},
+    {n:'Mai Đức Thiện',cv:'Giám đốc',cty:'Công ty Nhôm đúc Lý Thiện Phát',nd:'Cờ tướng'},
+    {n:'Trương Hòa Nhân',cv:'Chủ tịch HĐQT',cty:'Công ty Cổ phần Đá Hoa Cương cao cấp Hải Dương',nd:'Cờ tướng'},
+    {n:'Phạm Quang Minh',cv:'Tổng Giám đốc',cty:'Công ty Thang máy ROYAL Việt Nam',nd:'Cờ tướng'},
+    {n:'Đại Ngọc Lâm',cv:'Giám đốc',cty:'Công ty TNHH ECONSUN Việt Nam',nd:'Cờ tướng úp'},
+    {n:'Văn Quốc Vinh',cv:'Phó Tổng Giám đốc',cty:'Công ty TNHH CAF Việt Nam (Kiểm toán CAF)',nd:'Cờ tướng úp'},
+    {n:'Nguyễn Văn Khánh',cv:'Phó Giám đốc',cty:'CTY XD Tân Phương',nd:'Cờ tướng úp'},
+    {n:'Nguyễn Thành Nam',cv:'Giám đốc',cty:'Công ty TNHH Tư vấn K.A.N',nd:'Cờ tướng'},
+    {n:'Bùi Thanh Phụng',cv:'Phó Trưởng phòng Kỹ thuật an toàn - Môi trường',cty:'Sở Công thương tỉnh Gia Lai',nd:'Cờ tướng'},
+    {n:'Nguyễn Văn Thảo',cv:'Giám đốc',cty:'Công ty TNHH Thương mại Vận tải Trường Thịnh',nd:'Cờ tướng'},
+    {n:'Nguyễn Văn Hà',cv:'Nguyên Giám đốc Kinh doanh',cty:'Viettel Construction Đăk Lăk',nd:'Cờ tướng'},
+    {n:'Nguyễn Văn Thanh',cv:'Phó Giám đốc',cty:'Công ty TNHH Nông nghiệp AGreen Cao Nguyên',nd:'Cờ tướng'},
+    {n:'Trần Minh Đức',cv:'Giám đốc',cty:'Công ty TNHH XD, Thương mại và Dịch vụ Trình Minh',nd:'Cờ tướng'},
+    {n:'Lê Văn Tùng',cv:'Giám đốc',cty:'Công ty TNHH Hưng Trường Thịnh',nd:'Cờ tướng úp'},
+    {n:'Nguyễn Hoàng Sa',cv:'Giám đốc',cty:'Công ty TNHH Chiếu sáng và Năng lượng Mặt trời Miền Trung',nd:'Cờ tướng'},
+    {n:'Lê Quang Tri',cv:'Giám đốc',cty:'Công ty TNHH Quang Tri',nd:'Cờ tướng'},
+    {n:'Châu Anh Phong',cv:'Giám đốc',cty:'Công ty TNHH Một thành viên Xây dựng Thiên Bằng',nd:'Cờ tướng'},
+    {n:'Nguyễn Xuân Độ',cv:'Tổng Giám đốc',cty:'Công ty TNHH Thương mại, Đầu tư và Phát triển Thiện Tâm',nd:'Cờ tướng'},
+    {n:'Đỗ Ngọc Hùng',cv:'Phó Giám đốc',cty:'Cty TNHH MTV Thời Gian Vàng',nd:'Cờ tướng'},
+    {n:'Dương Phi Huy',cv:'Phó phòng Kinh doanh',cty:'Công ty TNHH MTV thời gian vàng',nd:'Cờ tướng'},
+    {n:'Nguyễn Hữu Bảo Thuần',cv:'Giám đốc, Phó Chủ tịch',cty:'Nhà máy CTy Dây cáp điện Vĩnh Thịnh. Hội Doanh nghiệp Thái Mỹ TP. HCM',nd:'Cờ tướng'},
+    {n:'Phạm Cao Hùng',cv:'Kế toán trưởng',cty:'Công ty TNHH Du lịch - LOGISTICS Tấn Phong',nd:'Cờ tướng'},
+    {n:'Nguyễn Hợp',cv:'Giám đốc',cty:'Công ty TNHH Hợp Thảo',nd:'Cờ tướng'},
+    {n:'Nguyễn Anh Huy',cv:'Phó Giám đốc Sản xuất',cty:'Công ty TNHH MTV Gỗ Phú Tài Bình Định',nd:'Cờ tướng'},
+    {n:'Nguyễn Văn Thắng',cv:'Giám đốc',cty:'Công Ty TNHH Viễn Thông và Xây Dựng Khang Vinh',nd:'Cờ tướng'},
+    {n:'Đặng Huy',cv:'Phó Giám đốc',cty:'Công ty dược phẩm Phương An Pharma',nd:'Cờ tướng úp'},
+    {n:'Lê Tấn Thủy',cv:'Phó Giám đốc',cty:'Công ty TNHH Thương Mai Baby Love',nd:'Cờ tướng úp'},
+    {n:'Nguyễn An Thái',cv:'Phó Giám đốc',cty:'Công ty TNHH Đại Lý Vận Tải ELITE',nd:'Cờ tướng úp'},
+    {n:'Đỗ Văn Trường',cv:'Trưởng phòng Nhân sự',cty:'Trường THPT Chi Lăng',nd:'Cờ tướng úp'},
+    {n:'Diệp Chấn Vương',cv:'Giám đốc',cty:'Công ty Cổ phần Hai Lúa',nd:'Cờ tướng'},
+    {n:'Đặng Quốc Huy',cv:'Giám đốc',cty:'Công ty Đinh Lăng Tây Nguyên',nd:'Cờ tướng'},
+    {n:'Nguyễn Ngọc Cường',cv:'Phó Giám đốc',cty:'Công ty TNHH Vật Tư Điện Lạnh Gia Lai',nd:'Cờ tướng'},
+    {n:'Nguyễn Hữu Bình',cv:'Giám đốc',cty:'CÔNG TY TNHH HBPLUS',nd:'Cờ tướng'},
+    {n:'Trương Quang Hải',cv:'Phó Giám đốc',cty:'Công ty TNHH TM, Dịch Vụ và Xây Dựng Đại Hưng',nd:'Cờ tướng úp'},
+    {n:'Nguyễn Phúc Tài',cv:'Phó Giám đốc',cty:'Phòng khám Nha khoa Hoàng Yến',nd:'Cờ tướng úp'},
+    {n:'Lê Cảnh Định',cv:'Tiến sĩ - Giảng viên Hóa học',cty:'Đại học Quy Nhơn',nd:'Cờ tướng úp'}
   ]};
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
   function nrm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
@@ -1186,7 +1216,8 @@ var KQ={
     var box=document.getElementById('reg-list'),cnt=document.getElementById('reg-count'),upd=document.getElementById('reg-upd');if(!box)return;
     var L=cur.list||[],u=fmtUpd(cur.updated);
     if(cnt)cnt.textContent=L.length;
-    if(upd)upd.textContent='doanh nhân đã ghi danh'+(u?' · cập nhật '+u:'');
+    if(upd){var nt=0,nu=0;L.forEach(function(r){var g=ndTag(r.nd);if(g==='Cờ tướng'||g==='Cờ tướng + Cờ úp')nt++;if(g==='Cờ tướng úp'||g==='Cờ tướng + Cờ úp')nu++;});
+      upd.textContent='doanh nhân đã ghi danh'+(nt||nu?' · '+nt+' Cờ tướng · '+nu+' Cờ úp':'')+(u?' · cập nhật '+u:'');}
     if(!L.length){box.innerHTML='<div class="reg"><div class="ri"><div class="ru">Chưa có ai đăng ký.</div></div></div>';return;}
     box.innerHTML=L.map(function(r,i){
       var ru=[r.cv,r.cty].filter(function(x){return x&&String(x).trim()}).map(esc).join(' · '),tg=ndTag(r.nd);
