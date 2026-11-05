@@ -1207,7 +1207,12 @@ var KQ={
   function nrm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
   function okList(L){return Array.isArray(L)?L.filter(function(x){return x&&typeof x.n==='string'&&x.n.trim()}):null}
   var cur=DEF,subs=[],busy=false,last=0;
-  try{var c=JSON.parse(localStorage.getItem('dpg-reg')||'null');if(c&&okList(c.list)&&c.list.length)cur={updated:c.updated,list:okList(c.list)};}catch(e){}
+  // Gộp: danh sách tham dự chính thức (DEF) trước + người đăng ký qua Form chưa có trong đó; trùng tên chỉ giữ 1.
+  // Khi máy chủ đã có trang "DS tham dự" (j.official) thì dùng nguyên danh sách máy chủ.
+  function nkey(s){return nrm(s).replace(/\s+/g,' ').trim()}
+  function merge(L,isOff){if(isOff)return L;var seen={},out=[];
+    DEF.list.concat(L).forEach(function(x){var k=nkey(x.n);if(!k||seen[k])return;seen[k]=1;out.push(x);});return out;}
+  try{var c=JSON.parse(localStorage.getItem('dpg-reg')||'null');if(c&&okList(c.list)&&c.list.length)cur={updated:c.updated,off:!!c.off,list:merge(okList(c.list),!!c.off)};}catch(e){}
   function fmtUpd(u){if(!u)return '';if(/^\d{1,2}\/\d{1,2}$/.test(u))return u;var d=new Date(u);return isNaN(d)?'':(d.getDate()+'/'+(d.getMonth()+1));}
   function ndTag(nd){var x=nrm(nd);if(!x)return '';var up=/\bup\b/.test(x);
     if(/ca hai|ca 2|both/.test(x)||(up&&/co tuong(?! up)/.test(x)))return 'Cờ tướng + Cờ úp';
@@ -1229,8 +1234,8 @@ var KQ={
     if(!REG_URL||busy)return;busy=true;
     fetch(REG_URL,{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
       var L=j&&!j.error&&okList(j.list);if(!L)return;
-      cur={updated:j.updated,list:L};try{localStorage.setItem('dpg-reg',JSON.stringify(cur))}catch(e){}
-      render();subs.forEach(function(f){try{f(L)}catch(e){}});
+      cur={updated:j.updated,off:!!j.official,list:merge(L,!!j.official)};try{localStorage.setItem('dpg-reg',JSON.stringify(cur))}catch(e){}
+      render();subs.forEach(function(f){try{f(cur.list)}catch(e){}});
     }).catch(function(){}).then(function(){busy=false;last=Date.now();});
   }
   window.DPGREG={list:function(){return cur.list||[]},on:function(f){subs.push(f)},refresh:refresh};
