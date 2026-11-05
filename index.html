@@ -1137,6 +1137,10 @@ var KQ={
   // Chẩn đoán khi gọi AI thất bại -> nói rõ đang thiếu bước nào
   window.DPG_AIERR=function(err){
     var m=String((err&&err.message)||err||'');
+    if(/high demand|overloaded|unavailable|try again later|quá tải/i.test(m))return Promise.resolve('AI của Google đang quá tải — vui lòng thử lại sau 1–2 phút.');
+    if(/quota|exhausted|rate limit/i.test(m))return Promise.resolve('AI đã dùng hết lượt miễn phí tạm thời — thử lại sau ít phút.');
+    if(/api key not valid|api_key_invalid/i.test(m))return Promise.resolve('Key Gemini không đúng — Ban tổ chức kiểm tra lại key trong Apps Script.');
+    if(/location is not supported/i.test(m))return Promise.resolve('Gemini chặn vùng truy cập — liên hệ Ban tổ chức.');
     if(!/failed to fetch|networkerror|load failed|network/i.test(m))return Promise.resolve(m);
     if(navigator.onLine===false)return Promise.resolve('Máy đang mất mạng — kiểm tra kết nối rồi thử lại.');
     return fetch(REG_URL,{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
