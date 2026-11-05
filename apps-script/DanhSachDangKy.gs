@@ -154,18 +154,18 @@ function limit_(dev, kind, max) {
 
 // Model dự phòng khi model chính quá tải / hết hạn mức / không có
 var GEMINI_FALLBACK = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest'];
-var lastModel_ = '';
+var lastModel_ = '', lastErrs_ = [];
 
 function callModel_(model, key, body) {
   var r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key),
     { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true });
   var code = r.getResponseCode(), d = {};
   try { d = JSON.parse(r.getContentText()); } catch (x) {}
-  if (code === 200) return { ok: true, data: d };
+  if (code === 200) return { ok: true, data: d, code: code };
   var msg = (d.error && d.error.message) || ('Lỗi AI (' + code + ')');
   var retry = !/location|api key|api_key|permission/i.test(msg) && (code === 429 || code === 404 || code >= 500 ||
     /high demand|overloaded|unavailable|try again|not found|not supported for generatecontent|quota|exhausted/i.test(msg));
-  return { ok: false, err: msg, retry: retry };
+  return { ok: false, err: msg, retry: retry, code: code };
 }
 
 function gemini_(parts, schema) {
@@ -173,13 +173,21 @@ function gemini_(parts, schema) {
   if (!key) throw new Error('Chưa dán GEMINI_API_KEY trong Apps Script');
   var first = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL') || GEMINI_MODEL;
   var models = [first, first].concat(GEMINI_FALLBACK.filter(function (m) { return m !== first; })); // thử lại model chính 1 lần
+  var cache = CacheService.getScriptCache(), sticky = cache.get('okModel');   // model vừa chạy tốt -> gọi thẳng cho nhanh
+  if (sticky && sticky !== first) models = [sticky].concat(models.filter(function (m) { return m !== sticky; }));
+  lastErrs_ = [];
   var body = { contents: [{ parts: parts }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } };
   if (schema) body.generationConfig.responseSchema = schema;
   var d = null, lastErr = '';
   for (var i = 0; i < models.length && !d; i++) {
-    var res = callModel_(models[i], key, body);
-    if (res.ok) { d = res.data; lastModel_ = models[i]; break; }
+    var t0 = Date.now(), res = callModel_(models[i], key, body);
+    if (res.ok) {
+      d = res.data; lastModel_ = models[i];
+      try { if (models[i] !== first) cache.put('okModel', models[i], 1800); else cache.remove('okModel'); } catch (x) {}
+      break;
+    }
     lastErr = res.err;
+    lastErrs_.push(models[i] + ' → ' + res.code + ' ' + String(res.err).slice(0, 90) + ' (' + Math.round((Date.now() - t0) / 100) / 10 + 's)');
     if (!res.retry) throw new Error(lastErr);          // lỗi key / chặn vùng… -> báo ngay
     if (i < models.length - 1) Utilities.sleep(i === 0 ? 1500 : 400);
   }
@@ -248,6 +256,7 @@ function kiemTraGemini() {
   // Lưu key vào kho bảo mật của script -> lần sau dán code mới không cần dán lại key
   if (GEMINI_API_KEY && GEMINI_API_KEY.indexOf('DAN_KEY') < 0) PropertiesService.getScriptProperties().setProperty('GEMINI_API_KEY', GEMINI_API_KEY.trim());
   var o = gemini_([{ text: 'Trả lời đúng JSON: {"ok":true,"loi_chao":"Xin chào Cúp Đại Phú Gia"}' }]);
+  lastErrs_.forEach(function (e) { Logger.log('↷ Bỏ qua: ' + e); });
   Logger.log('✓ Gemini hoạt động tốt từ Apps Script (model: ' + lastModel_ + '): ' + JSON.stringify(o));
   Logger.log('✓ Đã lưu key vào kho bảo mật của script. Bước cuối: Deploy → Manage deployments → ✏️ → New version → Deploy.');
   return o;
