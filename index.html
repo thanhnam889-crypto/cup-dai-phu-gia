@@ -1280,7 +1280,7 @@ var KQ={
               if(!g.length)throw new Error('Không thấy cặp đấu nào trong ảnh');
               rowsBox.innerHTML=g.map(function(x){var r=x.kq==='a'?'a':x.kq==='b'?'b':x.kq==='hoa'?'draw':'none';return rowHTML(ea(x.a),ea(x.b),r)}).join('');
               bindRows();m('✓ AI đọc được '+g.length+' cặp đấu. Kiểm tra lại từng dòng rồi bấm “Lưu kết quả vòng này”.','var(--jade)');
-            }).catch(function(e){return (window.DPG_AIERR?window.DPG_AIERR(e):Promise.resolve(e.message)).then(function(t){m('Lỗi: '+t,'var(--red)')});}).then(function(){btn.disabled=false});
+            }).catch(function(e){var raw=String((e&&e.message)||e||'');return (window.DPG_AIERR?window.DPG_AIERR(e):Promise.resolve(raw)).then(function(t){m('Lỗi: '+t+(raw&&raw!==t?' (chi tiết: '+raw.slice(0,160)+')':''),'var(--red)')});}).then(function(){btn.disabled=false});
         };im.src=fr.result;};
       fr.readAsDataURL(f);
     };
@@ -2124,7 +2124,7 @@ var XQ=(function(){
       var b=fromRows(d.rows,d.red);
       if(!b.some(Boolean))throw new Error('AI không thấy quân cờ nào trong ảnh');
       enterEdit(b,'r',shot.url,'🤖 AI đã xếp '+b.filter(Boolean).length+' quân. <b>So với ảnh gốc</b>, chạm để sửa ô sai, chọn lượt đi rồi bấm <b>Xong</b>.'+(d.note?'<br><i>AI ghi chú: '+esc(d.note)+'</i>':''));
-    }).catch(function(err){return (window.DPG_AIERR?window.DPG_AIERR(err):Promise.resolve(err.message)).then(function(t){msg('Lỗi: '+esc(t)+'<br>Trong lúc chờ, bấm “Tự xếp quân” để xếp tay.','var(--red)');});})
+    }).catch(function(err){var raw=String((err&&err.message)||err||'');return (window.DPG_AIERR?window.DPG_AIERR(err):Promise.resolve(raw)).then(function(t){msg('Lỗi: '+esc(t)+'<br>Trong lúc chờ, bấm “Tự xếp quân” để xếp tay.'+(raw&&raw!==t?'<br><small style="color:var(--muted);font-weight:400">Chi tiết: '+esc(raw.slice(0,200))+'</small>':''),'var(--red)');});})
       .then(function(){btn.disabled=false;});
   };
 
