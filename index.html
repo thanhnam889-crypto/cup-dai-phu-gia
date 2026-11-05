@@ -256,7 +256,9 @@ a.poi.food .go{color:var(--jade)}
 .reg:last-child{border-bottom:0}
 .reg .no{flex:none;width:26px;height:26px;border-radius:8px;background:var(--surface-2);color:var(--muted);
   display:grid;place-items:center;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums}
-.reg .ri{flex:1;min-width:0}
+.reg .ri{flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word}
+#reg-list{overflow:hidden}
+.reg .rtag{max-width:100%;overflow-wrap:anywhere}
 .reg .rn{font-weight:700;font-size:13.5px}
 .reg .ru{font-size:12px;color:var(--muted);margin-top:1px}
 .reg .rtag{display:inline-block;margin-top:4px;font-size:10.5px;font-weight:600;color:var(--red);background:rgba(193,39,45,.08);padding:1px 8px;border-radius:999px}
