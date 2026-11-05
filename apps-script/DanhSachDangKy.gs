@@ -153,8 +153,9 @@ function limit_(dev, kind, max) {
 }
 
 // Model dự phòng khi model chính quá tải / hết hạn mức / không có
-// (gemini-2.5-flash đã bị Google ngừng cho người dùng mới; flash-latest dễ treo lâu khi quá tải -> để cuối)
-var GEMINI_FALLBACK = ['gemini-flash-lite-latest', 'gemini-flash-latest'];
+// Danh sách model ổn định có đọc ảnh (theo trang model của Google, 11/2026), ưu tiên chính xác -> nhẹ.
+// Bỏ gemini-flash-latest (trỏ về model chính, hay treo khi quá tải) và gemini-2.5-flash (đã ngừng).
+var GEMINI_FALLBACK = ['gemini-3.6-flash', 'gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite'];
 var lastModel_ = '', lastErrs_ = [];
 
 function callModel_(model, key, body) {

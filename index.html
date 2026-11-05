@@ -1134,6 +1134,17 @@ var KQ={
 (function(){
   var REG_URL='https://script.google.com/macros/s/AKfycbw1YTArxbZBpJ9TroDFvi3z-p9Ji50sjykDc_rN6a3t1PKMG9YfJKIU3IqyGn-k2-iM/exec'; // URL Web App Apps Script (…/exec). Để trống = dùng danh sách dự phòng bên dưới.
   window.DPG_SCRIPT=REG_URL; // máy chủ Apps Script: danh sách đăng ký + AI (Gemini)
+  // Gọi AI qua Apps Script; nếu Google quá tải thì tự chờ 15 giây rồi thử lại 1 lần
+  window.DPG_AIPOST=function(payload,note){
+    function once(){return fetch(REG_URL,{method:'POST',body:JSON.stringify(payload)}).then(function(r){return r.text()}).then(function(t){try{return JSON.parse(t)}catch(e){throw new Error('Máy chủ AI chưa sẵn sàng — Ban tổ chức cần cập nhật Apps Script (phiên bản mới).')}});}
+    return once().then(function(d){
+      if(d&&d.error&&/quá tải|high demand|overloaded|unavailable|try again/i.test(d.error)){
+        if(note)note('⏳ AI của Google đang bận — tự thử lại sau 15 giây…');
+        return new Promise(function(res){setTimeout(res,15000)}).then(function(){if(note)note('🤖 Đang thử lại…');return once();});
+      }
+      return d;
+    });
+  };
   // Chẩn đoán khi gọi AI thất bại -> nói rõ đang thiếu bước nào
   window.DPG_AIERR=function(err){
     var m=String((err&&err.message)||err||'');
@@ -1273,8 +1284,8 @@ var KQ={
           c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
           var b64=c.toDataURL('image/jpeg',.85).split(',')[1],dev='';try{dev=localStorage.getItem('dpg-dev')||''}catch(e){}
           m('🤖 AI đang đọc kết quả… (thường 10–30 giây)');
-          fetch(window.DPG_SCRIPT,{method:'POST',body:JSON.stringify({t:'kq',image:b64,mime:'image/jpeg',dev:dev,players:REG.map(function(r){return r[0]})})})
-            .then(function(r){return r.text()}).then(function(t){try{return JSON.parse(t)}catch(e){throw new Error('Máy chủ AI chưa sẵn sàng — Ban tổ chức cần cập nhật Apps Script (phiên bản mới).')}}).then(function(d){
+          window.DPG_AIPOST({t:'kq',image:b64,mime:'image/jpeg',dev:dev,players:REG.map(function(r){return r[0]})},function(t){m(t)})
+            .then(function(d){
               if(!d||d.error)throw new Error((d&&d.error)||'AI không đọc được ảnh');
               var g=(d.games||[]).filter(function(x){return x&&(x.a||x.b)});
               if(!g.length)throw new Error('Không thấy cặp đấu nào trong ảnh');
@@ -2118,8 +2129,8 @@ var XQ=(function(){
     if(!url){msg('Chưa kết nối máy chủ AI — bấm “Tự xếp quân” để xếp tay.','var(--red)');return;}
     btn.disabled=true;msg('Đang chuẩn bị ảnh…');var shot;
     shrink(file,1600).then(function(r){shot=r;msg('🤖 AI đang đọc bàn cờ… (thường 10–30 giây)');
-      return fetch(url,{method:'POST',body:JSON.stringify({t:'board',image:r.b64,mime:'image/jpeg',dev:devId()})});
-    }).then(function(r){return r.text()}).then(function(t){try{return JSON.parse(t)}catch(e){throw new Error('Máy chủ AI chưa sẵn sàng — Ban tổ chức cần cập nhật Apps Script (phiên bản mới).')}}).then(function(d){
+      return window.DPG_AIPOST({t:'board',image:r.b64,mime:'image/jpeg',dev:devId()},function(t){msg(t)});
+    }).then(function(d){
       if(!d||d.error||!d.rows)throw new Error((d&&d.error)||'AI không đọc được ảnh');
       var b=fromRows(d.rows,d.red);
       if(!b.some(Boolean))throw new Error('AI không thấy quân cờ nào trong ảnh');
