@@ -14,6 +14,12 @@
  */
 var SHEET_ID = ''; // để trống = dùng chính file đang gắn script (khuyến nghị)
 
+/* ===== AI (Gemini) cho app: đọc ảnh bàn cờ + đọc ảnh kết quả =====
+ * Dán API key Gemini (lấy miễn phí tại https://aistudio.google.com/apikey) vào dòng dưới,
+ * giữ nguyên dấu nháy đơn. Script chạy trên máy chủ Google nên không bị chặn vùng. */
+var GEMINI_API_KEY = 'DAN_KEY_GEMINI_VAO_DAY';
+var GEMINI_MODEL = 'gemini-3.8-flash';
+
 function doGet() {
   var cache = CacheService.getScriptCache();
   var hit = cache.get('reg');
@@ -113,4 +119,110 @@ function build_() {
     } else { arr.push(list.length); list.push(it); }
   }
   return { updated: latest ? new Date(latest).toISOString() : null, count: list.length, dup: dup, list: list };
+}
+
+
+/* ======================= AI qua Apps Script ======================= */
+function doPost(e) {
+  var req = {};
+  try { req = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (x) { return json_({ error: 'Dữ liệu gửi lên không hợp lệ' }); }
+  try {
+    if (req.t === 'board') return json_(readBoard_(req));
+    if (req.t === 'kq') return json_(readKq_(req));
+    return json_({ error: 'Yêu cầu không được hỗ trợ' });
+  } catch (x) { return json_({ error: String((x && x.message) || x) }); }
+}
+
+function json_(o) { return out_(JSON.stringify(o)); }
+
+function geminiKey_() {
+  var p = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+  if (p) return p.trim();
+  return (GEMINI_API_KEY && GEMINI_API_KEY.indexOf('DAN_KEY') < 0) ? GEMINI_API_KEY.trim() : '';
+}
+
+// Giới hạn mỗi máy N lượt / 6 giờ để giữ hạn mức miễn phí
+function limit_(dev, kind, max) {
+  var c = CacheService.getScriptCache(), k = 'lim_' + kind + '_' + String(dev || 'x').replace(/[^a-z0-9]/gi, '').slice(0, 40);
+  var n = +(c.get(k) || 0);
+  if (n >= max) return false;
+  c.put(k, String(n + 1), 21600);
+  return true;
+}
+
+function gemini_(parts, schema) {
+  var key = geminiKey_();
+  if (!key) throw new Error('Chưa dán GEMINI_API_KEY trong Apps Script');
+  var model = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL') || GEMINI_MODEL;
+  var body = { contents: [{ parts: parts }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } };
+  if (schema) body.generationConfig.responseSchema = schema;
+  var r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key),
+    { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true });
+  var code = r.getResponseCode(), d = {};
+  try { d = JSON.parse(r.getContentText()); } catch (x) {}
+  if (code !== 200) throw new Error((d.error && d.error.message) || ('Lỗi AI (' + code + ')'));
+  var txt = '';
+  try { txt = d.candidates[0].content.parts.filter(function (p) { return !p.thought; }).map(function (p) { return p.text || ''; }).join(''); } catch (x) {}
+  try { return JSON.parse(txt); } catch (x) {
+    var m = txt.match(/\{[\s\S]*\}/);
+    if (m) return JSON.parse(m[0]);
+    throw new Error('AI trả về dữ liệu không đọc được');
+  }
+}
+
+/* --- Đọc ảnh bàn cờ -> 10 hàng x 9 cột --- */
+function readBoard_(req) {
+  if (!req.image) return { error: 'Thiếu ảnh' };
+  if (!limit_(req.dev, 'board', 40)) return { error: 'Máy này đã dùng nhiều lượt AI, vui lòng thử lại sau vài giờ.' };
+  var prompt = [
+    'You are an expert Xiangqi (Chinese chess) position reader. The image shows a Xiangqi board',
+    '(a real board with round pieces, a printed diagram, or an app screenshot). Read EVERY piece and its exact point.',
+    'Geometry: 9 vertical lines (files) x 10 horizontal lines (ranks). Pieces sit ON the line intersections, not inside squares.',
+    'The river (楚河 漢界 or a blank band) separates the 5th and 6th horizontal lines.',
+    'Return JSON only: {"rows":[10 strings],"red_side":"bottom"|"top","note":"short note about anything uncertain, in Vietnamese"}.',
+    '- rows[0] = the horizontal line nearest the TOP of the image, rows[9] = nearest the BOTTOM.',
+    '- Each string has exactly 9 characters, LEFT to RIGHT as seen in the image.',
+    '- If the photo is rotated so that the river is vertical, first rotate the board mentally so that the river is horizontal.',
+    '- Letters: K=general (帥 帅 將 将), A=advisor (仕 士), B=elephant (相 象), N=horse (傌 馬 马), R=chariot (俥 車 车),',
+    '  C=cannon (炮 砲 包), P=soldier (兵 卒). UPPERCASE = RED pieces, lowercase = BLACK pieces (black / dark green / dark blue).',
+    '  Decide the side by the COLOR of the piece/character, not by the character alone. Use "." for an empty point.',
+    '- Ignore captured pieces placed outside the board.',
+    '- Sanity: each side has exactly 1 general inside its own palace, at most 2 advisors, 2 elephants, 2 horses, 2 chariots, 2 cannons, 5 soldiers.',
+    '- red_side = whether the RED general/palace is at the top or bottom of the image.'
+  ].join('\n');
+  var schema = { type: 'OBJECT', properties: {
+      rows: { type: 'ARRAY', items: { type: 'STRING' } },
+      red_side: { type: 'STRING', enum: ['bottom', 'top'] },
+      note: { type: 'STRING' } }, required: ['rows', 'red_side'] };
+  var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema);
+  var rows = (o.rows || []).slice(0, 12).map(function (s) {
+    return String(s || '').replace(/[1-9]/g, function (n) { return new Array(+n + 1).join('.'); })
+      .replace(/[-_0·*+x]/g, '.').replace(/[^KABNRCPkabnrcp.]/g, '');
+  });
+  return { ok: true, rows: rows, red: o.red_side === 'top' ? 'top' : 'bottom', note: String(o.note || '').slice(0, 300) };
+}
+
+/* --- Đọc ảnh biên bản kết quả 1 vòng --- */
+function readKq_(req) {
+  if (!req.image) return { error: 'Thiếu ảnh' };
+  if (!limit_(req.dev, 'kq', 60)) return { error: 'Đã dùng nhiều lượt AI, thử lại sau vài giờ.' };
+  var plist = (req.players || []).slice(0, 300).join(', ');
+  var prompt = 'Đây là ảnh ghi kết quả một vòng đấu cờ tướng (bảng in hoặc biên bản viết tay).\n'
+    + 'Hãy trích xuất danh sách các ván đấu trong ảnh.\n'
+    + 'Danh sách kỳ thủ đã đăng ký (khớp tên đọc được với tên gần nhất trong danh sách này khi có thể): ' + plist + '.\n'
+    + 'Chỉ trả về JSON: {"games":[{"a":"Tên kỳ thủ bên trái","b":"Tên kỳ thủ bên phải","kq":"a"}]}\n'
+    + 'kq: "a" nếu bên A thắng, "b" nếu bên B thắng, "hoa" nếu hòa, "none" nếu chưa có kết quả.';
+  var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }]);
+  var g = (o.games || []).filter(function (x) { return x && (x.a || x.b); }).slice(0, 200).map(function (x) {
+    var k = String(x.kq || 'none').toLowerCase();
+    return { a: String(x.a || '').slice(0, 80), b: String(x.b || '').slice(0, 80), kq: /^(a|b|hoa|none)$/.test(k) ? k : 'none' };
+  });
+  return { ok: true, games: g };
+}
+
+/* --- Bấm "Chạy" hàm này 1 lần trong trình soạn Apps Script để cấp quyền và kiểm tra key --- */
+function kiemTraGemini() {
+  var o = gemini_([{ text: 'Trả lời đúng JSON: {"ok":true,"loi_chao":"Xin chào Cúp Đại Phú Gia"}' }]);
+  Logger.log('✓ Gemini hoạt động tốt từ Apps Script: ' + JSON.stringify(o));
+  return o;
 }
