@@ -259,6 +259,7 @@ a.poi.food .go{color:var(--jade)}
 .reg .ri{flex:1;min-width:0}
 .reg .rn{font-weight:700;font-size:13.5px}
 .reg .ru{font-size:12px;color:var(--muted);margin-top:1px}
+.reg .rtag{display:inline-block;margin-top:4px;font-size:10.5px;font-weight:600;color:var(--red);background:rgba(193,39,45,.08);padding:1px 8px;border-radius:999px}
 .admlink{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:12px;color:var(--muted);
   text-decoration:none;border:1px solid var(--line);background:var(--surface-2);padding:7px 12px;border-radius:9px}
 .inp{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);
@@ -695,7 +696,7 @@ a.poi.food .go{color:var(--jade)}
     <div class="lbl">Kỳ thủ đã đăng ký</div>
     <div class="dkhead">
       <span class="cnt" id="reg-count">11</span>
-      <span class="ct">doanh nhân đã ghi danh · cập nhật 29/10</span>
+      <span class="ct" id="reg-upd">doanh nhân đã ghi danh · cập nhật 29/10</span>
     </div>
     <div class="card" id="reg-list">
       <div class="reg"><span class="no">1</span><div class="ri"><div class="rn">Nguyễn Thành Nam</div><div class="ru">Giám đốc · Công ty TNHH Tư vấn K.A.N</div></div></div>
@@ -988,29 +989,77 @@ var KQ={
   render();
 })();
 
+/* ---- DANH SÁCH ĐĂNG KÝ: tự lấy từ Google Form (qua Apps Script, chỉ tên/chức vụ/đơn vị) ---- */
+(function(){
+  var REG_URL=''; // URL Web App Apps Script (…/exec). Để trống = dùng danh sách dự phòng bên dưới.
+  var DEF={updated:'29/10',list:[
+    {n:'Nguyễn Thành Nam',cv:'Giám đốc',cty:'Công ty TNHH Tư vấn K.A.N'},
+    {n:'Nguyễn Ngọc Cường',cv:'Phó Giám đốc',cty:'Công ty TNHH Vật Tư Điện Lạnh Gia Lai'},
+    {n:'Nguyễn Hợp',cv:'Giám đốc',cty:'Công ty TNHH Hợp Thảo'},
+    {n:'Nguyễn Anh Huy',cv:'Phó Giám đốc sản xuất',cty:'Công ty TNHH MTV Gỗ Phú Tài Bình Định'},
+    {n:'Mai Đức Thiện',cv:'Giám đốc',cty:'Công ty Nhôm đúc Lý Thiện Phát'},
+    {n:'Lê Quang Tri',cv:'Giám đốc',cty:'Công ty TNHH Quang Tri'},
+    {n:'Lê Tấn Thuỷ',cv:'Phó Giám đốc',cty:'Công ty TNHH Thương Mại Baby Love'},
+    {n:'Nguyễn An Thái',cv:'Phó Giám đốc',cty:'Công ty TNHH Đại Lý Vận Tải ELITE'},
+    {n:'Nguyễn Văn Khánh',cv:'Phó Giám đốc',cty:'Công ty XD Tân Phương'},
+    {n:'Nguyễn Văn Hà',cv:'',cty:'Viettel Construction Đăk Lăk'},
+    {n:'Nguyễn Văn Thanh',cv:'Phó Giám đốc',cty:'Cty TNHH Nông nghiệp AGreen Cao Nguyên'}
+  ]};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
+  function nrm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
+  function okList(L){return Array.isArray(L)?L.filter(function(x){return x&&typeof x.n==='string'&&x.n.trim()}):null}
+  var cur=DEF,subs=[],busy=false,last=0;
+  try{var c=JSON.parse(localStorage.getItem('dpg-reg')||'null');if(c&&okList(c.list)&&c.list.length)cur={updated:c.updated,list:okList(c.list)};}catch(e){}
+  function fmtUpd(u){if(!u)return '';if(/^\d{1,2}\/\d{1,2}$/.test(u))return u;var d=new Date(u);return isNaN(d)?'':(d.getDate()+'/'+(d.getMonth()+1));}
+  function ndTag(nd){var x=nrm(nd);if(!x)return '';var up=/\bup\b/.test(x);
+    if(/ca hai|ca 2|both/.test(x)||(up&&/co tuong(?! up)/.test(x)))return 'Cờ tướng + Cờ úp';
+    if(up)return 'Cờ tướng úp';if(/tuong/.test(x))return 'Cờ tướng';return nd.length>40?nd.slice(0,40)+'…':nd;}
+  function render(){
+    var box=document.getElementById('reg-list'),cnt=document.getElementById('reg-count'),upd=document.getElementById('reg-upd');if(!box)return;
+    var L=cur.list||[],u=fmtUpd(cur.updated);
+    if(cnt)cnt.textContent=L.length;
+    if(upd)upd.textContent='doanh nhân đã ghi danh'+(u?' · cập nhật '+u:'');
+    if(!L.length){box.innerHTML='<div class="reg"><div class="ri"><div class="ru">Chưa có ai đăng ký.</div></div></div>';return;}
+    box.innerHTML=L.map(function(r,i){
+      var ru=[r.cv,r.cty].filter(function(x){return x&&String(x).trim()}).map(esc).join(' · '),tg=ndTag(r.nd);
+      return '<div class="reg"><span class="no">'+(i+1)+'</span><div class="ri"><div class="rn">'+esc(r.n)+'</div>'
+        +(ru?'<div class="ru">'+ru+'</div>':'')+(tg?'<span class="rtag">'+esc(tg)+'</span>':'')+'</div></div>';
+    }).join('');
+  }
+  function refresh(){
+    if(!REG_URL||busy)return;busy=true;
+    fetch(REG_URL,{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+      var L=j&&!j.error&&okList(j.list);if(!L)return;
+      cur={updated:j.updated,list:L};try{localStorage.setItem('dpg-reg',JSON.stringify(cur))}catch(e){}
+      render();subs.forEach(function(f){try{f(L)}catch(e){}});
+    }).catch(function(){}).then(function(){busy=false;last=Date.now();});
+  }
+  window.DPGREG={list:function(){return cur.list||[]},on:function(f){subs.push(f)},refresh:refresh};
+  render();refresh();
+  setInterval(function(){if(!document.hidden)refresh()},5*60*1000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-last>60000)refresh()});
+})();
+
 /* ---- ADMIN: nhập kết quả ---- */
 (function(){
   var ADMIN_PASS='151126';   // Ban tổ chức: đổi mật khẩu tại đây (chỉ dùng số)
   var gate=document.getElementById('adm-gate'),panel=document.getElementById('adm-panel');
   if(!gate||!panel)return;
-  var REG=[
-    ['Nguyễn Thành Nam','Công ty TNHH Tư vấn K.A.N'],['Nguyễn Ngọc Cường','Công ty TNHH Vật Tư Điện Lạnh Gia Lai'],
-    ['Nguyễn Hợp','Công ty TNHH Hợp Thảo'],['Nguyễn Anh Huy','Công ty TNHH MTV Gỗ Phú Tài Bình Định'],
-    ['Mai Đức Thiện','Công ty Nhôm đúc Lý Thiện Phát'],['Lê Quang Tri','Công ty TNHH Quang Tri'],
-    ['Lê Tấn Thuỷ','Công ty TNHH Thương Mại Baby Love'],['Nguyễn An Thái','Công ty TNHH Đại Lý Vận Tải ELITE'],
-    ['Nguyễn Văn Khánh','Công ty XD Tân Phương'],['Nguyễn Văn Hà','Viettel Construction Đăk Lăk'],
-    ['Nguyễn Văn Thanh','Cty TNHH Nông nghiệp AGreen Cao Nguyên']
-  ];
-  var DIR={};REG.forEach(function(r){DIR[r[0].trim().toLowerCase()]=r[1]});
+  // Danh sách kỳ thủ: lấy chung từ DPGREG (tự cập nhật theo Form đăng ký)
+  var REG=[],DIR={};
+  var dl=document.createElement('datalist');dl.id='reg-names';document.body.appendChild(dl);
+  function syncReg(){
+    var L=(window.DPGREG&&window.DPGREG.list())||[];
+    REG.length=0;DIR={};dl.innerHTML='';
+    L.forEach(function(r){REG.push([r.n,r.cty||'']);DIR[r.n.trim().toLowerCase()]=r.cty||'';
+      var o=document.createElement('option');o.value=r.n;dl.appendChild(o);});
+  }
+  syncReg();if(window.DPGREG)window.DPGREG.on(syncReg);
   function unitOf(n){return DIR[(n||'').trim().toLowerCase()]||''}
   var cSel=document.getElementById('adm-content'),nSel=document.getElementById('adm-numrounds'),
       rSel=document.getElementById('adm-round'),rowsBox=document.getElementById('adm-rows'),
       okMsg=document.getElementById('adm-ok');
 
-  // datalist cho tên kỳ thủ
-  var dl=document.createElement('datalist');dl.id='reg-names';
-  REG.forEach(function(r){var o=document.createElement('option');o.value=r[0];dl.appendChild(o)});
-  document.body.appendChild(dl);
 
   function store(){try{return JSON.parse(localStorage.getItem('dpg-kq')||'{}')}catch(e){return{}}}
   function save(s){try{localStorage.setItem('dpg-kq',JSON.stringify(s))}catch(e){}}
