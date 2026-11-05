@@ -153,7 +153,8 @@ function limit_(dev, kind, max) {
 }
 
 // Model dự phòng khi model chính quá tải / hết hạn mức / không có
-var GEMINI_FALLBACK = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest'];
+// (gemini-2.5-flash đã bị Google ngừng cho người dùng mới; flash-latest dễ treo lâu khi quá tải -> để cuối)
+var GEMINI_FALLBACK = ['gemini-flash-lite-latest', 'gemini-flash-latest'];
 var lastModel_ = '', lastErrs_ = [];
 
 function callModel_(model, key, body) {
@@ -172,24 +173,26 @@ function gemini_(parts, schema) {
   var key = geminiKey_();
   if (!key) throw new Error('Chưa dán GEMINI_API_KEY trong Apps Script');
   var first = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL') || GEMINI_MODEL;
-  var models = [first, first].concat(GEMINI_FALLBACK.filter(function (m) { return m !== first; })); // thử lại model chính 1 lần
-  var cache = CacheService.getScriptCache(), sticky = cache.get('okModel');   // model vừa chạy tốt -> gọi thẳng cho nhanh
-  if (sticky && sticky !== first) models = [sticky].concat(models.filter(function (m) { return m !== sticky; }));
-  lastErrs_ = [];
+  var cache = CacheService.getScriptCache(), sticky = cache.get('okModel');
+  // Thứ tự: model chính -> model vừa chạy tốt -> các model dự phòng; bỏ qua model vừa lỗi (chính: né 5 phút, khác: 30 phút)
+  var all = [first].concat(sticky ? [sticky] : []).concat(GEMINI_FALLBACK).filter(function (m, k, a) { return a.indexOf(m) === k; });
+  var models = all.filter(function (m) { return !cache.get('bad_' + m); });
+  if (!models.length) models = all;
   var body = { contents: [{ parts: parts }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } };
   if (schema) body.generationConfig.responseSchema = schema;
   var d = null, lastErr = '';
+  lastErrs_ = [];
   for (var i = 0; i < models.length && !d; i++) {
     var t0 = Date.now(), res = callModel_(models[i], key, body);
     if (res.ok) {
       d = res.data; lastModel_ = models[i];
-      try { if (models[i] !== first) cache.put('okModel', models[i], 1800); else cache.remove('okModel'); } catch (x) {}
+      try { if (models[i] !== first) cache.put('okModel', models[i], 21600); else cache.remove('okModel'); } catch (x) {}
       break;
     }
     lastErr = res.err;
     lastErrs_.push(models[i] + ' → ' + res.code + ' ' + String(res.err).slice(0, 90) + ' (' + Math.round((Date.now() - t0) / 100) / 10 + 's)');
     if (!res.retry) throw new Error(lastErr);          // lỗi key / chặn vùng… -> báo ngay
-    if (i < models.length - 1) Utilities.sleep(i === 0 ? 1500 : 400);
+    try { cache.put('bad_' + models[i], '1', models[i] === first ? 300 : 1800); } catch (x) {}
   }
   if (!d) throw new Error('AI đang quá tải, vui lòng thử lại sau ít phút. (' + lastErr + ')');
   var txt = '';
