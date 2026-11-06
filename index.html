@@ -1729,6 +1729,9 @@ var KQ={
 (function(){
   var CLD_CLOUD='yjsnmpiw', CLD_PRESET='cup_gallery';
   var GRPS={truoc:'Trước giải đấu', trong:'Trong giải đấu'};
+  // Ảnh cố định có sẵn trong app (luôn hiện đầu nhóm)
+  var FIXED=[{id:'fx-vitri',t:'img',url:'thu-vien/vi-tri-thi-dau.jpg',th:'thu-vien/vi-tri-thi-dau-nho.jpg',
+    cap:'📍 Vị trí thi đấu: tòa nhà hình con tàu – Khu Biệt thự Đại Phú Gia',grp:'truoc'}];
   function galArr(){
     var a=(window.DPG&&window.DPG.config&&window.DPG.config.gallery);
     if(!a){try{a=JSON.parse(localStorage.getItem('dpg-cfg')||'{}').gallery;}catch(e){a=null;}}
@@ -1744,14 +1747,14 @@ var KQ={
   function card(it){
     var el=document.createElement('div');el.className='gt';
     if(it.t==='vid'){el.innerHTML='<div class="vb">▶</div>'+(it.cap?('<div class="gc">'+esc(it.cap)+'</div>'):'');el.onclick=function(){window.open(it.url,'_blank','noopener');};}
-    else{el.innerHTML='<img loading="lazy" src="'+esc(thumb(it.url,400))+'" alt="">'+(it.cap?('<div class="gc">'+esc(it.cap)+'</div>'):'');el.onclick=function(){openImg(it.url);};}
+    else{el.innerHTML='<img loading="lazy" src="'+esc(it.th||thumb(it.url,400))+'" alt="'+esc(it.cap||'')+'">'+(it.cap?('<div class="gc">'+esc(it.cap)+'</div>'):'');el.onclick=function(){openImg(it.url);};}
     return el;
   }
   function renderGallery(){
     var arr=galArr().slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
     ['truoc','trong'].forEach(function(g){
       var box=document.getElementById('gal-'+g),em=document.getElementById('gal-'+g+'-e');if(!box)return;
-      box.innerHTML='';var items=arr.filter(function(x){return (x.grp||'truoc')===g;});
+      box.innerHTML='';var items=FIXED.concat(arr).filter(function(x){return (x.grp||'truoc')===g;});
       items.forEach(function(it){box.appendChild(card(it));});
       if(em)em.style.display=items.length?'none':'';
     });
