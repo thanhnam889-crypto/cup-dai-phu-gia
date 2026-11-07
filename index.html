@@ -354,6 +354,8 @@ a.poi.food .go{color:var(--jade)}
 .qrbox{width:200px;height:200px;margin:14px auto 0;background:#fff;border:1px solid var(--line);
   border-radius:14px;padding:12px;display:grid;place-items:center;box-shadow:var(--shadow)}
 .qrbox img,.qrbox canvas{width:100%!important;height:100%!important;display:block}
+.qrbox.qrimg{width:230px;height:auto;padding:8px}
+.qrbox.qrimg img{height:auto!important}
 .qrcap{font-size:12px;color:var(--muted);margin-top:11px}
 .qrcap b{color:var(--fg)}
 .note{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.5}
@@ -501,7 +503,7 @@ a.poi.food .go{color:var(--jade)}
     <div class="lbl">Chia sẻ app cho bạn bè</div>
     <div class="card" style="text-align:center">
       <p style="margin:0">Quét mã hoặc gửi link để mời thêm người cùng theo dõi giải.</p>
-      <div class="qrbox"><div id="app-qr"></div></div>
+      <div class="qrbox qrimg"><div id="app-qr"><img id="app-qr-img" src="qr-app.png" alt="Mã QR mở app Cúp Đại Phú Gia 2026" width="592" height="678"></div></div>
       <div style="font-size:12px;color:var(--muted);margin-top:8px;word-break:break-all" id="app-url-txt"></div>
       <div class="admrow2" style="margin-top:12px">
         <button class="btn" id="share-btn" style="flex:1;margin-top:0">📤 Chia sẻ app</button>
@@ -1690,10 +1692,14 @@ var KQ={
 
 /* ---- QR app + chia sẻ cho bạn bè ---- */
 (function(){
-  var APP_URL=location.origin+'/';
+  // Luôn dùng link chính thức (bản xem trong Claude/khung nhúng có địa chỉ tạm, quét không mở được)
+  var APP_URL=window.DPG_APP_URL='https://cup-dai-phu-gia.pages.dev/';
   var box=document.getElementById('app-qr');
   var txt=document.getElementById('app-url-txt');if(txt)txt.textContent=APP_URL;
-  if(box&&typeof QRCode!=='undefined'){try{new QRCode(box,{text:APP_URL,width:200,height:200,colorDark:'#C1272D',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}catch(e){}}
+  // Mã QR chính thức (ảnh qr-app.png → https://cup-dai-phu-gia.pages.dev/); ảnh lỗi thì tự tạo QR thay thế
+  var qimg=document.getElementById('app-qr-img');
+  if(qimg)qimg.onerror=function(){if(!box||typeof QRCode==='undefined')return;box.innerHTML='';box.parentNode.classList.remove('qrimg');
+    try{new QRCode(box,{text:APP_URL,width:200,height:200,colorDark:'#9E1B22',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}catch(e){}};
   function smsg(t,c){var m=document.getElementById('share-msg');if(m){m.style.color=c||'var(--jade)';m.textContent=t;setTimeout(function(){m.textContent='';},2600);}}
   var sb=document.getElementById('share-btn');
   if(sb)sb.onclick=function(){
@@ -1706,6 +1712,7 @@ var KQ={
   if(qs)qs.onclick=function(){
     if(!box)return;var cvs=box.querySelector('canvas'),img=box.querySelector('img');
     var u=cvs?cvs.toDataURL('image/png'):(img?img.src:null);if(!u){smsg('Chưa tạo được QR.','var(--red)');return;}
+    if(img&&img.id==='app-qr-img')u='qr-app.png';
     var a=document.createElement('a');a.href=u;a.download='QR-Cup-Dai-Phu-Gia-2026.png';document.body.appendChild(a);a.click();a.remove();
     smsg('✓ Đã lưu ảnh QR.');
   };
@@ -2214,7 +2221,7 @@ var XQ=(function(){
     msg('✓ Đã lưu “'+esc(t)+'” trên máy này.','var(--jade)');
   };
   $('bl-share').onclick=function(){
-    var url=location.origin+location.pathname+'#binh-luan/'+b64e(JSON.stringify(dump()));
+    var url=(/\.pages\.dev$/.test(location.hostname)?location.origin+location.pathname:'https://cup-dai-phu-gia.pages.dev/')+'#binh-luan/'+b64e(JSON.stringify(dump()));
     var title=$('bl-title').value.trim()||'Bàn cờ bình luận';
     if(navigator.share){navigator.share({title:title,text:title+' — xem & đi thử trên app Cúp Đại Phú Gia 2026',url:url}).catch(function(){});return;}
     (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(function(){msg('✓ Đã copy link — dán vào Zalo/Facebook để gửi.','var(--jade)')},
