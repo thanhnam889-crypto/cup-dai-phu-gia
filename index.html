@@ -328,6 +328,10 @@ a.poi.food .go{color:var(--jade)}
 .galempty{color:var(--muted);font-size:13px;padding:10px 2px}
 .glb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px}
 .glb img{max-width:95vw;max-height:88vh;border-radius:10px}
+.glb video{width:100%;max-width:960px;max-height:82vh;border-radius:10px;background:#000}
+.glb .gx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:18px;cursor:pointer}
+.gt .vb.on{background:rgba(0,0,0,.18)}
+.gt .vb .pl{width:44px;height:44px;border-radius:50%;background:rgba(193,39,45,.92);display:flex;align-items:center;justify-content:center;font-size:17px;padding-left:3px;box-shadow:0 2px 10px rgba(0,0,0,.35)}
 .gadm{display:flex;gap:9px;align-items:center;padding:7px;border:1px solid var(--line);border-radius:11px;margin-bottom:7px}
 .gadm .gth{width:46px;height:46px;flex:none;border-radius:8px;overflow:hidden;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:20px}
 .gadm .gth img{width:100%;height:100%;object-fit:cover}
@@ -1730,7 +1734,9 @@ var KQ={
   var CLD_CLOUD='yjsnmpiw', CLD_PRESET='cup_gallery';
   var GRPS={truoc:'Trước giải đấu', trong:'Trong giải đấu'};
   // Ảnh cố định có sẵn trong app (luôn hiện đầu nhóm)
-  var FIXED=[{id:'fx-vitri',t:'img',url:'thu-vien/vi-tri-thi-dau.jpg',th:'thu-vien/vi-tri-thi-dau-nho.jpg',
+  var FIXED=[{id:'fx-video',t:'vid',url:'thu-vien/gioi-thieu-giai.mp4',th:'thu-vien/gioi-thieu-giai-nho.jpg',poster:'thu-vien/gioi-thieu-giai.jpg',
+    cap:'🎬 Video giới thiệu Giải – Cúp Đại Phú Gia 2026',grp:'truoc'},
+    {id:'fx-vitri',t:'img',url:'thu-vien/vi-tri-thi-dau.jpg',th:'thu-vien/vi-tri-thi-dau-nho.jpg',
     cap:'📍 Vị trí thi đấu: tòa nhà hình con tàu – Khu Biệt thự Đại Phú Gia',grp:'truoc'}];
   function galArr(){
     var a=(window.DPG&&window.DPG.config&&window.DPG.config.gallery);
@@ -1743,10 +1749,18 @@ var KQ={
       return url.replace('/image/upload/','/image/upload/w_'+w+',h_'+w+',c_fill,q_auto,f_auto/');
     return url;
   }
+  function openVid(it){
+    var o=document.createElement('div');o.className='glb';
+    o.innerHTML='<button class="gx" aria-label="Đóng">✕</button><video controls autoplay playsinline preload="metadata"'+(it.poster?' poster="'+esc(it.poster)+'"':'')+' src="'+esc(it.url)+'"></video>';
+    var v=o.querySelector('video');function close(){try{v.pause()}catch(e){}o.remove();}
+    o.querySelector('.gx').onclick=close;o.onclick=function(e){if(e.target===o)close();};
+    v.onclick=function(e){e.stopPropagation();};document.body.appendChild(o);
+  }
   function openImg(url){var o=document.createElement('div');o.className='glb';o.innerHTML='<img src="'+esc(url)+'" alt="">';o.onclick=function(){o.remove();};document.body.appendChild(o);}
   function card(it){
     var el=document.createElement('div');el.className='gt';
-    if(it.t==='vid'){el.innerHTML='<div class="vb">▶</div>'+(it.cap?('<div class="gc">'+esc(it.cap)+'</div>'):'');el.onclick=function(){window.open(it.url,'_blank','noopener');};}
+    if(it.t==='vid'){el.innerHTML=(it.th?'<img loading="lazy" src="'+esc(it.th)+'" alt="'+esc(it.cap||'')+'"><div class="vb on"><span class="pl">▶</span></div>':'<div class="vb">▶</div>')+(it.cap?('<div class="gc">'+esc(it.cap)+'</div>'):'');
+      el.onclick=/\.(mp4|webm|mov)(\?|$)/i.test(it.url)?function(){openVid(it);}:function(){window.open(it.url,'_blank','noopener');};}
     else{el.innerHTML='<img loading="lazy" src="'+esc(it.th||thumb(it.url,400))+'" alt="'+esc(it.cap||'')+'">'+(it.cap?('<div class="gc">'+esc(it.cap)+'</div>'):'');el.onclick=function(){openImg(it.url);};}
     return el;
   }

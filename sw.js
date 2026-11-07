@@ -1,4 +1,4 @@
-const CACHE='dpg-2026-v37';
+const CACHE='dpg-2026-v38';
 const ASSETS=['./','./index.html','./manifest.webmanifest',
  './icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png',
  './icons/apple-touch-icon.png','./icons/favicon-64.png'];
@@ -13,6 +13,7 @@ self.addEventListener('fetch',e=>{
   if(req.method!=='GET')return;
   const url=new URL(req.url);
   if(url.origin!==location.origin)return; // bỏ qua Firebase/CDN -> để trình duyệt tự tải
+  if(req.headers.has('range')||/\.(mp4|webm|mov)$/i.test(url.pathname))return; // video: để trình duyệt tự tải (tua/phát trên iPhone)
   if(req.mode==='navigate'||req.destination==='document'){
     // HTML: ưu tiên mạng (luôn mới), offline mới dùng bản lưu
     e.respondWith(fetch(req).then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put(req,cp)).catch(()=>{});return res;})
