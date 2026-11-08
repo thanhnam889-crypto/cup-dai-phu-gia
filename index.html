@@ -289,6 +289,8 @@ a.poi.food .go{color:var(--jade)}
 .invdoc{flex:none;width:32px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--jade-soft);color:var(--jade);cursor:pointer;font-size:14px}
 .invwho .invcty{display:block;font-weight:400;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .invadd{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.ldxung{flex:none!important;width:76px!important}
+.invgenk{flex:none;font-size:10.5px;font-weight:700;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:1px 6px}
 .invgenbox{margin-top:12px}
 .invgenhd{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12.5px;color:var(--fg);padding:9px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
 .invgenhd b{color:var(--jade);font-size:15px}
@@ -928,7 +930,7 @@ a.poi.food .go{color:var(--jade)}
     </div>
 
     <div class="sec">
-      <div class="lbl">Quản lý thư mời</div>
+      <div class="lbl">Thư mời Kỳ thủ — tham dự &amp; thi đấu</div>
       <div class="invsum" id="inv-sum"></div>
       <div id="inv-list"></div>
 
@@ -966,6 +968,38 @@ a.poi.food .go{color:var(--jade)}
         <div class="okmsg" id="invgen-msg"></div>
         <div class="invgenlist" id="invgen-list"></div>
       </div>
+    </div>
+
+    <div class="sec">
+      <div class="lbl">Thư mời Lãnh đạo — dự Khai mạc &amp; Bế mạc</div>
+      <div class="invsum" id="ld-sum"></div>
+      <div id="ld-list"></div>
+
+      <div class="invadd">
+        <div class="admrow2">
+          <select class="inp ldxung" id="ld-xung"><option>Ông</option><option>Bà</option></select>
+          <input class="inp" id="ld-name" placeholder="Họ tên lãnh đạo">
+        </div>
+        <input class="inp" id="ld-cv" placeholder="Chức vụ – đơn vị (VD: Phó Chủ tịch UBND tỉnh Gia Lai)">
+        <div class="admrow2">
+          <select class="inp" id="ld-status">
+            <option value="chua">Chưa gửi thư</option>
+            <option value="dagui">Đã gửi thư</option>
+            <option value="xacnhan">Đã xác nhận</option>
+            <option value="tuchoi">Từ chối</option>
+          </select>
+          <button class="btn" id="ld-add" style="flex:none;width:auto">＋ Thêm</button>
+        </div>
+      </div>
+      <div class="okmsg" id="ld-ok"></div>
+
+      <div class="admbar" style="margin-top:12px">
+        <button class="btn ghost" id="ld-xlsx" style="flex:1">▤ Nhập từ Excel</button>
+        <button class="btn" id="ld-all" style="flex:1">⬇ Tải tất cả (ZIP)</button>
+      </div>
+      <input type="file" id="ld-file" accept=".xlsx,.xls" style="display:none">
+      <div class="okmsg" id="ld-gen"></div>
+      <p class="note" style="padding:4px 2px 0">Mẫu thư mời <b>tham dự Lễ Khai mạc &amp; Bế mạc</b> (không thi đấu). Bấm <b>📄</b> để tải ảnh JPG — tự điền <b>Ông/Bà, họ tên, chức vụ</b> (in hoa). Excel gồm 3 cột <b>Danh xưng | Họ tên | Chức vụ – đơn vị</b> — <a id="ld-sample" href="#" style="color:var(--red)">tải file mẫu</a>. Lượt tạo được tính chung vào bộ đếm thư mời ở trên.</p>
     </div>
 
     <div class="sec">
@@ -1504,15 +1538,16 @@ var KQ={
     });
   }
   function dlFile(blob,fn){var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},3000);}
-  function safeName(s){return String(s||'').replace(/[\\/:*?"<>|\n\r]/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Khach moi';}
+  // Tên tệp không dấu (một số trình duyệt/Zalo đổi tên có dấu thành "download")
+  function safeName(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').replace(/[\\/:*?"<>|\n\r]/g,' ').replace(/[^\x20-\x7e]/g,'').replace(/\s+/g,' ').trim().slice(0,60)||'Khach moi';}
   function genMsg(t,c){var g=document.getElementById('inv-gen');g.style.color=c||'var(--muted)';g.textContent=t;}
   // ----- Bộ đếm: lưu số lần & tên đã tạo thư mời (đồng bộ qua Firestore) -----
   function invgenGet(){var c=(window.DPG&&window.DPG.config)||cfgGet();return (c&&Array.isArray(c.invgen))?c.invgen.slice():[]}
   function invgenKey(n,cty){return String(n||'').trim().toLowerCase()+'|'+String(cty||'').trim().toLowerCase();}
-  function invgenBump(arr,name,cty){
+  function invgenBump(arr,name,cty,kind){
     var k=invgenKey(name,cty),now=Date.now(),hit=null;
     for(var i=0;i<arr.length;i++){if(invgenKey(arr[i].n,arr[i].cty)===k){hit=arr[i];break;}}
-    if(hit){hit.c=(hit.c||0)+1;hit.ts=now;}else{arr.push({n:name,cty:cty||'',c:1,ts:now});}
+    if(hit){hit.c=(hit.c||0)+1;hit.ts=now;if(kind)hit.k=kind;}else{var o={n:name,cty:cty||'',c:1,ts:now};if(kind)o.k=kind;arr.push(o);}
     return arr;
   }
   function invgenPersist(arr){
@@ -1521,7 +1556,7 @@ var KQ={
       if(window.DPG.pushConfig)return window.DPG.pushConfig({invgen:arr});}
     return Promise.resolve();
   }
-  function invgenLog(name,cty){var arr=invgenBump(invgenGet(),name,cty);invgenPersist(arr);invgenRender();}
+  function invgenLog(name,cty,kind){var arr=invgenBump(invgenGet(),name,cty,kind);invgenPersist(arr);invgenRender();}
   function invgenFmt(ts){if(!ts)return '';var d=new Date(ts);function p(x){return(x<10?'0':'')+x;}return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes());}
   // Chỉ TÁC GIẢ mới xóa được bộ đếm: mã tác giả riêng (khác mật khẩu admin), lưu dạng băm SHA-256.
   // Đổi mã: OWNER_HASH = sha256('dpg2026|' + mã mới).
@@ -1540,7 +1575,7 @@ var KQ={
     if(!total){list.innerHTML='';var lk=document.getElementById('invgen-lock');if(lk)lk.hidden=true;return;}
     list.innerHTML=arr.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0)}).map(function(x){
       return '<div class="invgenrow"><span class="invgenwho">'+iesc(x.n||'')+(x.cty?'<span class="invcty">'+iesc(x.cty)+'</span>':'')+'</span>'
-        +'<span class="invgenc">×'+(x.c||0)+'</span><span class="invgents">'+invgenFmt(x.ts)+'</span></div>';
+        +(x.k==='ld'?'<span class="invgenk">Lãnh đạo</span>':'')+'<span class="invgenc">×'+(x.c||0)+'</span><span class="invgents">'+invgenFmt(x.ts)+'</span></div>';
     }).join('');
   }
   (function(){
@@ -1612,10 +1647,141 @@ var KQ={
     }).catch(function(err){genMsg('Lỗi: '+err.message,'var(--red)');});
   };
 
+  // ===== THƯ MỜI LÃNH ĐẠO (dự Khai mạc & Bế mạc, không thi đấu) =====
+  var LD_BIA='thu-moi-ld-bia.jpg', LD_NEN='thu-moi-ld-nen.jpg';
+  function ldGet(){var c=(window.DPG&&window.DPG.config)||cfgGet();return (c&&Array.isArray(c.leaders))?c.leaders.map(function(x){return{x:x.x==='Bà'?'Bà':'Ông',n:x.n||'',cv:x.cv||'',st:x.st||'chua'}}):[]}
+  function ldMsg(id,t,c){var g=document.getElementById(id);if(!g)return;g.style.color=c||'var(--muted)';g.textContent=t;}
+  function ldSave(list,msg){
+    var cfg=cfgGet();cfg.leaders=list;try{localStorage.setItem('dpg-cfg',JSON.stringify(cfg))}catch(e){}
+    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.leaders=list;}
+    ldRender();
+    if(window.DPG&&window.DPG.pushConfig){ldMsg('ld-ok','Đang đồng bộ…','var(--jade)');
+      window.DPG.pushConfig({leaders:list}).then(function(){ldMsg('ld-ok',msg||'✓ Đã lưu & đồng bộ.','var(--jade)')})
+        .catch(function(){ldMsg('ld-ok','⚠ Đã lưu máy này, chưa đồng bộ được.','var(--red)')});
+    }else ldMsg('ld-ok',msg||'✓ Đã lưu trên máy này.','var(--jade)');
+  }
+  function ldRender(){
+    var box=document.getElementById('ld-list'),sum=document.getElementById('ld-sum');if(!box)return;
+    var list=ldGet(),n=list.length;
+    var dg=list.filter(function(x){return x.st==='dagui'}).length,xn=list.filter(function(x){return x.st==='xacnhan'}).length;
+    sum.innerHTML='<b>'+n+'</b> lãnh đạo &nbsp;·&nbsp; <span style="color:var(--gold)">'+dg+' đã gửi</span> &nbsp;·&nbsp; <span style="color:var(--jade)">'+xn+' xác nhận</span>';
+    if(!n){box.innerHTML='<div class="invrow" style="color:var(--muted);justify-content:center">Chưa có — thêm bên dưới.</div>';return;}
+    box.innerHTML=list.map(function(it,i){
+      var opts=Object.keys(INVST).map(function(k){return '<option value="'+k+'"'+(it.st===k?' selected':'')+'>'+INVST[k][0]+'</option>'}).join('');
+      return '<div class="invrow"><span class="invno">'+(i+1)+'</span>'
+        +'<span class="invwho">'+iesc(it.x+' '+it.n)+(it.cv?'<span class="invcty">'+iesc(it.cv)+'</span>':'')+'</span>'
+        +'<select class="inp invst" data-i="'+i+'">'+opts+'</select>'
+        +'<button class="invdoc" data-i="'+i+'" title="Tải thư mời">📄</button>'
+        +'<button class="invdel" data-i="'+i+'" title="Xóa">✕</button></div>';
+    }).join('');
+    box.querySelectorAll('.invst').forEach(function(s){s.onchange=function(){var l=ldGet();l[+s.dataset.i].st=s.value;ldSave(l,'✓ Đã cập nhật trạng thái.')}});
+    box.querySelectorAll('.invdel').forEach(function(b){b.onclick=function(){var l=ldGet();l.splice(+b.dataset.i,1);ldSave(l,'Đã xóa khỏi danh sách.')}});
+    box.querySelectorAll('.invdoc').forEach(function(b){b.onclick=function(){ldOne(ldGet()[+b.dataset.i])}});
+  }
+  window.__leadersRender=ldRender;
+  function ldUp(t){return String(t||'').normalize('NFC').replace(/\s+/g,' ').trim().toLocaleUpperCase('vi-VN');}
+  // Vẽ chữ có giãn ký tự (giống mẫu PowerPoint), canh giữa tại cx, chân chữ tại y
+  function spacedW(ctx,t,ls){var a=Array.from(t),w=0;a.forEach(function(ch){w+=ctx.measureText(ch).width});return w+ls*Math.max(0,a.length-1);}
+  function spacedDraw(ctx,t,cx,y,ls){var x=cx-spacedW(ctx,t,ls)/2;Array.from(t).forEach(function(ch){ctx.fillText(ch,x,y);x+=ctx.measureText(ch).width+ls;});}
+  function ldFont(w,px){return w+' '+px+'px "Be Vietnam Pro","Segoe UI",sans-serif';}
+  // Toạ độ đo từ mẫu PowerPoint (trang 2, khổ vuông): Ông/Bà cx .5600 · tên cx .7487 · chân dòng tên .2207 · chức vụ cx .7355, chân .2628
+  function drawLdText(ctx,W,H,xung,name,cv){
+    ctx.fillStyle='#8B1A1A';ctx.textAlign='left';ctx.textBaseline='alphabetic';
+    var nPx=0.01778*H,nLs=0.00149*H,yN=0.2207*H;
+    ctx.font=ldFont('400',nPx);spacedDraw(ctx,(xung||'Ông')+':',0.5600*W,yN,nLs);
+    if(name){var t=ldUp(name),px=nPx,ls=nLs,maxW=0.30*W;
+      ctx.font=ldFont('700',px);
+      while(spacedW(ctx,t,ls)>maxW&&px>nPx*0.6){px-=0.5;ls=nLs*px/nPx;ctx.font=ldFont('700',px);}
+      spacedDraw(ctx,t,0.7487*W,yN,ls);}
+    if(cv){var c=ldUp(cv),cPx=0.01866*H,cLs=0.00156*H,cx=0.7355*W,maxC=0.46*W,p=cPx,l=cLs;
+      ctx.font=ldFont('400',p);
+      while(spacedW(ctx,c,l)>maxC&&p>cPx*0.8){p-=0.5;l=cLs*p/cPx;ctx.font=ldFont('400',p);}
+      if(spacedW(ctx,c,l)<=maxC){spacedDraw(ctx,c,cx,0.2628*H,l);}
+      else{ // quá dài → 2 dòng, ngắt ở khoảng trắng gần giữa nhất
+        var words=c.split(' '),best=1,bd=1e9;
+        for(var i=1;i<words.length;i++){var d=Math.abs(words.slice(0,i).join(' ').length-words.slice(i).join(' ').length);if(d<bd){bd=d;best=i;}}
+        var l1=words.slice(0,best).join(' '),l2=words.slice(best).join(' ');
+        p=cPx*0.88;l=cLs*0.88;ctx.font=ldFont('400',p);
+        while(Math.max(spacedW(ctx,l1,l),spacedW(ctx,l2,l))>maxC&&p>cPx*0.5){p-=0.5;l=cLs*p/cPx;ctx.font=ldFont('400',p);}
+        spacedDraw(ctx,l1,cx,0.2522*H,l);spacedDraw(ctx,l2,cx,0.2742*H,l);
+      }}
+  }
+  function ldBlob(it){
+    return Promise.all([loadImg(LD_BIA),loadImg(LD_NEN),ensureFont()]).then(function(r){
+      var bia=r[0],nen=r[1];
+      var cc=document.createElement('canvas');cc.width=nen.naturalWidth;cc.height=nen.naturalHeight;
+      var cx=cc.getContext('2d');cx.drawImage(nen,0,0);drawLdText(cx,cc.width,cc.height,it.x,it.n,it.cv);
+      var H=Math.max(bia.naturalHeight,cc.height),biaW=Math.round(bia.naturalWidth*H/bia.naturalHeight),gap=Math.round(H*0.012);
+      var out=document.createElement('canvas');out.width=biaW+gap+cc.width;out.height=H;
+      var o=out.getContext('2d');o.fillStyle='#fff';o.fillRect(0,0,out.width,out.height);
+      o.drawImage(bia,0,0,biaW,H);o.drawImage(cc,biaW+gap,0);
+      return new Promise(function(res,rej){out.toBlob(function(b){b?res(b):rej(new Error('Không tạo được ảnh'))},'image/jpeg',0.92);});
+    });
+  }
+  window.__ldBlob=ldBlob;
+  function ldFile(it){return 'Thu moi Lanh dao - '+safeName(it.x+' '+it.n)+'.jpg';}
+  function ldOne(it){
+    if(!it||!it.n){ldMsg('ld-gen','Thiếu họ tên.','var(--red)');return;}
+    ldMsg('ld-gen','Đang tạo thư mời cho '+it.x+' '+it.n+'…');
+    ldBlob(it).then(function(b){dlFile(b,ldFile(it));invgenLog(it.x+' '+it.n,it.cv,'ld');ldMsg('ld-gen','✓ Đã tải thư mời: '+it.x+' '+it.n,'var(--jade)');})
+      .catch(function(e){ldMsg('ld-gen','Lỗi: '+e.message,'var(--red)');});
+  }
+  document.getElementById('ld-add').onclick=function(){
+    var ni=document.getElementById('ld-name'),ci=document.getElementById('ld-cv'),nm=ni.value.trim();if(!nm){ni.focus();return;}
+    var x=document.getElementById('ld-xung').value==='Bà'?'Bà':'Ông',m=/^(ông|bà)\s+/i.exec(nm);
+    if(m){x=/^b/i.test(m[1])?'Bà':'Ông';nm=nm.slice(m[0].length).trim();}
+    var l=ldGet();l.push({x:x,n:nm,cv:ci.value.trim(),st:document.getElementById('ld-status').value});
+    ldSave(l,'✓ Đã thêm '+x+' '+nm+'.');ni.value='';ci.value='';ni.focus();
+  };
+  document.getElementById('ld-cv').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('ld-add').click()});
+  document.getElementById('ld-all').onclick=function(){
+    var list=ldGet().filter(function(it){return it.n});if(!list.length){ldMsg('ld-gen','Chưa có ai trong danh sách.','var(--red)');return;}
+    ldMsg('ld-gen','Đang tạo '+list.length+' thư mời…');
+    var garr=invgenGet();
+    loadScript(JSZIP_URL).then(function(){
+      var out=new window.JSZip(),chain=Promise.resolve();
+      list.forEach(function(it){chain=chain.then(function(){return ldBlob(it);}).then(function(b){out.file(ldFile(it),b);invgenBump(garr,it.x+' '+it.n,it.cv,'ld');});});
+      return chain.then(function(){return out.generateAsync({type:'blob'});});
+    }).then(function(zb){dlFile(zb,'Thu moi Lanh dao - tat ca ('+list.length+').zip');invgenPersist(garr);invgenRender();ldMsg('ld-gen','✓ Đã tải '+list.length+' thư mời lãnh đạo (ZIP).','var(--jade)');})
+      .catch(function(e){ldMsg('ld-gen','Lỗi tạo ZIP: '+e.message,'var(--red)');});
+  };
+  document.getElementById('ld-xlsx').onclick=function(){document.getElementById('ld-file').click()};
+  document.getElementById('ld-file').onchange=function(e){
+    var f=e.target.files&&e.target.files[0];if(!f)return;
+    ldMsg('ld-gen','Đang đọc Excel…');
+    loadScript(XLSX_URL).then(function(){return f.arrayBuffer();}).then(function(buf){
+      var wb=window.XLSX.read(buf,{type:'array'});var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=window.XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});
+      var l=ldGet(),added=0;
+      rows.forEach(function(r){
+        r=(r||[]).map(function(v){return (v==null?'':v+'').trim()});
+        var c0=r[0]||'',x,n,cv;
+        if(/^(danh\s*x|h[oọ]\s*t[êe]n|t[êe]n|stt)/i.test(c0))return; // dòng tiêu đề
+        if(/^(ông|bà)$/i.test(c0)||(!c0&&r[1])){x=/^b/i.test(c0)?'Bà':'Ông';n=r[1]||'';cv=r[2]||'';}
+        else{n=c0;cv=r[1]||'';x='Ông';}
+        var m=/^(ông|bà)\s+/i.exec(n);if(m){x=/^b/i.test(m[1])?'Bà':'Ông';n=n.slice(m[0].length);}
+        n=n.trim();if(!n)return;l.push({x:x,n:n,cv:cv,st:'chua'});added++;
+      });
+      if(!added){ldMsg('ld-gen','Không đọc được dòng nào. Cột 1 = Ông/Bà, cột 2 = Họ tên, cột 3 = Chức vụ – đơn vị.','var(--red)');return;}
+      ldSave(l,'');ldMsg('ld-gen','✓ Đã nhập '+added+' lãnh đạo từ Excel.','var(--jade)');
+    }).catch(function(err){ldMsg('ld-gen','Lỗi đọc Excel: '+err.message,'var(--red)');});
+    e.target.value='';
+  };
+  document.getElementById('ld-sample').onclick=function(e){
+    e.preventDefault();ldMsg('ld-gen','Đang tạo file mẫu…');
+    loadScript(XLSX_URL).then(function(){
+      var ws=window.XLSX.utils.aoa_to_sheet([['Danh xưng','Họ tên','Chức vụ – đơn vị'],['Ông','Nguyễn Văn A','Phó Chủ tịch UBND tỉnh Gia Lai'],['Bà','Trần Thị B','Giám đốc Sở Văn hóa, Thể thao và Du lịch']]);
+      ws['!cols']=[{wch:11},{wch:26},{wch:48}];
+      var wb=window.XLSX.utils.book_new();window.XLSX.utils.book_append_sheet(wb,ws,'LanhDao');
+      var o=window.XLSX.write(wb,{type:'array',bookType:'xlsx'});
+      dlFile(new Blob([o],{type:'application/octet-stream'}),'Mau danh sach thu moi lanh dao.xlsx');ldMsg('ld-gen','✓ Đã tải file Excel mẫu.','var(--jade)');
+    }).catch(function(err){ldMsg('ld-gen','Lỗi: '+err.message,'var(--red)');});
+  };
+
   function initPanel(){
     var nArr=[];for(var i=3;i<=11;i++)nArr.push([i,i+' vòng']);
     fillSelect(nSel,nArr,numRounds(cSel.value));
-    refreshRoundSel();loadRows();prefillLinks();invRender();invgenRender();
+    refreshRoundSel();loadRows();prefillLinks();invRender();invgenRender();ldRender();
   }
   function unlock(){gate.hidden=true;panel.hidden=false;initPanel();try{sessionStorage.setItem('dpg-adm','1')}catch(e){}}
   document.getElementById('adm-login').onclick=function(){
@@ -2299,6 +2465,7 @@ var XQ=(function(){
       if(window.__commRefresh)window.__commRefresh();
       if(window.__invitesRender)window.__invitesRender();
       if(window.__invgenRender)window.__invgenRender();
+      if(window.__leadersRender)window.__leadersRender();
       if(window.__galRefresh)window.__galRefresh();
       if(window.__galAdmRender)window.__galAdmRender();
     },function(){});
