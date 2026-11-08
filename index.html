@@ -1560,7 +1560,7 @@ var KQ={
   function invgenFmt(ts){if(!ts)return '';var d=new Date(ts);function p(x){return(x<10?'0':'')+x;}return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes());}
   // Chỉ TÁC GIẢ mới xóa được bộ đếm: mã tác giả riêng (khác mật khẩu admin), lưu dạng băm SHA-256.
   // Đổi mã: OWNER_HASH = sha256('dpg2026|' + mã mới).
-  var OWNER_HASH='b51a85b713af0a69b82ad962c6392ad66ef92a21e7f0de10571c777124b50d1b';
+  var OWNER_HASH='ac2165e3a6174c22ba180e636880e66617300614d71f56e5baf06d4e95a7735b';
   var _ownFail=0,_ownLockUntil=0;
   function sha256hex(s){
     if(!(window.crypto&&crypto.subtle&&window.TextEncoder))return Promise.reject(new Error('Trình duyệt không hỗ trợ kiểm tra mã'));
