@@ -1266,7 +1266,7 @@ var KQ={
     },function(){return 'Không kết nối được máy chủ AI — có thể Apps Script chưa được cấp quyền, hoặc mạng yếu.'});
   };
   var DEF={updated:'9/11',list:[
-    // Theo file final "Tổng hợp DS đăng ký" của Ban tổ chức (9/11) — 55 kỳ thủ
+    // Theo file final "Tổng hợp DS đăng ký" của Ban tổ chức (9/11) — 55 kỳ thủ + 7 đăng ký tối 9/11 = 62
     {n:'Phạm Hoàng Dương',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam - Nhiệm kỳ I',nd:'Cờ tướng úp'},
     {n:'Nguyễn Văn Bình',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
     {n:'Tôn Thất Lương Chính',cv:'Phó Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
@@ -1321,7 +1321,15 @@ var KQ={
     {n:'Mai Công Nghĩa',cv:'Quản lý khu vực Gia Lai',cty:'Tập đoàn tài chính Homecredit Việt Nam',nd:'Cờ tướng úp'},
     {n:'Nguyễn Vũ Bảo',cv:'Quản lý Sales khu vực Gia Lai',cty:'Công ty Cổ phần LCFOODS',nd:'Cờ tướng úp'},
     {n:'Nguyễn Thanh Việt',cv:'Phó Giám đốc',cty:'Công ty TNHH Xây dựng Thương mại Thanh Việt',nd:'Cờ tướng'},
-    {n:'Nguyễn Thanh Huy',cv:'Giám đốc',cty:'Cơ sở kinh doanh nông sản, mua bán vật tư điện, nước dân dụng',nd:'Cờ tướng úp'}
+    {n:'Nguyễn Thanh Huy',cv:'Giám đốc',cty:'Cơ sở kinh doanh nông sản, mua bán vật tư điện, nước dân dụng',nd:'Cờ tướng úp'},
+    // Đăng ký mới qua Form tối 9/11
+    {n:'Võ Đình Thượng',cv:'Giám đốc',cty:'Công ty Cổ phần Tư vấn Xây dựng Thăng Long',nd:'Cờ tướng'},
+    {n:'Châu Viết Hải',cv:'Phó Giám đốc',cty:'Công ty Cổ phần Tư vấn Xây dựng Thăng Long',nd:'Cờ tướng úp'},
+    {n:'Đoàn Đức Hiển',cv:'Phó Giám đốc',cty:'Công ty Cổ phần Tư vấn Xây dựng Thăng Long',nd:'Cờ tướng'},
+    {n:'Trần Xuân An',cv:'Trưởng phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
+    {n:'Lê Đăng Vũ',cv:'Phó phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
+    {n:'Châu Trần Quang Đạt',cv:'Phó Giám đốc',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
+    {n:'Trịnh Hồ Quang Vũ',cv:'Trưởng phòng Kỹ thuật',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng úp'}
   ]};
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
   function nrm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
