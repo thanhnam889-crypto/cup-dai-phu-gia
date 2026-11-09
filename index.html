@@ -1030,6 +1030,70 @@ a.poi.food .go{color:var(--jade)}
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+/* ---- Lưu tệp (thư mời, ZIP, Excel, QR, ảnh bàn cờ) ----
+   Máy tính: tải thẳng. Điện thoại: mở bảng xem trước + nút "Lưu / Gửi" (iPhone → Lưu hình ảnh / Lưu vào Tệp / Zalo),
+   vì app cài ra màn hình chính trên iPhone không tải được kiểu link thông thường.
+   Trong khung Claude: dùng quyền tải tệp của Claude. */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='.dsv{position:fixed;inset:0;z-index:9999;background:rgba(20,14,8,.62);display:flex;align-items:flex-end;justify-content:center;padding:12px}'
+   +'.dsv-c{width:100%;max-width:520px;background:var(--surface,#fff);color:var(--fg,#1c1813);border-radius:18px;padding:14px 14px 12px;box-shadow:0 12px 40px rgba(0,0,0,.35);max-height:92vh;display:flex;flex-direction:column}'
+   +'.dsv-t{font-weight:700;font-size:14px;margin:2px 4px 10px;overflow-wrap:anywhere}'
+   +'.dsv-i{display:block;width:100%;max-height:52vh;object-fit:contain;border-radius:10px;background:#f4efe6;-webkit-touch-callout:default}'
+   +'.dsv-f{font-size:46px;text-align:center;padding:12px 0}'
+   +'.dsv-h{font-size:12.5px;color:var(--muted,#6e6457);margin:10px 4px 0;line-height:1.5}'
+   +'.dsv-m{font-size:12.5px;margin:6px 4px 0;min-height:0}'
+   +'.dsv-b{display:flex;gap:8px;margin-top:12px}.dsv-b .btn{flex:1;margin-top:0;text-align:center;text-decoration:none}';
+  document.head.appendChild(st);
+  function mobile(){return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
+  function ios(){return /iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
+  function mime(fn){var e=(fn.split('.').pop()||'').toLowerCase();return {jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',zip:'application/zip',
+    xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf'}[e]||'application/octet-stream';}
+  function anchor(blob,fn){var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);}
+  function sheet(blob,fn,file,share){
+    var img=/^image\//.test(file.type),u=URL.createObjectURL(blob);
+    var ov=document.createElement('div');ov.className='dsv';
+    ov.innerHTML='<div class="dsv-c" role="dialog" aria-label="Lưu tệp"><div class="dsv-t"></div>'
+      +(img?'<img class="dsv-i" alt="Xem trước">':'<div class="dsv-f">'+(/zip$/.test(file.type)?'🗂️':'📄')+'</div>')
+      +'<div class="dsv-h"></div><div class="dsv-m"></div><div class="dsv-b">'
+      +(share?'<button class="btn dsv-s" type="button">📤 Lưu / Gửi</button>':'<a class="btn dsv-d">⬇ Tải về</a>')
+      +'<button class="btn ghost dsv-x" type="button">Đóng</button></div></div>';
+    ov.querySelector('.dsv-t').textContent=fn;
+    if(img)ov.querySelector('.dsv-i').src=u;
+    ov.querySelector('.dsv-h').textContent=share
+      ?(img?'Bấm “Lưu / Gửi” → chọn “Lưu hình ảnh” để vào thư viện Ảnh, hoặc gửi qua Zalo. Cũng có thể nhấn giữ ảnh → Lưu.'
+           :'Bấm “Lưu / Gửi” → chọn “Lưu vào Tệp”, hoặc gửi qua Zalo / Email.')
+      :(img&&ios()?'Nhấn giữ ảnh → “Lưu vào Ảnh”.':'Bấm “Tải về” để lưu tệp vào máy.');
+    var m=ov.querySelector('.dsv-m');
+    function close(){ov.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);}
+    ov.querySelector('.dsv-x').onclick=close;
+    ov.addEventListener('click',function(e){if(e.target===ov)close();});
+    var d=ov.querySelector('.dsv-d');if(d){d.href=u;d.download=fn;}
+    var sb=ov.querySelector('.dsv-s');
+    if(sb)sb.onclick=function(){navigator.share({files:[file]}).then(function(){m.style.color='var(--jade,#1f6e5e)';m.textContent='✓ Xong.';})
+      .catch(function(e){if(e&&e.name==='AbortError')return;m.style.color='var(--red,#c1272d)';m.textContent='Không mở được bảng chia sẻ'+(img?' — nhấn giữ ảnh để lưu.':'.');});};
+    document.body.appendChild(ov);
+  }
+  function local(blob,fn){
+    var file=null,share=false;
+    try{file=new File([blob],fn,{type:blob.type||mime(fn)});share=!!(navigator.canShare&&navigator.share&&navigator.canShare({files:[file]}));}catch(e){}
+    if(mobile()&&file&&(share||/^image\//.test(file.type)||ios())){sheet(blob,fn,file,share);return 'sheet';}
+    anchor(blob,fn);return 'download';
+  }
+  // Trả về Promise: 'download' | 'sheet' | 'saved' (Claude) | mã lỗi khi người xem từ chối
+  window.DPG_SAVE=function(blob,fn){
+    var cl=window.claude;
+    if(cl&&typeof cl.use==='function'){
+      return cl.use('downloads').then(function(dl){
+        if(!dl)return local(blob,fn);
+        return dl.save({filename:fn,data:blob}).then(function(r){return r&&r.status||'saved';},function(e){return (e&&e.code)||'declined';});
+      },function(){return local(blob,fn);});
+    }
+    return Promise.resolve(local(blob,fn));
+  };
+})();
+</script>
+<script>
 /* ---- theme ---- */
 (function(){
   var btn=document.getElementById('theme');
@@ -1474,7 +1538,7 @@ var KQ={
     var zoom=document.getElementById('adm-zoom').value.trim(),zalo=document.getElementById('adm-zalo').value.trim();
     var cfg=cfgGet();cfg.zoom=zoom;cfg.zalo=zalo;
     try{localStorage.setItem('dpg-cfg',JSON.stringify(cfg))}catch(e){}
-    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.zoom=zoom;window.DPG.config.zalo=zalo;}
+    if(window.DPG){if(!window.DPG.config)window.DPG.config=(function(){try{return JSON.parse(localStorage.getItem('dpg-cfg')||'{}')}catch(e){return{}}})();window.DPG.config.zoom=zoom;window.DPG.config.zalo=zalo;}
     if(window.__commRefresh)window.__commRefresh();
     var ok=document.getElementById('adm-oklink');ok.style.color='var(--jade)';
     if(window.DPG&&window.DPG.pushConfig){ok.textContent='Đang đồng bộ liên kết…';
@@ -1492,7 +1556,7 @@ var KQ={
   function invGet(){var c=(window.DPG&&window.DPG.config)||cfgGet();return (c&&Array.isArray(c.invites))?c.invites.map(function(x){return{n:x.n,cty:x.cty||'',st:x.st}}):[]}
   function invSave(list,msg){
     var cfg=cfgGet();cfg.invites=list;try{localStorage.setItem('dpg-cfg',JSON.stringify(cfg))}catch(e){}
-    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.invites=list;}
+    if(window.DPG){if(!window.DPG.config)window.DPG.config=(function(){try{return JSON.parse(localStorage.getItem('dpg-cfg')||'{}')}catch(e){return{}}})();window.DPG.config.invites=list;}
     invRender();
     var ok=document.getElementById('inv-ok');ok.style.color='var(--jade)';
     if(window.DPG&&window.DPG.pushConfig){ok.textContent='Đang đồng bộ…';
@@ -1566,7 +1630,7 @@ var KQ={
       return new Promise(function(res,rej){out.toBlob(function(b){b?res(b):rej(new Error('Không tạo được ảnh'))},'image/jpeg',0.92);});
     });
   }
-  function dlFile(blob,fn){var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},3000);}
+  function dlFile(blob,fn){return window.DPG_SAVE(blob,fn);}
   // Tên tệp không dấu (một số trình duyệt/Zalo đổi tên có dấu thành "download")
   function safeName(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').replace(/[\\/:*?"<>|\n\r]/g,' ').replace(/[^\x20-\x7e]/g,'').replace(/\s+/g,' ').trim().slice(0,60)||'Khach moi';}
   function genMsg(t,c){var g=document.getElementById('inv-gen');g.style.color=c||'var(--muted)';g.textContent=t;}
@@ -1581,7 +1645,7 @@ var KQ={
   }
   function invgenPersist(arr){
     var cfg=cfgGet();cfg.invgen=arr;try{localStorage.setItem('dpg-cfg',JSON.stringify(cfg))}catch(e){}
-    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.invgen=arr;
+    if(window.DPG){if(!window.DPG.config)window.DPG.config=(function(){try{return JSON.parse(localStorage.getItem('dpg-cfg')||'{}')}catch(e){return{}}})();window.DPG.config.invgen=arr;
       if(window.DPG.pushConfig)return window.DPG.pushConfig({invgen:arr});}
     return Promise.resolve();
   }
@@ -1636,7 +1700,7 @@ var KQ={
   function oneInvite(it){
     if(!it||!it.n){genMsg('Thiếu họ tên.','var(--red)');return;}
     genMsg('Đang tạo thư mời cho '+it.n+'…');
-    genBlob(it.n,it.cty).then(function(b){dlFile(b,'Thu moi - '+safeName(it.n)+'.jpg');invgenLog(it.n,it.cty);genMsg('✓ Đã tải thư mời: '+it.n,'var(--jade)');})
+    genBlob(it.n,it.cty).then(function(b){dlFile(b,'Thu moi - '+safeName(it.n)+'.jpg');invgenLog(it.n,it.cty);genMsg('✓ Đã tạo thư mời: '+it.n,'var(--jade)');})
       .catch(function(e){genMsg('Lỗi: '+e.message,'var(--red)');});
   }
   document.getElementById('inv-all').onclick=function(){
@@ -1647,7 +1711,7 @@ var KQ={
       var out=new window.JSZip(),chain=Promise.resolve();
       list.forEach(function(it){ if(!it.n)return; chain=chain.then(function(){return genBlob(it.n,it.cty);}).then(function(b){out.file('Thu moi - '+safeName(it.n)+'.jpg',b);invgenBump(garr,it.n,it.cty);}); });
       return chain.then(function(){return out.generateAsync({type:'blob'});});
-    }).then(function(zb){dlFile(zb,'Thu moi - tat ca ('+list.length+').zip');invgenPersist(garr);invgenRender();genMsg('✓ Đã tải '+list.length+' thư mời (ZIP).','var(--jade)');})
+    }).then(function(zb){dlFile(zb,'Thu moi - tat ca ('+list.length+').zip');invgenPersist(garr);invgenRender();genMsg('✓ Đã tạo '+list.length+' thư mời (ZIP).','var(--jade)');})
       .catch(function(e){genMsg('Lỗi tạo ZIP: '+e.message,'var(--red)');});
   };
   document.getElementById('inv-xlsx').onclick=function(){document.getElementById('inv-file').click()};
@@ -1682,7 +1746,7 @@ var KQ={
   function ldMsg(id,t,c){var g=document.getElementById(id);if(!g)return;g.style.color=c||'var(--muted)';g.textContent=t;}
   function ldSave(list,msg){
     var cfg=cfgGet();cfg.leaders=list;try{localStorage.setItem('dpg-cfg',JSON.stringify(cfg))}catch(e){}
-    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.leaders=list;}
+    if(window.DPG){if(!window.DPG.config)window.DPG.config=(function(){try{return JSON.parse(localStorage.getItem('dpg-cfg')||'{}')}catch(e){return{}}})();window.DPG.config.leaders=list;}
     ldRender();
     if(window.DPG&&window.DPG.pushConfig){ldMsg('ld-ok','Đang đồng bộ…','var(--jade)');
       window.DPG.pushConfig({leaders:list}).then(function(){ldMsg('ld-ok',msg||'✓ Đã lưu & đồng bộ.','var(--jade)')})
@@ -1752,7 +1816,7 @@ var KQ={
   function ldOne(it){
     if(!it||!it.n){ldMsg('ld-gen','Thiếu họ tên.','var(--red)');return;}
     ldMsg('ld-gen','Đang tạo thư mời cho '+it.x+' '+it.n+'…');
-    ldBlob(it).then(function(b){dlFile(b,ldFile(it));invgenLog(it.x+' '+it.n,it.cv,'ld');ldMsg('ld-gen','✓ Đã tải thư mời: '+it.x+' '+it.n,'var(--jade)');})
+    ldBlob(it).then(function(b){dlFile(b,ldFile(it));invgenLog(it.x+' '+it.n,it.cv,'ld');ldMsg('ld-gen','✓ Đã tạo thư mời: '+it.x+' '+it.n,'var(--jade)');})
       .catch(function(e){ldMsg('ld-gen','Lỗi: '+e.message,'var(--red)');});
   }
   document.getElementById('ld-add').onclick=function(){
@@ -1771,7 +1835,7 @@ var KQ={
       var out=new window.JSZip(),chain=Promise.resolve();
       list.forEach(function(it){chain=chain.then(function(){return ldBlob(it);}).then(function(b){out.file(ldFile(it),b);invgenBump(garr,it.x+' '+it.n,it.cv,'ld');});});
       return chain.then(function(){return out.generateAsync({type:'blob'});});
-    }).then(function(zb){dlFile(zb,'Thu moi Lanh dao - tat ca ('+list.length+').zip');invgenPersist(garr);invgenRender();ldMsg('ld-gen','✓ Đã tải '+list.length+' thư mời lãnh đạo (ZIP).','var(--jade)');})
+    }).then(function(zb){dlFile(zb,'Thu moi Lanh dao - tat ca ('+list.length+').zip');invgenPersist(garr);invgenRender();ldMsg('ld-gen','✓ Đã tạo '+list.length+' thư mời lãnh đạo (ZIP).','var(--jade)');})
       .catch(function(e){ldMsg('ld-gen','Lỗi tạo ZIP: '+e.message,'var(--red)');});
   };
   document.getElementById('ld-xlsx').onclick=function(){document.getElementById('ld-file').click()};
@@ -1911,8 +1975,9 @@ var KQ={
     if(!box)return;var cvs=box.querySelector('canvas'),img=box.querySelector('img');
     var u=cvs?cvs.toDataURL('image/png'):(img?img.src:null);if(!u){smsg('Chưa tạo được QR.','var(--red)');return;}
     if(img&&img.id==='app-qr-img')u='qr-app.png';
-    var a=document.createElement('a');a.href=u;a.download='QR-Cup-Dai-Phu-Gia-2026.png';document.body.appendChild(a);a.click();a.remove();
-    smsg('✓ Đã lưu ảnh QR.');
+    fetch(u).then(function(r){return r.blob()}).then(function(b){return window.DPG_SAVE(b,'QR-Cup-Dai-Phu-Gia-2026.png');})
+      .then(function(r){if(r==='download'||r==='saved')smsg('✓ Đã lưu ảnh QR.');})
+      .catch(function(){smsg('Không lưu được ảnh QR.','var(--red)');});
   };
 })();
 
@@ -1994,7 +2059,7 @@ var KQ={
   function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
   function saveArr(arr,done){
     try{var c=JSON.parse(localStorage.getItem('dpg-cfg')||'{}');c.gallery=arr;localStorage.setItem('dpg-cfg',JSON.stringify(c));}catch(e){}
-    if(window.DPG){if(!window.DPG.config)window.DPG.config={};window.DPG.config.gallery=arr;}
+    if(window.DPG){if(!window.DPG.config)window.DPG.config=(function(){try{return JSON.parse(localStorage.getItem('dpg-cfg')||'{}')}catch(e){return{}}})();window.DPG.config.gallery=arr;}
     renderGallery();renderAdm();
     if(window.DPG&&window.DPG.pushConfig)window.DPG.pushConfig({gallery:arr}).then(function(){done&&done(true);}).catch(function(){done&&done(false);});
     else done&&done(null);
@@ -2439,10 +2504,7 @@ var XQ=(function(){
       if(n.note){c.fillStyle='#1C1813';c.font='italic 12.5px system-ui,-apple-system,sans-serif';c.fillText('“'+n.note.replace(/\s+/g,' ').slice(0,58)+(n.note.length>58?'…':'')+'”',14,H+66);}
       cv.toBlob(function(blob){if(!blob){msg('Không tạo được ảnh.','var(--red)');return;}
         var fn='Ban co binh luan.jpg';
-        try{var file=new File([blob],fn,{type:'image/jpeg'});
-          if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:title}).catch(function(){});return;}}catch(e){}
-        var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();
-        setTimeout(function(){URL.revokeObjectURL(u)},4000);msg('✓ Đã tải ảnh bàn cờ.','var(--jade)');},'image/jpeg',.92);};
+        window.DPG_SAVE(blob,fn).then(function(r){if(r==='download'||r==='saved')msg('✓ Đã tải ảnh bàn cờ.','var(--jade)');});},'image/jpeg',.92);};
     im.onerror=function(){msg('Không tạo được ảnh trên trình duyệt này.','var(--red)')};
     im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str);
   };
