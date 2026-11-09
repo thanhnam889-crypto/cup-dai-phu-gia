@@ -776,7 +776,7 @@ a.poi.food .go{color:var(--jade)}
     <div class="lbl">Kỳ thủ đã đăng ký</div>
     <div class="dkhead">
       <span class="cnt" id="reg-count">41</span>
-      <span class="ct" id="reg-upd">doanh nhân đã ghi danh · 24 Cờ tướng · 17 Cờ úp · cập nhật 5/11</span>
+      <span class="ct" id="reg-upd">doanh nhân đã ghi danh</span>
     </div>
     <div class="card reglock" id="reg-lock">
       <div class="rl-i">🔒</div>
@@ -1274,11 +1274,12 @@ var KQ={
     var L=cur.list||[],u=fmtUpd(cur.updated),ud=DEF.updated;
     function dm(x){var m=/^(\d{1,2})\/(\d{1,2})$/.exec(x||'');return m?(+m[2])*100+(+m[1]):0}
     if(dm(ud)>dm(u))u=ud; // lấy ngày mới hơn giữa máy chủ và danh sách trong app
+    var adm=false;try{adm=sessionStorage.getItem('dpg-adm')==='1'}catch(e){}
     if(cnt)cnt.textContent=L.length;
-    if(upd){var nt=0,nu=0;L.forEach(function(r){var g=ndTag(r.nd);if(g==='Cờ tướng'||g==='Cờ tướng + Cờ úp')nt++;if(g==='Cờ tướng úp'||g==='Cờ tướng + Cờ úp')nu++;});
+    if(upd&&!adm)upd.textContent='doanh nhân đã ghi danh'+(u?' · cập nhật '+u:''); // khách: chỉ hiện tổng số
+    if(upd&&adm){var nt=0,nu=0;L.forEach(function(r){var g=ndTag(r.nd);if(g==='Cờ tướng'||g==='Cờ tướng + Cờ úp')nt++;if(g==='Cờ tướng úp'||g==='Cờ tướng + Cờ úp')nu++;});
       upd.textContent='doanh nhân đã ghi danh'+(nt||nu?' · '+nt+' Cờ tướng · '+nu+' Cờ úp':'')+(u?' · cập nhật '+u:'');}
     // Chỉ Ban tổ chức (đã đăng nhập Quản trị) mới thấy danh sách tên
-    var adm=false;try{adm=sessionStorage.getItem('dpg-adm')==='1'}catch(e){}
     var lk=document.getElementById('reg-lock'),nt2=document.getElementById('reg-note');
     if(lk)lk.hidden=adm;if(nt2)nt2.hidden=!adm;box.hidden=!adm;
     if(!adm){box.innerHTML='';return;}
