@@ -1200,7 +1200,7 @@ var KQ={
       return 'Apps Script chưa được cấp quyền gọi AI — mở Apps Script, chạy hàm kiemTraGemini 1 lần, rồi Deploy → Manage deployments → New version.';
     },function(){return 'Không kết nối được máy chủ AI — có thể Apps Script chưa được cấp quyền, hoặc mạng yếu.'});
   };
-  var DEF={updated:'5/11',list:[
+  var DEF={updated:'9/11',list:[
     {n:'Phạm Hoàng Dương',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam - Nhiệm kỳ I',nd:'Cờ tướng úp'},
     {n:'Nguyễn Văn Bình',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
     {n:'Tôn Thất Lương Chính',cv:'Phó Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
@@ -1241,17 +1241,31 @@ var KQ={
     {n:'Nguyễn Hữu Bình',cv:'Giám đốc',cty:'CÔNG TY TNHH HBPLUS',nd:'Cờ tướng'},
     {n:'Trương Quang Hải',cv:'Phó Giám đốc',cty:'Công ty TNHH TM, Dịch Vụ và Xây Dựng Đại Hưng',nd:'Cờ tướng úp'},
     {n:'Nguyễn Phúc Tài',cv:'Phó Giám đốc',cty:'Phòng khám Nha khoa Hoàng Yến',nd:'Cờ tướng úp'},
-    {n:'Lê Cảnh Định',cv:'Tiến sĩ - Giảng viên Hóa học',cty:'Đại học Quy Nhơn',nd:'Cờ tướng úp'}
+    {n:'Lê Cảnh Định',cv:'Tiến sĩ - Giảng viên Hóa học',cty:'Đại học Quy Nhơn',nd:'Cờ tướng úp'},
+    // Đăng ký mới qua Form (cập nhật 9/11)
+    {n:'Nguyễn Gia Khánh',cv:'Giám đốc',cty:'Công ty TNHH Thương mại Khánh Linh',nd:'Cờ tướng'},
+    {n:'Lê Khả Trung',cv:'Giám đốc',cty:'Công ty TNHH MTV Trung Phong Mang Yang',nd:'Cờ tướng'},
+    {n:'Nguyễn Văn Khoa',cv:'Phó Giám đốc',cty:'Công ty TNHH Tư vấn K.A.N',nd:'Cờ tướng'},
+    {n:'Nguyễn Hoàng Minh',cv:'Trưởng phòng Nghiệp vụ I',cty:'Thanh tra tỉnh Gia Lai',nd:'Cờ tướng úp'},
+    {n:'Nguyễn Đào Hoài An',cv:'Quản lý',cty:'Trường Mầm non Minh Đức',nd:'Cờ tướng úp'},
+    {n:'Nguyễn Thành Thu',cv:'Giám đốc',cty:'Công ty TNHH Xuất nhập khẩu Quốc tế Kim Long',nd:'Cờ tướng'},
+    {n:'Lê Gia Nguyễn',cv:'Phó Giám đốc',cty:'Công ty TNHH Hưng Trường Thịnh',nd:'Cờ tướng úp'},
+    {n:'Trần Văn Lộc',cv:'Quản lý',cty:'Cơ sở Kinh doanh Bia Tấn Phát',nd:'Cờ tướng úp'},
+    {n:'Trần Bá Duy',cv:'Quản lý',cty:'Cơ sở kinh doanh Ăn uống Duy Béo',nd:'Cờ tướng úp'},
+    {n:'Mai Công Nghĩa',cv:'Quản lý khu vực Gia Lai',cty:'Tập đoàn Tài chính Homecredit Việt Nam',nd:'Cờ tướng úp'},
+    {n:'Nguyễn Vũ Bảo',cv:'Quản lý Sales tỉnh Bình Định (cũ)',cty:'Công ty Cổ phần LCFOODS',nd:'Cờ tướng úp'}
   ]};
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
   function nrm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
   function okList(L){return Array.isArray(L)?L.filter(function(x){return x&&typeof x.n==='string'&&x.n.trim()}):null}
   var cur=DEF,subs=[],busy=false,last=0;
   // Gộp: danh sách tham dự chính thức (DEF) trước + người đăng ký qua Form chưa có trong đó; trùng tên chỉ giữ 1.
-  // Khi máy chủ đã có trang "DS tham dự" (j.official) thì dùng nguyên danh sách máy chủ.
-  function nkey(s){return nrm(s).replace(/\s+/g,' ').trim()}
-  function merge(L,isOff){if(isOff)return L;var seen={},out=[];
-    DEF.list.concat(L).forEach(function(x){var k=nkey(x.n);if(!k||seen[k])return;seen[k]=1;out.push(x);});return out;}
+  // Luôn gộp cả danh sách trong app (DEF) với máy chủ — người mới thêm vào DEF vẫn hiện dù trang Sheet chưa cập nhật.
+  // ALIAS: cùng 1 người nhưng gõ tên khác nhau giữa Form và danh sách chính thức.
+  var ALIAS={'pham van hung':'pham cao hung'};
+  function nkey(s){var k=nrm(s).replace(/\s+/g,' ').trim();return ALIAS[k]||k}
+  function merge(L,isOff){var seen={},out=[],src=isOff?L.concat(DEF.list):DEF.list.concat(L);
+    src.forEach(function(x){var k=nkey(x.n);if(!k||seen[k])return;seen[k]=1;out.push(x);});return out;}
   try{var c=JSON.parse(localStorage.getItem('dpg-reg')||'null');if(c&&okList(c.list)&&c.list.length)cur={updated:c.updated,off:!!c.off,list:merge(okList(c.list),!!c.off)};}catch(e){}
   function fmtUpd(u){if(!u)return '';if(/^\d{1,2}\/\d{1,2}$/.test(u))return u;var d=new Date(u);return isNaN(d)?'':(d.getDate()+'/'+(d.getMonth()+1));}
   function ndTag(nd){var x=nrm(nd);if(!x)return '';var up=/\bup\b/.test(x);
@@ -1259,7 +1273,9 @@ var KQ={
     if(up)return 'Cờ tướng úp';if(/tuong/.test(x))return 'Cờ tướng';return nd.length>40?nd.slice(0,40)+'…':nd;}
   function render(){
     var box=document.getElementById('reg-list'),cnt=document.getElementById('reg-count'),upd=document.getElementById('reg-upd');if(!box)return;
-    var L=cur.list||[],u=fmtUpd(cur.updated);
+    var L=cur.list||[],u=fmtUpd(cur.updated),ud=DEF.updated;
+    function dm(x){var m=/^(\d{1,2})\/(\d{1,2})$/.exec(x||'');return m?(+m[2])*100+(+m[1]):0}
+    if(dm(ud)>dm(u))u=ud; // lấy ngày mới hơn giữa máy chủ và danh sách trong app
     if(cnt)cnt.textContent=L.length;
     if(upd){var nt=0,nu=0;L.forEach(function(r){var g=ndTag(r.nd);if(g==='Cờ tướng'||g==='Cờ tướng + Cờ úp')nt++;if(g==='Cờ tướng úp'||g==='Cờ tướng + Cờ úp')nu++;});
       upd.textContent='doanh nhân đã ghi danh'+(nt||nu?' · '+nt+' Cờ tướng · '+nu+' Cờ úp':'')+(u?' · cập nhật '+u:'');}
