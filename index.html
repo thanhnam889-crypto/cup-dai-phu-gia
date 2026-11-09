@@ -258,6 +258,10 @@ a.poi.food .go{color:var(--jade)}
   display:grid;place-items:center;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums}
 .reg .ri{flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word}
 #reg-list{overflow:hidden}
+.reglock{text-align:center;padding:20px 16px}
+.reglock .rl-i{font-size:26px;line-height:1}
+.reglock .rl-t{font-weight:700;margin-top:8px}
+.reglock .rl-s{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5}
 .reg .rtag{max-width:100%;overflow-wrap:anywhere}
 .reg .rn{font-weight:700;font-size:13.5px}
 .reg .ru{font-size:12px;color:var(--muted);margin-top:1px}
@@ -774,20 +778,14 @@ a.poi.food .go{color:var(--jade)}
       <span class="cnt" id="reg-count">41</span>
       <span class="ct" id="reg-upd">doanh nhân đã ghi danh · 24 Cờ tướng · 17 Cờ úp · cập nhật 5/11</span>
     </div>
-    <div class="card" id="reg-list">
-      <div class="reg"><span class="no">1</span><div class="ri"><div class="rn">Nguyễn Thành Nam</div><div class="ru">Giám đốc · Công ty TNHH Tư vấn K.A.N</div></div></div>
-      <div class="reg"><span class="no">2</span><div class="ri"><div class="rn">Nguyễn Ngọc Cường</div><div class="ru">Phó Giám đốc · Công ty TNHH Vật Tư Điện Lạnh Gia Lai</div></div></div>
-      <div class="reg"><span class="no">3</span><div class="ri"><div class="rn">Nguyễn Hợp</div><div class="ru">Giám đốc · Công ty TNHH Hợp Thảo</div></div></div>
-      <div class="reg"><span class="no">4</span><div class="ri"><div class="rn">Nguyễn Anh Huy</div><div class="ru">Phó Giám đốc sản xuất · Công ty TNHH MTV Gỗ Phú Tài Bình Định</div></div></div>
-      <div class="reg"><span class="no">5</span><div class="ri"><div class="rn">Mai Đức Thiện</div><div class="ru">Giám đốc · Công ty Nhôm đúc Lý Thiện Phát</div></div></div>
-      <div class="reg"><span class="no">6</span><div class="ri"><div class="rn">Lê Quang Tri</div><div class="ru">Giám đốc · Công ty TNHH Quang Tri</div></div></div>
-      <div class="reg"><span class="no">7</span><div class="ri"><div class="rn">Lê Tấn Thuỷ</div><div class="ru">Phó Giám đốc · Công ty TNHH Thương Mại Baby Love</div></div></div>
-      <div class="reg"><span class="no">8</span><div class="ri"><div class="rn">Nguyễn An Thái</div><div class="ru">Phó Giám đốc · Công ty TNHH Đại Lý Vận Tải ELITE</div></div></div>
-      <div class="reg"><span class="no">9</span><div class="ri"><div class="rn">Nguyễn Văn Khánh</div><div class="ru">Phó Giám đốc · Công ty XD Tân Phương</div></div></div>
-      <div class="reg"><span class="no">10</span><div class="ri"><div class="rn">Nguyễn Văn Hà</div><div class="ru">Viettel Construction Đăk Lăk</div></div></div>
-      <div class="reg"><span class="no">11</span><div class="ri"><div class="rn">Nguyễn Văn Thanh</div><div class="ru">Phó Giám đốc · Cty TNHH Nông nghiệp AGreen Cao Nguyên</div></div></div>
+    <div class="card reglock" id="reg-lock">
+      <div class="rl-i">🔒</div>
+      <div class="rl-t">Danh sách kỳ thủ chỉ Ban tổ chức xem được</div>
+      <div class="rl-s">Đăng nhập trang quản trị để xem họ tên, đơn vị và nội dung thi đấu.</div>
+      <button class="btn ghost" id="reg-login" style="margin-top:12px">⚙️ Đăng nhập Ban tổ chức</button>
     </div>
-    <p class="note" style="padding:6px 2px 0">Danh sách cập nhật theo đăng ký thực tế. Thông tin liên hệ được bảo mật, chỉ hiển thị tên &amp; đơn vị.</p>
+    <div class="card" id="reg-list" hidden></div>
+    <p class="note" id="reg-note" style="padding:6px 2px 0" hidden>Chỉ Ban tổ chức thấy danh sách này. Thông tin liên hệ được bảo mật, chỉ hiển thị tên &amp; đơn vị.</p>
   </div>
 
   <div class="foot">
@@ -1279,6 +1277,11 @@ var KQ={
     if(cnt)cnt.textContent=L.length;
     if(upd){var nt=0,nu=0;L.forEach(function(r){var g=ndTag(r.nd);if(g==='Cờ tướng'||g==='Cờ tướng + Cờ úp')nt++;if(g==='Cờ tướng úp'||g==='Cờ tướng + Cờ úp')nu++;});
       upd.textContent='doanh nhân đã ghi danh'+(nt||nu?' · '+nt+' Cờ tướng · '+nu+' Cờ úp':'')+(u?' · cập nhật '+u:'');}
+    // Chỉ Ban tổ chức (đã đăng nhập Quản trị) mới thấy danh sách tên
+    var adm=false;try{adm=sessionStorage.getItem('dpg-adm')==='1'}catch(e){}
+    var lk=document.getElementById('reg-lock'),nt2=document.getElementById('reg-note');
+    if(lk)lk.hidden=adm;if(nt2)nt2.hidden=!adm;box.hidden=!adm;
+    if(!adm){box.innerHTML='';return;}
     if(!L.length){box.innerHTML='<div class="reg"><div class="ri"><div class="ru">Chưa có ai đăng ký.</div></div></div>';return;}
     box.innerHTML=L.map(function(r,i){
       var ru=[r.cv,r.cty].filter(function(x){return x&&String(x).trim()}).map(esc).join(' · '),tg=ndTag(r.nd);
@@ -1295,6 +1298,9 @@ var KQ={
     }).catch(function(){}).then(function(){busy=false;last=Date.now();});
   }
   window.DPGREG={list:function(){return cur.list||[]},on:function(f){subs.push(f)},refresh:refresh};
+  window.__regRender=render;
+  var rl=document.getElementById('reg-login');
+  if(rl)rl.onclick=function(){try{sessionStorage.setItem('dpg-ret','dang-ky')}catch(e){}location.hash='admin';};
   render();refresh();
   setInterval(function(){if(!document.hidden)refresh()},5*60*1000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-last>60000)refresh()});
@@ -1799,14 +1805,17 @@ var KQ={
     fillSelect(nSel,nArr,numRounds(cSel.value));
     refreshRoundSel();loadRows();prefillLinks();invRender();invgenRender();ldRender();
   }
-  function unlock(){gate.hidden=true;panel.hidden=false;initPanel();try{sessionStorage.setItem('dpg-adm','1')}catch(e){}}
+  function unlock(){gate.hidden=true;panel.hidden=false;initPanel();try{sessionStorage.setItem('dpg-adm','1')}catch(e){}
+    if(window.__regRender)window.__regRender();}
   document.getElementById('adm-login').onclick=function(){
     var v=document.getElementById('adm-pass').value;
-    if(v===ADMIN_PASS){document.getElementById('adm-err').textContent='';unlock();}
+    if(v===ADMIN_PASS){document.getElementById('adm-err').textContent='';unlock();
+      var ret=null;try{ret=sessionStorage.getItem('dpg-ret');sessionStorage.removeItem('dpg-ret')}catch(e){}
+      if(ret)location.hash=ret;}
     else document.getElementById('adm-err').textContent='Sai mật khẩu.';
   };
   document.getElementById('adm-pass').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('adm-login').click()});
-  document.getElementById('adm-logout').onclick=function(){try{sessionStorage.removeItem('dpg-adm')}catch(e){}panel.hidden=true;gate.hidden=false;};
+  document.getElementById('adm-logout').onclick=function(){try{sessionStorage.removeItem('dpg-adm')}catch(e){}panel.hidden=true;gate.hidden=false;if(window.__regRender)window.__regRender();};
   try{if(sessionStorage.getItem('dpg-adm')==='1')unlock();}catch(e){}
 })();
 
