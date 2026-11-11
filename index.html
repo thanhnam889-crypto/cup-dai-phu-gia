@@ -1364,9 +1364,22 @@ var KQ={
   // ALIAS: cùng 1 người nhưng gõ tên khác nhau giữa Form và danh sách chính thức.
   var ALIAS={'pham cao hung':'pham van hung','do van truong':'do huu truong'};
   function nkey(s){var k=nrm(s).replace(/\s+/g,' ').trim();return ALIAS[k]||k}
-  function merge(L,isOff){var seen={},out=[],src=isOff?L.concat(DEF.list):DEF.list.concat(L);
-    src.forEach(function(x){var k=nkey(x.n);if(!k||seen[k])return;seen[k]=1;out.push(x);});return out;}
-  try{var c=JSON.parse(localStorage.getItem('dpg-reg')||'null');if(c&&okList(c.list)&&c.list.length)cur={updated:c.updated,off:!!c.off,list:merge(okList(c.list),!!c.off)};}catch(e){}
+  // Người có trong DS chính thức nhưng KHÔNG đăng ký qua Form (luôn giữ)
+  var OFFICIAL_ONLY={'nguyen xuan do':1,'diep chan vuong':1,'nguyen thu truong':1};
+  // Lượt Form mới nhất đã nhập tay vào DEF — máy chủ có dữ liệu từ mốc này trở đi mới coi là "đang đọc đúng file"
+  var FORM_LATEST=Date.parse('2026-11-11T08:33:03+07:00');
+  function trusted(L,srvUpd){var t=Date.parse(srvUpd||'');return !!L&&L.length>=30&&!isNaN(t)&&t>=FORM_LATEST-60000;}
+  function merge(L,isOff,srvUpd){var seen={},out=[];
+    if(!isOff&&trusted(L,srvUpd)){
+      // Máy chủ đọc đúng file Form: Form là chuẩn → ai bị xóa dòng / đánh dấu "Ẩn" trên Sheet sẽ tự mất khỏi app
+      var inSrv={};L.forEach(function(x){inSrv[nkey(x.n)]=1;});
+      DEF.list.forEach(function(x){var k=nkey(x.n);if(!k||seen[k])return;if(OFFICIAL_ONLY[k]||inSrv[k]){seen[k]=1;out.push(x);}});
+      L.forEach(function(x){var k=nkey(x.n);if(!k||seen[k])return;seen[k]=1;out.push(x);});
+      return out;
+    }
+    // Máy chủ chưa đáng tin (đọc file cũ / lỗi): gộp danh sách trong app + máy chủ, không xóa ai
+    (isOff?L.concat(DEF.list):DEF.list.concat(L)).forEach(function(x){var k=nkey(x.n);if(!k||seen[k])return;seen[k]=1;out.push(x);});return out;}
+  try{var c=JSON.parse(localStorage.getItem('dpg-reg')||'null');if(c&&okList(c.raw)&&c.raw.length)cur={updated:c.updated,off:!!c.off,raw:c.raw,list:merge(okList(c.raw),!!c.off,c.updated)};}catch(e){}
   function fmtUpd(u){if(!u)return '';if(/^\d{1,2}\/\d{1,2}$/.test(u))return u;var d=new Date(u);return isNaN(d)?'':(d.getDate()+'/'+(d.getMonth()+1));}
   function ndTag(nd){var x=nrm(nd);if(!x)return '';var up=/\bup\b/.test(x);
     if(/ca hai|ca 2|both/.test(x)||(up&&/co tuong(?! up)/.test(x)))return 'Cờ tướng + Cờ úp';
@@ -1416,7 +1429,7 @@ var KQ={
       var j;try{j=JSON.parse(t)}catch(e){throw new Error(/<html|<!doctype/i.test(t)?'máy chủ trả về trang web thay vì dữ liệu (kiểm tra quyền truy cập "Bất kỳ ai" của Apps Script)':'dữ liệu máy chủ không đọc được');}
       if(j&&j.error)throw new Error('máy chủ báo: '+j.error);
       var L=j&&okList(j.list);if(!L)throw new Error('máy chủ không có danh sách');
-      cur={updated:j.updated,off:!!j.official,list:merge(L,!!j.official)};try{localStorage.setItem('dpg-reg',JSON.stringify(cur))}catch(e){}
+      cur={updated:j.updated,off:!!j.official,raw:L,list:merge(L,!!j.official,j.updated)};try{localStorage.setItem('dpg-reg',JSON.stringify({updated:cur.updated,off:cur.off,raw:L}))}catch(e){}
       setSync({ok:true,at:Date.now(),srv:j.updated||null,rows:L.length,src:j.src||''});
       render();subs.forEach(function(f){try{f(cur.list)}catch(e){}});
     }).catch(function(e){var m=(e&&e.name==='TypeError')?'không kết nối được máy chủ Apps Script (mất mạng, hoặc link/bản triển khai không còn)':((e&&e.message)||'không kết nối được máy chủ');setSync({ok:false,at:Date.now(),err:m});})
