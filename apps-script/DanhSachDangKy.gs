@@ -168,9 +168,10 @@ function build_() {
   var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
   var formSh = pickSheet_(ss), form = readForm_(formSh), off = readOfficial_(ss, formSh);
   var upd = form.latest ? new Date(form.latest).toISOString() : null;
+  var src = ss.getName() + ' › ' + formSh.getName(); // tên file + tab đang đọc (để app hiện cho Ban tổ chức kiểm tra)
   if (!off) {
     if (form.error) return { updated: null, count: 0, dup: 0, list: [], error: form.error };
-    return { updated: upd, count: form.list.length, dup: form.dup, list: form.list };
+    return { updated: upd, src: src, count: form.list.length, dup: form.dup, list: form.list };
   }
   var idx = {}, extra = [], dup = form.dup;
   off.list.forEach(function (it, i) { idx[norm_(it.n)] = i; });
@@ -180,7 +181,7 @@ function build_() {
     else extra.push(it);
   });
   var list = off.list.concat(extra);
-  return { updated: upd, count: list.length, dup: dup, official: off.list.length, extra: extra.length, sheet: off.name, list: list };
+  return { updated: upd, src: src, count: list.length, dup: dup, official: off.list.length, extra: extra.length, sheet: off.name, list: list };
 }
 
 

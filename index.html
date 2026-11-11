@@ -1402,7 +1402,7 @@ var KQ={
     el.hidden=!adm;if(!adm)return;
     el.className='regsync'+(sync.ok===false?' bad':'');
     var t=busy?'⏳ Đang lấy dữ liệu mới từ Google Form…'
-      :sync.ok?('🔄 Tự cập nhật từ Google Form: nhận lúc '+hm(sync.at)+' · '+(sync.rows||0)+' người trên Form · lượt đăng ký mới nhất '+(hm(sync.srv)||'?'))
+      :sync.ok?('🔄 Tự cập nhật từ Google Form: nhận lúc '+hm(sync.at)+' · '+(sync.rows||0)+' người trên Form · lượt đăng ký mới nhất '+(hm(sync.srv)||'?')+(sync.src?' · đọc từ: '+sync.src:''))
       :sync.ok===false?('⚠ Chưa lấy được dữ liệu từ Google Form ('+hm(sync.at)+'): '+sync.err+'. App đang dùng danh sách đã lưu.')
       :'Chưa kết nối Google Form.';
     el.innerHTML='';el.appendChild(document.createTextNode(t));
@@ -1417,7 +1417,7 @@ var KQ={
       if(j&&j.error)throw new Error('máy chủ báo: '+j.error);
       var L=j&&okList(j.list);if(!L)throw new Error('máy chủ không có danh sách');
       cur={updated:j.updated,off:!!j.official,list:merge(L,!!j.official)};try{localStorage.setItem('dpg-reg',JSON.stringify(cur))}catch(e){}
-      setSync({ok:true,at:Date.now(),srv:j.updated||null,rows:L.length});
+      setSync({ok:true,at:Date.now(),srv:j.updated||null,rows:L.length,src:j.src||''});
       render();subs.forEach(function(f){try{f(cur.list)}catch(e){}});
     }).catch(function(e){var m=(e&&e.name==='TypeError')?'không kết nối được máy chủ Apps Script (mất mạng, hoặc link/bản triển khai không còn)':((e&&e.message)||'không kết nối được máy chủ');setSync({ok:false,at:Date.now(),err:m});})
     .then(function(){busy=false;last=Date.now();renderSync();});
