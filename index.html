@@ -263,6 +263,9 @@ a.poi.food .go{color:var(--jade)}
   display:grid;place-items:center;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums}
 .reg .ri{flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word}
 #reg-list{overflow:hidden}
+.regsync{margin-top:8px;padding:9px 12px;border-radius:10px;font-size:12.5px;line-height:1.5;background:var(--surface-2);border:1px solid var(--line)}
+.regsync.bad{border-color:var(--red);color:var(--red)}
+.regsync button{margin-left:6px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .reglock{text-align:center;padding:20px 16px}
 .reglock .rl-i{font-size:26px;line-height:1}
 .reglock .rl-t{font-weight:700;margin-top:8px}
@@ -801,6 +804,7 @@ a.poi.food .go{color:var(--jade)}
       <button class="btn ghost" id="reg-login" style="margin-top:12px">⚙️ Đăng nhập Ban tổ chức</button>
     </div>
     <div class="card" id="reg-list" hidden></div>
+    <div class="regsync" id="reg-sync" hidden></div>
     <p class="note" id="reg-note" style="padding:6px 2px 0" hidden>Chỉ Ban tổ chức thấy danh sách này. Thông tin liên hệ được bảo mật, chỉ hiển thị tên &amp; đơn vị.</p>
   </div>
 
@@ -1279,7 +1283,7 @@ var KQ={
       return 'Apps Script chưa được cấp quyền gọi AI — mở Apps Script, chạy hàm kiemTraGemini 1 lần, rồi Deploy → Manage deployments → New version.';
     },function(){return 'Không kết nối được máy chủ AI — có thể Apps Script chưa được cấp quyền, hoặc mạng yếu.'});
   };
-  var DEF={updated:'9/11',list:[
+  var DEF={updated:'11/11',list:[
     // Theo file final "Tổng hợp DS đăng ký" của Ban tổ chức (9/11) — 55 kỳ thủ + 7 đăng ký tối 9/11 = 62
     {n:'Phạm Hoàng Dương',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam - Nhiệm kỳ I',nd:'Cờ tướng úp'},
     {n:'Nguyễn Văn Bình',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
@@ -1343,7 +1347,13 @@ var KQ={
     {n:'Trần Xuân An',cv:'Trưởng phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
     {n:'Lê Đăng Vũ',cv:'Phó phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
     {n:'Châu Trần Quang Đạt',cv:'Phó Giám đốc',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
-    {n:'Trịnh Hồ Quang Vũ',cv:'Trưởng phòng Kỹ thuật',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng úp'}
+    {n:'Trịnh Hồ Quang Vũ',cv:'Trưởng phòng Kỹ thuật',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng úp'},
+    // Đăng ký qua Form 10–11/11
+    {n:'Mai Xuân Thường',cv:'Giám đốc',cty:'Công ty Xây dựng Di Linh',nd:'Cờ tướng'},
+    {n:'Hán Văn San',cv:'Giám đốc',cty:'Công ty An Phước Thịnh',nd:'Cờ tướng'},
+    {n:'Nguyễn Đức Thịnh',cv:'Trưởng phòng Hành chính – Nhân sự',cty:'Công ty TNHH Ngọc An STEEL',nd:'Cờ tướng'},
+    {n:'Nguyễn Thanh Mạnh',cv:'Quản lý kế hoạch',cty:'Công ty Cổ phần Phân bón và Hóa chất Dầu khí Miền Trung',nd:'Cờ tướng'},
+    {n:'Văn Tiến Sự',cv:'Quản lý Kinh doanh',cty:'Cafe Cờ tướng',nd:'Cờ tướng úp'}
   ]};
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
   function nrm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
@@ -1374,6 +1384,7 @@ var KQ={
     // Chỉ Ban tổ chức (đã đăng nhập Quản trị) mới thấy danh sách tên
     var lk=document.getElementById('reg-lock'),nt2=document.getElementById('reg-note');
     if(lk)lk.hidden=adm;if(nt2)nt2.hidden=!adm;box.hidden=!adm;
+    renderSync();
     if(!adm){box.innerHTML='';return;}
     if(!L.length){box.innerHTML='<div class="reg"><div class="ri"><div class="ru">Chưa có ai đăng ký.</div></div></div>';return;}
     box.innerHTML=L.map(function(r,i){
@@ -1382,13 +1393,34 @@ var KQ={
         +(ru?'<div class="ru">'+ru+'</div>':'')+(tg?'<span class="rtag">'+esc(tg)+'</span>':'')+'</div></div>';
     }).join('');
   }
+  // Trạng thái tự cập nhật từ Google Form (chỉ Ban tổ chức thấy) — để biết máy chủ có đang trả dữ liệu mới không
+  var sync={};try{sync=JSON.parse(localStorage.getItem('dpg-reg-sync')||'{}')||{}}catch(e){}
+  function hm(t){if(!t)return '';var d=new Date(t);if(isNaN(d))return '';function p(x){return(x<10?'0':'')+x}return p(d.getHours())+':'+p(d.getMinutes())+' '+p(d.getDate())+'/'+p(d.getMonth()+1);}
+  function renderSync(){
+    var el=document.getElementById('reg-sync');if(!el)return;
+    var adm=false;try{adm=sessionStorage.getItem('dpg-adm')==='1'}catch(e){}
+    el.hidden=!adm;if(!adm)return;
+    el.className='regsync'+(sync.ok===false?' bad':'');
+    var t=busy?'⏳ Đang lấy dữ liệu mới từ Google Form…'
+      :sync.ok?('🔄 Tự cập nhật từ Google Form: nhận lúc '+hm(sync.at)+' · '+(sync.rows||0)+' người trên Form · lượt đăng ký mới nhất '+(hm(sync.srv)||'?'))
+      :sync.ok===false?('⚠ Chưa lấy được dữ liệu từ Google Form ('+hm(sync.at)+'): '+sync.err+'. App đang dùng danh sách đã lưu.')
+      :'Chưa kết nối Google Form.';
+    el.innerHTML='';el.appendChild(document.createTextNode(t));
+    var b=document.createElement('button');b.type='button';b.textContent='↻ Cập nhật ngay';b.onclick=function(){refresh();};el.appendChild(b);
+  }
+  function setSync(o){sync=o;try{localStorage.setItem('dpg-reg-sync',JSON.stringify(o))}catch(e){};renderSync();}
   function refresh(){
-    if(!REG_URL||busy)return;busy=true;
-    fetch(REG_URL,{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
-      var L=j&&!j.error&&okList(j.list);if(!L)return;
+    if(!REG_URL||busy)return;busy=true;renderSync();
+    fetch(REG_URL+(REG_URL.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store',redirect:'follow'})
+    .then(function(r){return r.text()}).then(function(t){
+      var j;try{j=JSON.parse(t)}catch(e){throw new Error(/<html|<!doctype/i.test(t)?'máy chủ trả về trang web thay vì dữ liệu (kiểm tra quyền truy cập "Bất kỳ ai" của Apps Script)':'dữ liệu máy chủ không đọc được');}
+      if(j&&j.error)throw new Error('máy chủ báo: '+j.error);
+      var L=j&&okList(j.list);if(!L)throw new Error('máy chủ không có danh sách');
       cur={updated:j.updated,off:!!j.official,list:merge(L,!!j.official)};try{localStorage.setItem('dpg-reg',JSON.stringify(cur))}catch(e){}
+      setSync({ok:true,at:Date.now(),srv:j.updated||null,rows:L.length});
       render();subs.forEach(function(f){try{f(cur.list)}catch(e){}});
-    }).catch(function(){}).then(function(){busy=false;last=Date.now();});
+    }).catch(function(e){var m=(e&&e.name==='TypeError')?'không kết nối được máy chủ Apps Script (mất mạng, hoặc link/bản triển khai không còn)':((e&&e.message)||'không kết nối được máy chủ');setSync({ok:false,at:Date.now(),err:m});})
+    .then(function(){busy=false;last=Date.now();renderSync();});
   }
   window.DPGREG={list:function(){return cur.list||[]},on:function(f){subs.push(f)},refresh:refresh};
   window.__regRender=render;
