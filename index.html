@@ -2723,7 +2723,7 @@ var XQ=(function(){
     if(e.key==='ArrowLeft'){$('bl-back').click();e.preventDefault();}else if(e.key==='ArrowRight'){$('bl-fwd').click();e.preventDefault();}
   });
 
-  /* ---------- Máy đi: hỏi cơ sở dữ liệu cờ tướng đám mây (chessdb.cn — nguồn của chessdb.vn); không có thì máy tính cơ bản trên điện thoại ---------- */
+  /* ---------- Máy đi: hỏi cơ sở dữ liệu cờ tướng đám mây chessdb.cn (API công khai); không có thì máy tính cơ bản trên điện thoại ---------- */
   var CDB='https://www.chessdb.cn/chessdb.php',aiBusy=false;
   function fenOf(n){return XQ.toFen(posOf(n));}
   function cdbLink(){var a=$('bl-cdb');if(a&&G)a.href='https://chessdb.vn/?'+fenOf(cur()).replace(/ /g,'%20');}
@@ -2778,7 +2778,7 @@ var XQ=(function(){
     var fen=fenOf(n),side=pos.turn==='r'?'Đỏ':'Đen';
     askCloud(fen).then(function(r){
       if(r&&XQ.play(pos,r.pv[0]))return {mv:r.pv[0],html:evTag(r.score,pos.turn)+'Máy ('+side+') đi <b>'+esc(XQ.vnMove(pos,r.pv[0]))+'</b>'
-        +(r.pv.length>1?' · Diễn biến dự kiến: <b>'+esc(pvText(pos,r.pv))+'</b>':'')+'<br><small>Theo cơ sở dữ liệu cờ tướng đám mây chessdb'+(r.egtb?' (tàn cuộc)':'')+(r.depth?' · độ sâu '+r.depth:'')+'</small>'};
+        +(r.pv.length>1?' · Diễn biến dự kiến: <b>'+esc(pvText(pos,r.pv))+'</b>':'')+'<br><small>Theo cơ sở dữ liệu cờ tướng đám mây chessdb.cn'+(r.egtb?' (tàn cuộc)':'')+(r.depth?' · độ sâu '+r.depth:'')+'</small>'};
       throw new Error('no-cloud');
     }).catch(function(){
       var r=localBest(pos,1600);if(!r)throw new Error('Không tìm được nước đi');
