@@ -254,6 +254,7 @@ function gemini_(parts, schema, opt) {
   var body = { contents: [{ parts: parts }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } };
   if (schema) body.generationConfig.responseSchema = schema;
   if (opt.think) body.generationConfig.thinkingConfig = { thinkingBudget: opt.think };
+  if (opt.maxTokens) body.generationConfig.maxOutputTokens = opt.maxTokens;
   var d = null, lastErr = '';
   lastErrs_ = [];
   for (var i = 0; i < models.length && !d; i++) {
@@ -276,7 +277,8 @@ function gemini_(parts, schema, opt) {
   try { txt = d.candidates[0].content.parts.filter(function (p) { return !p.thought; }).map(function (p) { return p.text || ''; }).join(''); } catch (x) {}
   try { return JSON.parse(txt); } catch (x) {
     var m = txt.match(/\{[\s\S]*\}/);
-    if (m) return JSON.parse(m[0]);
+    if (m) { try { return JSON.parse(m[0]); } catch (y) {} }
+    if (opt.salvage) { var sv = opt.salvage(txt); if (sv) return sv; }
     throw new Error('AI trả về dữ liệu không đọc được');
   }
 }
@@ -311,10 +313,10 @@ function readBoard_(req) {
     'Grid: 9 vertical lines x 10 horizontal lines; pieces sit ON the intersections; the river (楚河 漢界 or a blank band) lies between',
     'the 5th and 6th horizontal lines. Ignore captured pieces lying outside the grid, and ignore buttons/logos/decorations.',
     '',
-    'Coordinates: give image points as [y, x] normalized to 0-1000 (y from the TOP of the image, x from the LEFT).',
+    'Coordinates: give image points as y, x normalized to 0-1000 (y from the TOP of the image, x from the LEFT).',
     '1) "corners": the 4 outermost INTERSECTIONS of the grid lines (not the outer decorative frame, not the image edge):',
-    '   tl = top-left, tr = top-right, bl = bottom-left, br = bottom-right, as seen in the image.',
-    '2) "pieces": for EACH piece on the grid: "p" = letter, "pt" = [y, x] = the CENTRE of the piece,',
+    '   tl = top-left, tr = top-right, bl = bottom-left, br = bottom-right, as seen in the image; each as {y, x}.',
+    '2) "pieces": for EACH piece on the grid (at most 32, list each piece ONCE): "p" = letter, "y","x" = the CENTRE of the piece,',
     '   plus "c" = vertical line counted from the LEFT edge of the grid (1..9) and "r" = horizontal line counted from the TOP edge (1..10).',
     '3) If the river runs vertically in the image (board turned sideways), set "rotated": true (then c = 1..10 from the left, r = 1..9 from the top).',
     'Letters: K general (帥 帅 將 将), A advisor (仕 士), B elephant (相 象), N horse (傌 馬 马), R chariot (俥 車 车), C cannon (炮 砲 包), P soldier (兵 卒).',
@@ -322,23 +324,31 @@ function readBoard_(req) {
     'red_side = "bottom" or "top": where the RED general/palace is in the image.',
     'Return JSON only. note = short Vietnamese note about anything uncertain (empty if none).'
   ].join('\n');
-  var PT = { type: 'ARRAY', items: { type: 'INTEGER' } };
+  var I = { type: 'INTEGER' }, PT = { type: 'OBJECT', properties: { y: I, x: I }, required: ['y', 'x'] };
   var schema = { type: 'OBJECT', properties: {
-      corners: { type: 'OBJECT', properties: { tl: PT, tr: PT, bl: PT, br: PT } },
-      pieces: { type: 'ARRAY', items: { type: 'OBJECT', properties: { p: { type: 'STRING' }, pt: PT, c: { type: 'INTEGER' }, r: { type: 'INTEGER' } }, required: ['p', 'pt', 'c', 'r'] } },
+      corners: { type: 'OBJECT', properties: { tl: PT, tr: PT, bl: PT, br: PT }, required: ['tl', 'tr', 'bl', 'br'] },
+      pieces: { type: 'ARRAY', maxItems: 32, items: { type: 'OBJECT', properties: { p: { type: 'STRING' }, y: I, x: I, c: I, r: I }, required: ['p', 'y', 'x', 'c', 'r'] } },
       rotated: { type: 'BOOLEAN' },
       red_side: { type: 'STRING', enum: ['bottom', 'top'] },
       note: { type: 'STRING' } }, required: ['corners', 'pieces', 'red_side'] };
   // Đọc bàn cờ cần nhanh: dùng model nhẹ chạy ổn định (đổi được bằng Script Property GEMINI_MODEL_BOARD)
-  var opt = { model: PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD') || 'gemini-3.1-flash-lite' };
+  var opt = { model: PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD') || 'gemini-3.1-flash-lite', maxTokens: 4096,
+    salvage: function (t) { // câu trả lời bị cắt giữa chừng -> lấy những quân đã đọc được
+      var ps = [], re = /\{\s*"p"\s*:\s*"([KABNRCPkabnrcp])"\s*,\s*"y"\s*:\s*(\d+)\s*,\s*"x"\s*:\s*(\d+)\s*,\s*"c"\s*:\s*(\d+)\s*,\s*"r"\s*:\s*(\d+)\s*\}/g, m;
+      while ((m = re.exec(t)) && ps.length < 32) ps.push({ p: m[1], y: +m[2], x: +m[3], c: +m[4], r: +m[5] });
+      var cm = {}; ['tl', 'tr', 'bl', 'br'].forEach(function (k) { var mm = new RegExp('"' + k + '"\\s*:\\s*\\{\\s*"y"\\s*:\\s*(\\d+)\\s*,\\s*"x"\\s*:\\s*(\\d+)').exec(t); if (mm) cm[k] = { y: +mm[1], x: +mm[2] }; });
+      var rs = /"red_side"\s*:\s*"(top|bottom)"/.exec(t);
+      return ps.length ? { pieces: ps, corners: cm, red_side: rs ? rs[1] : 'bottom', note: 'AI trả lời bị ngắt — có thể thiếu quân' } : null;
+    } };
   if (req.dev === 'kan-test-201278' && req.mdl && /^[\w.-]+$/.test(req.mdl)) opt.model = req.mdl;   // chỉ để BTC thử model
   if (req.dev === 'kan-test-201278' && +req.think) opt.think = +req.think;
   var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema, opt);
   var rot = !!o.rotated, H = rot ? 9 : 10, Wd = rot ? 10 : 9, k;
-  var PS = (o.pieces || []).map(function (q) { return { p: String(q.p || '').trim().charAt(0), pt: q.pt, c: +q.c - 1, r: +q.r - 1 }; })
+  var PS = (o.pieces || []).slice(0, 40).map(function (q) { return { p: String(q.p || '').trim().charAt(0), pt: (q.y != null && q.x != null) ? [+q.y, +q.x] : q.pt, c: +q.c - 1, r: +q.r - 1 }; })
     .filter(function (q) { return /[KABNRCPkabnrcp]/.test(q.p); });
   // Phép chiếu phối cảnh từ 4 góc lưới -> (cột, hàng)
-  var C = o.corners || {}, h = null, mode = 'dem';
+  var C0 = o.corners || {}, C = {}, h = null, mode = 'dem';
+  ['tl', 'tr', 'bl', 'br'].forEach(function (k) { var v = C0[k]; C[k] = v && v.y != null ? [+v.y, +v.x] : v; });
   if (okPt_(C.tl) && okPt_(C.tr) && okPt_(C.bl) && okPt_(C.br)) {
     var src = [C.tl, C.tr, C.bl, C.br].map(function (a) { return [a[1], a[0]]; });
     var area = Math.abs((src[1][0] - src[0][0]) * (src[2][1] - src[0][1]) - (src[1][1] - src[0][1]) * (src[2][0] - src[0][0]));
