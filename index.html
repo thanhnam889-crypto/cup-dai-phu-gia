@@ -280,10 +280,21 @@ a.poi.food .go{color:var(--jade)}
   color:var(--fg);font:inherit;font-size:14px;box-sizing:border-box}
 .field{margin-bottom:13px}
 .field>label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.3px;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
-.erow{display:flex;gap:6px;align-items:center;margin-bottom:8px}
-.erow .inp{flex:1;min-width:0}
-.erow .res{flex:none;width:104px}
-.erow .del{flex:none;width:38px;height:42px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer;font-size:16px}
+.aiphoto{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.aiphoto .btn{margin-top:0;padding:10px 4px;font-size:13px;line-height:1.25;display:flex;flex-direction:column;align-items:center;gap:2px}
+.aiphoto .btn span{font-size:10.5px;font-weight:500;color:var(--muted)}
+.stnote{font-size:12px;color:var(--muted);margin:0 2px 6px;line-height:1.45}
+.srow{display:grid;grid-template-columns:44px 1fr 56px 30px;gap:6px;margin-bottom:6px;align-items:center}
+.srow .inp{padding:8px 8px!important;font-size:14px}
+.srow .hs{grid-column:2/4;font-size:12px!important;padding:6px 8px!important;margin-top:-2px}
+.srow .del{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer}
+.ktab .hsx{display:block;font-size:10.5px;color:var(--muted);font-weight:500;margin-top:1px;white-space:nowrap}
+#adm-rows{counter-reset:ban}
+.erow{display:grid;grid-template-columns:1fr 112px;gap:6px;align-items:center;margin-bottom:10px;padding:26px 8px 8px;border:1px solid var(--line);border-radius:12px;position:relative;counter-increment:ban}
+.erow::before{content:"Bàn " counter(ban);position:absolute;left:10px;top:6px;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.erow .inp{min-width:0;width:100%}
+.erow .del{height:42px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer;font-size:14px}
+@media(min-width:640px){.erow{grid-template-columns:1fr 112px 1fr 42px}}
 .admbar{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
 .admbar .btn{width:auto;flex:1;margin-top:0;padding:12px}
 .syncnote{font-size:12px;color:var(--gold);background:rgba(169,120,31,.1);border:1px solid var(--line);
@@ -908,9 +919,13 @@ a.poi.food .go{color:var(--jade)}
     <div class="field"><label>Nhập cho vòng</label>
       <select class="inp" id="adm-round"></select></div>
 
-    <div class="field"><label>Nhập nhanh bằng ảnh (AI đọc kết quả)</label>
+    <div class="field"><label>Nhập nhanh bằng ảnh chụp (AI đọc bản in Swiss-Manager)</label>
       <input type="file" id="adm-photo" accept="image/*" style="display:none">
-      <button class="btn ghost" id="adm-photobtn" style="padding:12px">📷 Chụp / chọn ảnh biên bản kết quả</button>
+      <div class="aiphoto">
+        <button class="btn ghost" data-ai="draw" type="button">📷 Ảnh bốc thăm<span>cặp đấu của vòng</span></button>
+        <button class="btn ghost" data-ai="kq" type="button">📷 Ảnh kết quả<span>tỉ số từng bàn</span></button>
+        <button class="btn ghost" data-ai="rank" type="button">📷 Ảnh xếp hạng<span>bảng sau vòng</span></button>
+      </div>
       <div class="okmsg" id="adm-photomsg" style="color:var(--muted)"></div>
     </div>
 
@@ -920,10 +935,21 @@ a.poi.food .go{color:var(--jade)}
     </div>
 
     <div class="admbar">
-      <button class="btn" id="adm-save">Lưu kết quả vòng này</button>
+      <button class="btn" id="adm-save">Lưu bốc thăm / kết quả vòng này</button>
       <button class="btn ghost" id="adm-view" style="flex:none;width:auto">Xem tab Kết quả</button>
     </div>
     <div class="okmsg" id="adm-ok"></div>
+
+    <div class="field" style="margin-top:14px"><label>Xếp hạng sau vòng này</label>
+      <div class="stnote" id="adm-stnote"></div>
+      <div id="adm-stand"></div>
+      <div class="admbar" style="margin-top:6px">
+        <button class="btn ghost" id="adm-stadd" type="button" style="flex:1;padding:11px">＋ Thêm dòng</button>
+        <button class="btn ghost" id="adm-stauto" type="button" style="flex:1;padding:11px">↻ Tự tính từ kết quả</button>
+      </div>
+      <button class="btn" id="adm-stsave" type="button" style="margin-top:8px">Lưu xếp hạng vòng này</button>
+      <div class="okmsg" id="adm-stok"></div>
+    </div>
 
     <div class="sec">
       <div class="lbl">Liên kết cộng đồng</div>
@@ -1157,29 +1183,8 @@ show(location.hash.slice(1));
        standings [hạng, kỳ thủ, đơn vị, điểm]                        (xếp hạng sau ván)
    - final: [hạng, kỳ thủ, đơn vị, điểm] — kết quả chung cuộc (để trống [] nếu chưa có) */
 var KQ={
-  a:{demo:true,numRounds:7,
-    rounds:{
-      1:{
-        draw:[['Nguyễn Văn A','DN Gia Lai','Phạm Văn D','DN Pleiku'],['Trần Văn B','DN Bình Định','Lê Văn C','DN Quy Nhơn']],
-        games:[['Nguyễn Văn A','DN Gia Lai','Phạm Văn D','DN Pleiku','1 - 0'],['Trần Văn B','DN Bình Định','Lê Văn C','DN Quy Nhơn','1 - 0']],
-        standings:[[1,'Nguyễn Văn A','DN Gia Lai',1],[2,'Trần Văn B','DN Bình Định',1],[3,'Lê Văn C','DN Quy Nhơn',0],[4,'Phạm Văn D','DN Pleiku',0]]
-      },
-      2:{
-        draw:[['Nguyễn Văn A','DN Gia Lai','Trần Văn B','DN Bình Định'],['Lê Văn C','DN Quy Nhơn','Phạm Văn D','DN Pleiku']],
-        games:[['Nguyễn Văn A','DN Gia Lai','Trần Văn B','DN Bình Định','1 - 0'],['Lê Văn C','DN Quy Nhơn','Phạm Văn D','DN Pleiku','1 - 0']],
-        standings:[[1,'Nguyễn Văn A','DN Gia Lai',2],[2,'Lê Văn C','DN Quy Nhơn',1],[3,'Trần Văn B','DN Bình Định',1],[4,'Phạm Văn D','DN Pleiku',0]]
-      }
-    },
-    final:[]},
-  b:{demo:true,numRounds:7,
-    rounds:{
-      1:{
-        draw:[['Võ Văn E','DN Gia Lai','Bùi Văn H','DN Pleiku'],['Đỗ Văn F','DN An Khê','Hồ Văn G','DN Quy Nhơn']],
-        games:[['Võ Văn E','DN Gia Lai','Bùi Văn H','DN Pleiku','1 - 0'],['Đỗ Văn F','DN An Khê','Hồ Văn G','DN Quy Nhơn','1 - 0']],
-        standings:[[1,'Võ Văn E','DN Gia Lai',1],[2,'Đỗ Văn F','DN An Khê',1],[3,'Hồ Văn G','DN Quy Nhơn',0],[4,'Bùi Văn H','DN Pleiku',0]]
-      }
-    },
-    final:[]}
+  a:{demo:false,numRounds:9,rounds:{},final:[]},
+  b:{demo:false,numRounds:9,rounds:{},final:[]}
 };
 (function(){
   var box=document.getElementById('kq-render');if(!box)return;
@@ -1199,7 +1204,7 @@ var KQ={
   function empty(t,s){return '<div class="card"><div class="kqempty"><div class="ei">♟</div><div class="et">'+t+'</div><div class="es">'+s+'</div></div></div>'}
   function standTable(rows){
     var h='<div class="card kqwrap"><table class="ktab"><thead><tr><th class="rk">#</th><th>Kỳ thủ</th><th style="text-align:right">Điểm</th></tr></thead><tbody>';
-    rows.forEach(function(r){h+='<tr><td class="rk"><b>'+esc(r[0])+'</b></td><td><div class="nm">'+esc(r[1])+'</div><div class="un">'+esc(r[2])+'</div></td><td class="pt">'+esc(r[3])+'</td></tr>'});
+    rows.forEach(function(r){h+='<tr><td class="rk"><b>'+esc(r[0])+'</b></td><td><div class="nm">'+esc(r[1])+'</div><div class="un">'+esc(r[2]||'')+'</div></td><td class="pt">'+esc(String(r[3]).replace('.',','))+(r[4]?'<span class="hsx">'+esc(r[4])+'</span>':'')+'</td></tr>'});
     return h+'</tbody></table></div>';
   }
   function pairList(rows,withScore){
@@ -1219,8 +1224,10 @@ var KQ={
     for(var i=1;i<=d.numRounds;i++)h+='<button data-r="'+i+'"'+(String(cur.r)===String(i)?' class="on"':'')+'>Vòng '+i+'</button>';
     h+='<button data-r="final"'+(cur.r==='final'?' class="on"':'')+'>Chung cuộc</button></div>';
     if(cur.r==='final'){
-      h+='<div class="kqcap">Kết quả chung cuộc</div>';
-      h+=(d.final&&d.final.length)?standTable(d.final):empty('Chưa có kết quả chung cuộc','Sẽ công bố sau khi kết thúc toàn bộ các vòng đấu.');
+      var lastR=0;Object.keys(d.rounds).forEach(function(k){var x=d.rounds[k];if(x&&x.standings&&x.standings.length&&+k>lastR)lastR=+k;});
+      if(d.final&&d.final.length){h+='<div class="kqcap">Kết quả chung cuộc</div>'+standTable(d.final);}
+      else if(lastR&&lastR>=d.numRounds){h+='<div class="kqcap">Kết quả chung cuộc · sau Vòng '+lastR+'</div>'+standTable(d.rounds[lastR].standings);}
+      else h+=empty('Chưa có kết quả chung cuộc',lastR?('Sẽ công bố sau Vòng '+d.numRounds+'. Xếp hạng tạm thời: xem Vòng '+lastR+' → Xếp hạng.'):'Sẽ công bố sau khi kết thúc toàn bộ các vòng đấu.');
       box.innerHTML=h;bind();return;
     }
     var rd=d.rounds[cur.r];
@@ -1478,13 +1485,13 @@ var KQ={
     var keep=rSel.value&&(+rSel.value<=N)?rSel.value:1;fillSelect(rSel,arr,keep);
   }
   function rowHTML(a,b,res){
-    return '<div class="erow"><input class="inp" list="reg-names" placeholder="Kỳ thủ A" value="'+(a||'')+'">'
+    return '<div class="erow"><input class="inp" list="reg-names" placeholder="Kỳ thủ A (đi trước)" value="'+(a||'')+'">'
       +'<select class="inp res"><option value="none"'+(res==='none'?' selected':'')+'>Chưa đấu</option>'
       +'<option value="a"'+(res==='a'?' selected':'')+'>A thắng</option>'
       +'<option value="draw"'+(res==='draw'?' selected':'')+'>Hòa</option>'
       +'<option value="b"'+(res==='b'?' selected':'')+'>B thắng</option></select>'
-      +'<input class="inp" list="reg-names" placeholder="Kỳ thủ B" value="'+(b||'')+'">'
-      +'<button class="del" title="Xóa">✕</button></div>';
+      +'<input class="inp" list="reg-names" placeholder="Kỳ thủ B (đi sau)" value="'+(b||'')+'">'
+      +'<button class="del" title="Xóa cặp này">✕ Xóa</button></div>';
   }
   function loadRows(){
     var s=store(),c=cSel.value,r=rSel.value,html='';
@@ -1496,70 +1503,156 @@ var KQ={
         html+=rowHTML(p[0],p[2],res);
       });
     }else{html=rowHTML('','','none')+rowHTML('','','none');}
-    rowsBox.innerHTML=html;bindRows();
+    rowsBox.innerHTML=html;bindRows();loadStand();
   }
   function bindRows(){
     rowsBox.querySelectorAll('.del').forEach(function(b){b.onclick=function(){b.closest('.erow').remove()}});
   }
   document.getElementById('adm-add').onclick=function(){rowsBox.insertAdjacentHTML('beforeend',rowHTML('','','none'));bindRows()};
 
-  // Nhập bằng ảnh: AI (Gemini qua Apps Script) đọc biên bản -> điền bảng cặp đấu để admin kiểm lại
+  // ===== Nhập bằng ảnh chụp: AI (Gemini qua Apps Script) đọc bản in Swiss-Manager =====
+  //  draw = ảnh bốc thăm (thay danh sách cặp đấu) · kq = ảnh kết quả (điền tỉ số vào đúng cặp) · rank = ảnh bảng xếp hạng
+  function kn(x){return String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/^(ong|ba)\s+/,'').replace(/\s+/g,' ').trim();}
+  function ea(x){return String(x==null?'':x).replace(/[&<>"]/g,function(q){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[q]})}
+  function aiRes(k){return k==='a'?'a':k==='b'?'b':k==='hoa'?'draw':'none';}
   (function(){
-    var btn=document.getElementById('adm-photobtn'),inp=document.getElementById('adm-photo'),me=document.getElementById('adm-photomsg');
-    if(!btn||!inp)return;
+    var inp=document.getElementById('adm-photo'),me=document.getElementById('adm-photomsg'),btns=[].slice.call(document.querySelectorAll('.aiphoto [data-ai]'));
+    if(!inp||!btns.length)return;
+    var mode='kq',LBL={draw:'bốc thăm',kq:'kết quả',rank:'bảng xếp hạng'};
     function m(t,c){me.style.color=c||'var(--muted)';me.textContent=t;}
-    function ea(x){return String(x||'').replace(/[&<>"]/g,function(q){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[q]})}
-    btn.onclick=function(){inp.click()};
+    function busy(on){btns.forEach(function(b){b.disabled=on;});}
+    btns.forEach(function(b){b.onclick=function(){mode=b.dataset.ai;inp.click();};});
     inp.onchange=function(){
       var f=inp.files&&inp.files[0];inp.value='';if(!f)return;
       if(!window.DPG_SCRIPT){m('Chưa kết nối máy chủ AI.','var(--red)');return;}
-      btn.disabled=true;m('Đang chuẩn bị ảnh…');
+      busy(true);m('Đang chuẩn bị ảnh…');
       var fr=new FileReader();
-      fr.onerror=function(){m('Không đọc được ảnh.','var(--red)');btn.disabled=false;};
+      fr.onerror=function(){m('Không đọc được ảnh.','var(--red)');busy(false);};
       fr.onload=function(){var im=new Image();
-        im.onerror=function(){m('Ảnh không hợp lệ.','var(--red)');btn.disabled=false;};
+        im.onerror=function(){m('Ảnh không hợp lệ.','var(--red)');busy(false);};
         im.onload=function(){
-          var sc=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');
+          var sc=Math.min(1,2000/Math.max(im.width,im.height)),c=document.createElement('canvas');
           c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-          var b64=c.toDataURL('image/jpeg',.85).split(',')[1],dev='';try{dev=localStorage.getItem('dpg-dev')||''}catch(e){}
-          m('🤖 AI đang đọc kết quả… (thường 10–30 giây)');
-          window.DPG_AIPOST({t:'kq',image:b64,mime:'image/jpeg',dev:dev,players:REG.map(function(r){return r[0]})},function(t){m(t)})
+          var b64=c.toDataURL('image/jpeg',.88).split(',')[1],dev='';try{dev=localStorage.getItem('dpg-dev')||''}catch(e){}
+          var md=mode;m('🤖 AI đang đọc '+LBL[md]+'… (thường 10–30 giây)');
+          window.DPG_AIPOST({t:md==='rank'?'rank':'kq',image:b64,mime:'image/jpeg',dev:dev,players:REG.map(function(r){return r[0]})},function(t){m(t)})
             .then(function(d){
-              if(!d||d.error)throw new Error((d&&d.error)||'AI không đọc được ảnh');
+              if(!d||d.error){var er=(d&&d.error)||'AI không đọc được ảnh';
+                if(/không được hỗ trợ/i.test(er))er='Máy chủ AI chưa có bản mới (cần dán mã Apps Script mới rồi Triển khai → Phiên bản mới).';
+                throw new Error(er);}
+              var r=+rSel.value,warn='';
+              if(d.vong&&d.vong!==r)warn+=' ⚠ Ảnh ghi Vòng '+d.vong+' nhưng ô "Nhập cho vòng" đang là Vòng '+r+'.';
+              if(d.nd&&((d.nd==='up')!==(cSel.value==='b')))warn+=' ⚠ Ảnh có vẻ là '+(d.nd==='up'?'Cờ tướng úp':'Cờ tướng')+' — kiểm tra ô "Nội dung".';
+              if(md==='rank'){
+                var rows=(d.rows||[]).filter(function(x){return x&&x.n;});
+                if(!rows.length)throw new Error('Không thấy dòng xếp hạng nào trong ảnh');
+                fillStand(rows.map(function(x){return [x.h,x.n,x.dv||'',x.d,x.hs||''];}),true);
+                m('✓ AI đọc được '+rows.length+' dòng xếp hạng. Kiểm tra lại rồi bấm “Lưu xếp hạng vòng này”.'+warn,warn?'var(--gold)':'var(--jade)');
+                document.getElementById('adm-stand').scrollIntoView({behavior:'smooth',block:'center'});
+                return;
+              }
               var g=(d.games||[]).filter(function(x){return x&&(x.a||x.b)});
               if(!g.length)throw new Error('Không thấy cặp đấu nào trong ảnh');
-              rowsBox.innerHTML=g.map(function(x){var r=x.kq==='a'?'a':x.kq==='b'?'b':x.kq==='hoa'?'draw':'none';return rowHTML(ea(x.a),ea(x.b),r)}).join('');
-              bindRows();m('✓ AI đọc được '+g.length+' cặp đấu. Kiểm tra lại từng dòng rồi bấm “Lưu kết quả vòng này”.','var(--jade)');
-            }).catch(function(e){var raw=String((e&&e.message)||e||'');return (window.DPG_AIERR?window.DPG_AIERR(e):Promise.resolve(raw)).then(function(t){m('Lỗi: '+t+(raw&&raw!==t?' (chi tiết: '+raw.slice(0,160)+')':''),'var(--red)')});}).then(function(){btn.disabled=false});
+              var ex=[].map.call(rowsBox.querySelectorAll('.erow'),function(row){var ins=row.querySelectorAll('input.inp');return {a:ins[0].value.trim(),b:ins[1].value.trim(),sel:row.querySelector('.res')};}).filter(function(x){return x.a||x.b;});
+              if(md==='draw'||!ex.length){
+                rowsBox.innerHTML=g.map(function(x){return rowHTML(ea(x.a),ea(x.b),aiRes(x.kq))}).join('');bindRows();
+                var nr=g.filter(function(x){return x.kq!=='none'}).length;
+                m('✓ AI đọc được '+g.length+' cặp đấu'+(nr?(' ('+nr+' ván đã có kết quả)'):'')+'. Kiểm tra lại từng dòng rồi bấm “Lưu bốc thăm / kết quả vòng này”.'+warn,warn?'var(--gold)':'var(--jade)');
+              }else{
+                var upd=0,add=0;
+                g.forEach(function(x){
+                  var res=aiRes(x.kq),hit=null,i;
+                  for(i=0;i<ex.length&&!hit;i++)if(kn(ex[i].a)===kn(x.a)&&kn(ex[i].b)===kn(x.b))hit=ex[i];
+                  if(!hit)for(i=0;i<ex.length&&!hit;i++)if(kn(ex[i].a)===kn(x.b)&&kn(ex[i].b)===kn(x.a)){hit=ex[i];res=res==='a'?'b':res==='b'?'a':res;}
+                  if(hit){if(res!=='none'){hit.sel.value=res;upd++;}}
+                  else{rowsBox.insertAdjacentHTML('beforeend',rowHTML(ea(x.a),ea(x.b),res));add++;}
+                });
+                bindRows();
+                m('✓ Đã điền kết quả cho '+upd+' cặp'+(add?(', thêm '+add+' cặp mới không có trong bốc thăm'):'')+'. Kiểm tra lại rồi bấm “Lưu bốc thăm / kết quả vòng này”.'+warn,(warn||add)?'var(--gold)':'var(--jade)');
+              }
+            }).catch(function(e){var raw=String((e&&e.message)||e||'');return (window.DPG_AIERR?window.DPG_AIERR(e):Promise.resolve(raw)).then(function(t){m('Lỗi: '+t+(raw&&raw!==t?' (chi tiết: '+raw.slice(0,160)+')':''),'var(--red)');});})
+            .then(function(){busy(false);});
         };im.src=fr.result;};
       fr.readAsDataURL(f);
     };
   })();
 
+  // ===== Bảng xếp hạng của vòng (sửa tay / từ ảnh) =====
+  var stBox=document.getElementById('adm-stand'),stNote=document.getElementById('adm-stnote'),stOk=document.getElementById('adm-stok');
+  function stRowHTML(h,n,dv,d,hs){return '<div class="srow" data-dv="'+ea(dv)+'"><input class="inp sh" inputmode="numeric" placeholder="#" value="'+ea(h)+'">'
+    +'<input class="inp sn" list="reg-names" placeholder="Kỳ thủ" value="'+ea(n)+'"><input class="inp sd" inputmode="decimal" placeholder="Điểm" value="'+ea(String(d==null?'':d).replace('.',','))+'">'
+    +'<button class="del" type="button" title="Xóa">✕</button><input class="inp hs" placeholder="Hệ số phụ (VD: BH 18 · Thắng 4)" value="'+ea(hs)+'"></div>';}
+  function bindSt(){stBox.querySelectorAll('.del').forEach(function(b){b.onclick=function(){b.closest('.srow').remove()}});}
+  function fillStand(rows,fromPhoto){
+    stBox.innerHTML=rows.map(function(r){return stRowHTML(r[0],r[1],r[2]||'',r[3],r[4]||'')}).join('');bindSt();
+    if(fromPhoto)stNote.textContent='📷 Xếp hạng vừa đọc từ ảnh — CHƯA LƯU. Kiểm tra tên, điểm rồi bấm “Lưu xếp hạng vòng này”.';
+  }
+  function loadStand(){
+    var s=store(),c=cSel.value,r=rSel.value,rd=s[c]&&s[c].rounds&&s[c].rounds[r],st=(rd&&rd.standings)||[];
+    fillStand(st,false);stOk.textContent='';
+    stNote.textContent=(rd&&rd.standSrc)?'🔒 Xếp hạng chính thức do BTC nhập (ảnh / sửa tay) — giữ nguyên khi lưu lại kết quả. Bấm “↻ Tự tính từ kết quả” nếu muốn app tự xếp.'
+      :st.length?'App đang tự xếp hạng từ kết quả (điểm → đối đầu → Buchholz → số ván thắng → số ván đi sau → thắng khi đi sau). Chụp ảnh bảng xếp hạng Swiss-Manager để dùng bảng chính thức.'
+      :'Chưa có xếp hạng vòng này. Lưu kết quả để app tự tính, hoặc chụp ảnh bảng xếp hạng.';
+  }
+  function pushStore(s,okEl,tag){
+    okEl.style.color='var(--jade)';
+    if(window.DPG&&window.DPG.push){okEl.textContent='Đang đồng bộ '+tag+'…';
+      window.DPG.push(s).then(function(){okEl.textContent='✓ Đã đồng bộ '+tag+' — mọi người đều thấy.';})
+        .catch(function(){okEl.style.color='var(--red)';okEl.textContent='⚠ Đã lưu máy này nhưng chưa đồng bộ được (kiểm tra mạng).';});
+    }else okEl.textContent='✓ Đã lưu '+tag+' trên máy này.';
+    if(window.__kqRefresh)window.__kqRefresh();
+  }
+  document.getElementById('adm-stadd').onclick=function(){var n=stBox.querySelectorAll('.srow').length;stBox.insertAdjacentHTML('beforeend',stRowHTML(n+1,'','','',''));bindSt();};
+  document.getElementById('adm-stsave').onclick=function(){
+    var rows=[];stBox.querySelectorAll('.srow').forEach(function(row){
+      var n=row.querySelector('.sn').value.trim();if(!n)return;
+      var d=parseFloat(row.querySelector('.sd').value.replace(',','.'));
+      rows.push([+row.querySelector('.sh').value||0,n,unitOf(n)||row.dataset.dv||'',isNaN(d)?0:d,row.querySelector('.hs').value.trim()]);});
+    if(!rows.length){stOk.style.color='var(--red)';stOk.textContent='Chưa có dòng nào.';return;}
+    rows.sort(function(x,y){return (x[0]||999)-(y[0]||999)});rows.forEach(function(x,i){if(!x[0])x[0]=i+1;});
+    var s=store(),c=cSel.value,r=rSel.value;
+    if(!s[c])s[c]={demo:false,numRounds:+nSel.value,rounds:{},final:[]};
+    s[c].demo=false;s[c].rounds=s[c].rounds||{};var rd=s[c].rounds[r]||{draw:[],games:[]};
+    rd.standings=rows;rd.standSrc='btc';s[c].rounds[r]=rd;save(s);loadStand();
+    pushStore(s,stOk,'xếp hạng Vòng '+r+' ('+(c==='a'?'Cờ tướng':'Cờ tướng úp')+')');
+  };
+  document.getElementById('adm-stauto').onclick=function(){
+    var s=store(),c=cSel.value,r=rSel.value,rd=s[c]&&s[c].rounds&&s[c].rounds[r];
+    if(!rd){stOk.style.color='var(--red)';stOk.textContent='Vòng này chưa có kết quả để tính.';return;}
+    delete rd.standSrc;rd.standings=[];recompute(s[c]);save(s);loadStand();
+    pushStore(s,stOk,'xếp hạng tự tính Vòng '+r);
+  };
 
   function scoreStr(res){return res==='a'?'1 - 0':res==='b'?'0 - 1':res==='draw'?'½ - ½':''}
   function pts(sc,side){ // side 0=left,1=right
     if(!sc)return 0;var p=sc.split('-').map(function(x){return x.trim()==='½'?0.5:parseFloat(x)});
     return p[side]||0;
   }
+  // Xếp hạng tự tính theo Điều lệ: điểm → đối đầu (nhóm bằng điểm đã gặp nhau đủ) → Buchholz → số ván thắng → số ván đi sau → số ván thắng đi sau
+  function isBye(n){return !n||/^(bye|nghỉ|nghi|miễn|mien)/i.test(String(n).trim());}
   function recompute(cData){
     var maxR=0;Object.keys(cData.rounds).forEach(function(k){if(+k>maxR)maxR=+k});
     for(var R=1;R<=maxR;R++){
-      var tally={};
+      if(!cData.rounds[R]||cData.rounds[R].standSrc)continue;
+      var P={};
+      var pl=function(n,u){if(isBye(n))return null;if(!P[n])P[n]={u:u||unitOf(n),p:0,w:0,bl:0,bw:0,opp:[],vs:{}};return P[n];};
       for(var r=1;r<=R;r++){
-        var rd=cData.rounds[r];if(!rd||!rd.games)continue;
-        rd.games.forEach(function(g){
-          if(!g[4])return;
-          [[g[0],g[1],0],[g[2],g[3],1]].forEach(function(pl){
-            var key=pl[0];if(!key)return;
-            if(!tally[key])tally[key]={unit:pl[1]||unitOf(pl[0]),p:0};
-            tally[key].p+=pts(g[4],pl[2]);
-          });
+        var rd=cData.rounds[r];if(!rd)continue;
+        (rd.draw||[]).forEach(function(d){pl(d[0],d[1]);pl(d[2],d[3]);});
+        (rd.games||[]).forEach(function(g){
+          if(!g[4])return;var A=pl(g[0],g[1]),B=pl(g[2],g[3]),sa=pts(g[4],0),sb=pts(g[4],1);
+          if(A){A.p+=sa;if(sa===1)A.w++;if(B){A.opp.push(g[2]);A.vs[g[2]]=(A.vs[g[2]]||0)+sa;}}
+          if(B){B.p+=sb;B.bl++;if(sb===1){B.w++;B.bw++;}if(A){B.opp.push(g[0]);B.vs[g[0]]=(B.vs[g[0]]||0)+sb;}}
         });
       }
-      var arr=Object.keys(tally).map(function(n){return [n,tally[n].unit,tally[n].p]});
-      arr.sort(function(x,y){return y[2]-x[2]});
-      if(cData.rounds[R])cData.rounds[R].standings=arr.map(function(row,i){return [i+1,row[0],row[1],row[2]]});
+      var names=Object.keys(P);
+      names.forEach(function(n){var o=P[n];o.bh=o.opp.reduce(function(t,x){return t+(P[x]?P[x].p:0)},0);o.de=0;});
+      var byP={};names.forEach(function(n){(byP[P[n].p]=byP[P[n].p]||[]).push(n);});
+      Object.keys(byP).forEach(function(k){var grp=byP[k];if(grp.length<2)return;
+        var all=grp.every(function(a){return grp.every(function(b){return a===b||P[a].vs[b]!==undefined;});});
+        if(all)grp.forEach(function(a){P[a].de=grp.reduce(function(t,b){return t+(a===b?0:P[a].vs[b])},0);});});
+      names.sort(function(x,y){var a=P[x],b=P[y];return b.p-a.p||b.de-a.de||b.bh-a.bh||b.w-a.w||b.bl-a.bl||b.bw-a.bw||x.localeCompare(y,'vi');});
+      cData.rounds[R].standings=names.map(function(n,i){var o=P[n];return [i+1,n,o.u,o.p,'BH '+String(o.bh).replace('.',',')+' · Thắng '+o.w];});
     }
   }
 
@@ -1569,12 +1662,14 @@ var KQ={
     s[c].demo=false;s[c].numRounds=+nSel.value;s[c].rounds=s[c].rounds||{};
     var draw=[],games=[];
     rowsBox.querySelectorAll('.erow').forEach(function(row){
-      var ins=row.querySelectorAll('.inp'),a=ins[0].value.trim(),b=ins[1].value.trim(),res=row.querySelector('.res').value;
+      var ins=row.querySelectorAll('input.inp'),a=ins[0].value.trim(),b=ins[1].value.trim(),res=row.querySelector('.res').value;
       if(!a&&!b)return;
       draw.push([a,unitOf(a),b,unitOf(b)]);
       if(res!=='none')games.push([a,unitOf(a),b,unitOf(b),scoreStr(res)]);
     });
-    s[c].rounds[r]={draw:draw,games:games,standings:[]};
+    var old=s[c].rounds[r]||{},nr={draw:draw,games:games,standings:[]};
+    if(old.standSrc){nr.standings=old.standings||[];nr.standSrc=old.standSrc;}
+    s[c].rounds[r]=nr;
     recompute(s[c]);
     save(s);
     var tag='Vòng '+r+' ('+(c==='a'?'Cờ tướng':'Cờ tướng úp')+')';
@@ -1587,6 +1682,7 @@ var KQ={
       okMsg.textContent='✓ Đã lưu '+tag+' trên máy này. Xem ở tab Kết quả.';
     }
     if(window.__kqRefresh)window.__kqRefresh();
+    loadStand();
   };
   document.getElementById('adm-view').onclick=function(){location.hash='ket-qua'};
   document.getElementById('adm-reset').onclick=function(){

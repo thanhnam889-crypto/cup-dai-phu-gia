@@ -26,7 +26,7 @@ function doGet() {
   if (hit) return out_(hit);
   var data;
   try { data = build_(); } catch (e) { data = { updated: null, count: 0, list: [], error: String(e && e.message || e) }; }
-  data.ai = 2; // báo cho app biết máy chủ đã có AI
+  data.ai = 3; // 3 = có đọc ảnh bốc thăm, kết quả và bảng xếp hạng
   try { data.key = !!geminiKey_(); } catch (e) { data.key = null; }
   var json = JSON.stringify(data);
   if (!data.error) { try { cache.put('reg', json, 60); } catch (e) {} }
@@ -192,6 +192,8 @@ function doPost(e) {
   try {
     if (req.t === 'board') return json_(readBoard_(req));
     if (req.t === 'kq') return json_(readKq_(req));
+    if (req.t === 'rank') return json_(readRank_(req));
+    if (req.t === 'ping') return json_({ ok: true, ai: 3 });
     return json_({ error: 'Yêu cầu không được hỗ trợ' });
   } catch (x) { return json_({ error: String((x && x.message) || x) }); }
 }
@@ -301,19 +303,53 @@ function readBoard_(req) {
 /* --- Đọc ảnh biên bản kết quả 1 vòng --- */
 function readKq_(req) {
   if (!req.image) return { error: 'Thiếu ảnh' };
-  if (!limit_(req.dev, 'kq', 60)) return { error: 'Đã dùng nhiều lượt AI, thử lại sau vài giờ.' };
+  if (!limit_(req.dev, 'kq', 80)) return { error: 'Đã dùng nhiều lượt AI, thử lại sau vài giờ.' };
   var plist = (req.players || []).slice(0, 300).join(', ');
-  var prompt = 'Đây là ảnh ghi kết quả một vòng đấu cờ tướng (bảng in hoặc biên bản viết tay).\n'
-    + 'Hãy trích xuất danh sách các ván đấu trong ảnh.\n'
-    + 'Danh sách kỳ thủ đã đăng ký (khớp tên đọc được với tên gần nhất trong danh sách này khi có thể): ' + plist + '.\n'
-    + 'Chỉ trả về JSON: {"games":[{"a":"Tên kỳ thủ bên trái","b":"Tên kỳ thủ bên phải","kq":"a"}]}\n'
-    + 'kq: "a" nếu bên A thắng, "b" nếu bên B thắng, "hoa" nếu hòa, "none" nếu chưa có kết quả.';
-  var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }]);
+  var prompt = 'Ảnh chụp danh sách CẶP ĐẤU (bốc thăm) hoặc KẾT QUẢ một vòng đấu cờ tướng — thường là bản in từ phần mềm Swiss-Manager '
+    + '(cột: Bàn, Số, Tên kỳ thủ bên trái = Đỏ/đi tiên, Điểm, Kết quả, Tên kỳ thủ bên phải = Đen/đi sau, Điểm), hoặc biên bản viết tay.\n'
+    + 'Đọc TẤT CẢ các bàn theo đúng thứ tự từ trên xuống. Giữ nguyên bên trái là "a", bên phải là "b".\n'
+    + 'Danh sách kỳ thủ đã đăng ký (khớp tên đọc được với tên gần nhất trong danh sách này khi chắc chắn; bỏ chức danh Ông/Bà): ' + plist + '.\n'
+    + 'kq: "a" nếu bên trái thắng (1-0, 1 - 0, +/-, 1F-0F, bên phải bỏ cuộc), "b" nếu bên phải thắng (0-1, -/+, 0F-1F), '
+    + '"hoa" nếu hòa (½-½, 0.5-0.5, 1/2), "none" nếu ô kết quả trống (danh sách bốc thăm chưa đấu).\n'
+    + 'Bàn được miễn đấu (bye, "nghỉ", "miễn đấu", không có đối thủ): ghi b = "BYE".\n'
+    + 'vong: số vòng ghi trên tiêu đề ảnh (VD "Vòng 3", "Round 3"), không thấy thì 0. nd: "tuong" nếu tiêu đề là Cờ tướng, "up" nếu Cờ tướng úp, không rõ thì "".';
+  var schema = { type: 'OBJECT', properties: {
+    vong: { type: 'INTEGER' }, nd: { type: 'STRING' },
+    games: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
+      ban: { type: 'INTEGER' }, a: { type: 'STRING' }, b: { type: 'STRING' }, kq: { type: 'STRING', enum: ['a', 'b', 'hoa', 'none'] } },
+      required: ['a', 'b', 'kq'] } } }, required: ['games'] };
+  var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema);
   var g = (o.games || []).filter(function (x) { return x && (x.a || x.b); }).slice(0, 200).map(function (x) {
     var k = String(x.kq || 'none').toLowerCase();
-    return { a: String(x.a || '').slice(0, 80), b: String(x.b || '').slice(0, 80), kq: /^(a|b|hoa|none)$/.test(k) ? k : 'none' };
+    return { ban: +x.ban || 0, a: sp_(x.a).replace(/^(ông|bà)\s+/i, '').slice(0, 80), b: sp_(x.b).replace(/^(ông|bà)\s+/i, '').slice(0, 80),
+      kq: /^(a|b|hoa|none)$/.test(k) ? k : 'none' };
   });
-  return { ok: true, games: g };
+  return { ok: true, vong: +o.vong || 0, nd: String(o.nd || ''), games: g };
+}
+
+/* --- Đọc ảnh BẢNG XẾP HẠNG sau vòng (bản in Swiss-Manager) --- */
+function readRank_(req) {
+  if (!req.image) return { error: 'Thiếu ảnh' };
+  if (!limit_(req.dev, 'kq', 80)) return { error: 'Đã dùng nhiều lượt AI, thử lại sau vài giờ.' };
+  var plist = (req.players || []).slice(0, 300).join(', ');
+  var prompt = 'Ảnh chụp BẢNG XẾP HẠNG sau một vòng của giải cờ tướng — thường là bản in Swiss-Manager '
+    + '(cột: Hạng/Rk, Số/SNo, Tên, Đơn vị/CLB, Điểm/Pts, các hệ số phụ như Đối đầu/DE, Buchholz/BH, Số ván thắng/WIN, Đi sau/BLK…).\n'
+    + 'Đọc TẤT CẢ các dòng theo đúng thứ tự hạng từ trên xuống.\n'
+    + 'Danh sách kỳ thủ đã đăng ký (khớp tên đọc được với tên gần nhất trong danh sách này khi chắc chắn; bỏ chức danh Ông/Bà): ' + plist + '.\n'
+    + 'h: thứ hạng (số). n: tên kỳ thủ. dv: đơn vị/CLB nếu có, không có thì "". d: điểm (số, 0.5 viết là 0.5). '
+    + 'hs: các hệ số phụ ghép thành chuỗi ngắn kèm tên cột, VD "BH 21.5 · Thắng 4", không có thì "".\n'
+    + 'vong: số vòng ghi trên tiêu đề (VD "sau vòng 5"/"after Round 5"), không thấy thì 0. nd: "tuong" nếu Cờ tướng, "up" nếu Cờ tướng úp, không rõ thì "".';
+  var schema = { type: 'OBJECT', properties: {
+    vong: { type: 'INTEGER' }, nd: { type: 'STRING' },
+    rows: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
+      h: { type: 'INTEGER' }, n: { type: 'STRING' }, dv: { type: 'STRING' }, d: { type: 'NUMBER' }, hs: { type: 'STRING' } },
+      required: ['h', 'n', 'd'] } } }, required: ['rows'] };
+  var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema);
+  var rows = (o.rows || []).filter(function (x) { return x && x.n; }).slice(0, 300).map(function (x, i) {
+    return { h: +x.h || (i + 1), n: sp_(x.n).replace(/^(ông|bà)\s+/i, '').slice(0, 80), dv: sp_(x.dv).slice(0, 120),
+      d: Math.round((+x.d || 0) * 2) / 2, hs: sp_(x.hs).slice(0, 80) };
+  });
+  return { ok: true, vong: +o.vong || 0, nd: String(o.nd || ''), rows: rows };
 }
 
 /* --- Bấm "Chạy" hàm này 1 lần trong trình soạn Apps Script để cấp quyền và kiểm tra key --- */
