@@ -248,7 +248,8 @@ function gemini_(parts, schema, opt) {
   var first = opt.model || PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL') || GEMINI_MODEL;
   var cache = CacheService.getScriptCache(), sticky = cache.get('okModel');
   // Thứ tự: model vừa chạy tốt (đỡ phải chờ model đang quá tải) -> model chính -> các model dự phòng; bỏ qua model vừa lỗi
-  var all = (sticky && !opt.model ? [sticky] : []).concat([first]).concat(sticky ? [sticky] : []).concat(GEMINI_FALLBACK).filter(function (m, k, a) { return a.indexOf(m) === k; });
+  var all = opt.fallback ? [first].concat(opt.fallback).filter(function (m, k, a) { return a.indexOf(m) === k; })
+    : (sticky && !opt.model ? [sticky] : []).concat([first]).concat(sticky ? [sticky] : []).concat(GEMINI_FALLBACK).filter(function (m, k, a) { return a.indexOf(m) === k; });
   var models = all.filter(function (m) { return !cache.get('bad_' + m); });
   if (!models.length) models = all;
   var body = { contents: [{ parts: parts }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } };
@@ -331,8 +332,9 @@ function readBoard_(req) {
       rotated: { type: 'BOOLEAN' },
       red_side: { type: 'STRING', enum: ['bottom', 'top'] },
       note: { type: 'STRING' } }, required: ['corners', 'pieces', 'red_side'] };
-  // Đọc bàn cờ cần nhanh: dùng model nhẹ chạy ổn định (đổi được bằng Script Property GEMINI_MODEL_BOARD)
-  var opt = { model: PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD') || 'gemini-3.1-flash-lite', maxTokens: 4096,
+  // Đọc bàn cờ: gemini-3.5-flash đọc toạ độ chính xác (~20–30 giây); bận thì chuyển sang bản nhẹ (đổi bằng Script Property GEMINI_MODEL_BOARD)
+  var opt = { model: PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD') || 'gemini-3.5-flash', maxTokens: 4096,
+    fallback: ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest'],
     salvage: function (t) { // câu trả lời bị cắt giữa chừng -> lấy những quân đã đọc được
       var ps = [], re = /\{\s*"p"\s*:\s*"([KABNRCPkabnrcp])"\s*,\s*"y"\s*:\s*(\d+)\s*,\s*"x"\s*:\s*(\d+)\s*,\s*"c"\s*:\s*(\d+)\s*,\s*"r"\s*:\s*(\d+)\s*\}/g, m;
       while ((m = re.exec(t)) && ps.length < 32) ps.push({ p: m[1], y: +m[2], x: +m[3], c: +m[4], r: +m[5] });
