@@ -26,7 +26,7 @@ function doGet() {
   if (hit) return out_(hit);
   var data;
   try { data = build_(); } catch (e) { data = { updated: null, count: 0, list: [], error: String(e && e.message || e) }; }
-  data.ai = 3; // 3 = có đọc ảnh bốc thăm, kết quả và bảng xếp hạng
+  data.ai = 5; // 3 = có đọc ảnh bốc thăm, kết quả và bảng xếp hạng; 5 = đọc bàn cờ 2 tầng (nhanh + chính xác)
   try { data.key = !!geminiKey_(); } catch (e) { data.key = null; }
   var json = JSON.stringify(data);
   if (!data.error) { try { cache.put('reg', json, 60); } catch (e) {} }
@@ -193,7 +193,7 @@ function doPost(e) {
     if (req.t === 'board') return json_(readBoard_(req));
     if (req.t === 'kq') return json_(readKq_(req));
     if (req.t === 'rank') return json_(readRank_(req));
-    if (req.t === 'ping') return json_(req.list ? { ok: true, ai: 4, models: listModels_() } : { ok: true, ai: 4 });
+    if (req.t === 'ping') return json_(req.list ? { ok: true, ai: 5, models: listModels_() } : { ok: true, ai: 5 });
     return json_({ error: 'Yêu cầu không được hỗ trợ' });
   } catch (x) { return json_({ error: String((x && x.message) || x) }); }
 }
@@ -251,6 +251,7 @@ function gemini_(parts, schema, opt) {
   var all = opt.fallback ? [first].concat(opt.fallback).filter(function (m, k, a) { return a.indexOf(m) === k; })
     : (sticky && !opt.model ? [sticky] : []).concat([first]).concat(sticky ? [sticky] : []).concat(GEMINI_FALLBACK).filter(function (m, k, a) { return a.indexOf(m) === k; });
   var models = all.filter(function (m) { return !cache.get('bad_' + m); });
+  if (!models.length && opt.failFast) throw new Error('AI chính đang bận');
   if (!models.length) models = all;
   var body = { contents: [{ parts: parts }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } };
   if (schema) body.generationConfig.responseSchema = schema;
@@ -306,7 +307,7 @@ function okPt_(a) { return a && a.length >= 2 && a[0] >= -50 && a[0] <= 1050 && 
 
 function readBoard_(req) {
   if (!req.image) return { error: 'Thiếu ảnh' };
-  if (!limit_(req.dev, 'board', 40)) return { error: 'Máy này đã dùng nhiều lượt AI, vui lòng thử lại sau vài giờ.' };
+  if (!limit_(req.dev, 'board', 80)) return { error: 'Máy này đã dùng nhiều lượt AI, vui lòng thử lại sau vài giờ.' };
   var prompt = [
     'You are an expert Xiangqi (Chinese chess) position reader. The image shows ONE Xiangqi board: a real board with round pieces,',
     'a printed diagram, or an app screenshot. It is usually a MIDDLE-GAME or END-GAME position: many pieces may have been captured and the',
@@ -349,11 +350,15 @@ function readBoard_(req) {
     } };
   if (req.dev === 'kan-test-201278' && req.mdl && /^[\w.-]+$/.test(req.mdl)) opt.model = req.mdl;   // chỉ để BTC thử model
   if (req.dev === 'kan-test-201278' && req.think != null) opt.think = +req.think;
+  // App gửi song song 2 lượt: "fast" = bản nhẹ, không suy nghĩ (vài giây); "best" = model chính, không chuyển model khác (bận thì báo ngay)
+  if (req.tier === 'fast') { opt.model = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD_FAST') || 'gemini-3.1-flash-lite';
+    opt.fallback = ['gemini-flash-lite-latest', 'gemini-2.5-flash-lite']; delete opt.think; opt.maxTokens = 6000; }
+  if (req.tier === 'best') { opt.fallback = []; opt.failFast = true; }
   if (!opt.think) delete opt.think;
   var parts = [{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], o;
   try { o = gemini_(parts, schema, opt); }
   catch (e) { // model chính trả lời hỏng -> đọc lại bằng bản nhẹ
-    if (!/không đọc được/.test(String(e && e.message))) throw e;
+    if (req.tier || !/không đọc được/.test(String(e && e.message))) throw e;
     o = gemini_(parts, schema, { model: 'gemini-3.5-flash-lite', fallback: ['gemini-3.1-flash-lite', 'gemini-flash-lite-latest'], maxTokens: 8192, salvage: opt.salvage });
   }
   var rot = !!o.rotated, H = rot ? 9 : 10, Wd = rot ? 10 : 9, k;

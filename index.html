@@ -1576,6 +1576,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     .then(function(r){return r.text()}).then(function(t){
       var j;try{j=JSON.parse(t)}catch(e){throw new Error(/<html|<!doctype/i.test(t)?'máy chủ trả về trang web thay vì dữ liệu (kiểm tra quyền truy cập "Bất kỳ ai" của Apps Script)':'dữ liệu máy chủ không đọc được');}
       if(j&&j.error)throw new Error('máy chủ báo: '+j.error);
+      window.DPG_AIVER=(j&&+j.ai)||0;
       var L=j&&okList(j.list);if(!L)throw new Error('máy chủ không có danh sách');
       cur={updated:j.updated,off:!!j.official,raw:L,list:merge(L,!!j.official,j.updated)};try{localStorage.setItem('dpg-reg',JSON.stringify({updated:cur.updated,off:cur.off,raw:L}))}catch(e){}
       setSync({ok:true,at:Date.now(),srv:j.updated||null,rows:L.length,src:j.src||''});
@@ -2934,6 +2935,7 @@ var XQ=(function(){
     btn.disabled=true;msg('Đang chuẩn bị ảnh…');var shot,t0=Date.now(),base='',tick=null;
     function stopTick(){if(tick){clearInterval(tick);tick=null;}}
     function show(){var sec=Math.round((Date.now()-t0)/1000);msg(base+' <b>'+sec+' giây</b>'+(sec>=20?'<br><small>AI của Google đang đông — trong lúc chờ có thể bấm “✎ Tự xếp quân”.</small>':''));}
+    if((window.DPG_AIVER||0)>=5){dualRead(file,btn);return;}
     shrink(file,1280).then(function(r){shot=r;base='🤖 AI đang đọc bàn cờ…';t0=Date.now();show();tick=setInterval(show,1000);
       return window.DPG_AIPOST({t:'board',image:r.b64,mime:'image/jpeg',dev:devId()},function(t){base=t;show();});
     }).then(function(d){stopTick();
@@ -2944,6 +2946,40 @@ var XQ=(function(){
     }).catch(function(err){stopTick();var raw=String((err&&err.message)||err||'');return (window.DPG_AIERR?window.DPG_AIERR(err):Promise.resolve(raw)).then(function(t){msg('Lỗi: '+esc(t)+'<br>Trong lúc chờ, bấm “Tự xếp quân” để xếp tay.'+(raw&&raw!==t?'<br><small style="color:var(--muted);font-weight:400">Chi tiết: '+esc(raw.slice(0,200))+'</small>':''),'var(--red)');});})
       .then(function(){btn.disabled=false;});
   };
+
+  // Gửi song song 2 lượt: AI nhanh (vài giây) để xếp ngay + AI chính (chậm, chính xác) kiểm tra lại rồi tự chỉnh
+  function sameB(a,b){for(var i=0;i<90;i++)if((a[i]||'')!==(b[i]||''))return false;return true;}
+  function diffB(a,b){var n=0,m=0;for(var i=0;i<90;i++)if((a[i]||'')!==(b[i]||'')){if(a[i])n++;if(b[i])m++;}return Math.max(n,m);} // số quân bị đặt khác
+  function dualRead(file,btn){
+    var t0=Date.now(),shot=null,shown='',fastB=null,tick=null,base='🤖 AI đang đọc bàn cờ…',dev=devId();
+    function sec(){return Math.round((Date.now()-t0)/1000);}
+    function stopTick(){if(tick){clearInterval(tick);tick=null;}}
+    function show(){msg(base+' <b>'+sec()+' giây</b>');}
+    function boardOf(d){if(!d||d.error||!d.rows)return null;var b=fromRows(d.rows,d.red);return b.some(Boolean)?b:null;}
+    function post(tier){return window.DPG_AIPOST({t:'board',tier:tier,image:shot.b64,mime:'image/jpeg',dev:dev}).catch(function(e){return {error:String((e&&e.message)||e)};});}
+    msg('Đang chuẩn bị ảnh…');
+    shrink(file,1280).then(function(r){shot=r;t0=Date.now();show();tick=setInterval(show,1000);
+      var fastP=post('fast').then(function(d){var b=boardOf(d);if(!b||shown)return d;
+          shown='fast';fastB=b.slice();stopTick();
+          enterEdit(b,'r',shot.url,'⚡ AI nhanh đã xếp '+b.filter(Boolean).length+' quân ('+sec()+' giây). <b>So với ảnh gốc</b>, chạm để sửa ô sai.<br>🔎 <i>AI chính đang kiểm tra lại — nếu khác sẽ tự chỉnh.</i>');
+          return d;});
+      var bestP=post('best').then(function(d){var b=boardOf(d);
+          if(!b){if(shown==='fast'&&st.mode==='edit'&&sameB(st.edit,fastB))msg('⚡ AI nhanh đã xếp quân. <i>(AI chính đang bận — giữ kết quả nhanh; so với ảnh gốc để sửa nếu cần.)</i>');return d;}
+          if(!shown){shown='best';stopTick();enterEdit(b,'r',shot.url,'🤖 AI đã xếp '+b.filter(Boolean).length+' quân ('+sec()+' giây). <b>So với ảnh gốc</b>, chạm để sửa ô sai, chọn lượt đi rồi bấm <b>Xong</b>.');return d;}
+          var n=diffB(b,fastB);
+          if(!n){if(st.mode==='edit'&&sameB(st.edit,fastB))msg('✓ AI chính đã kiểm tra: khớp ('+sec()+' giây). Chọn lượt đi rồi bấm <b>Xong</b>.','var(--jade)');return d;}
+          if(st.mode==='edit'&&sameB(st.edit,fastB)){st.edit=b.slice();st.pick=-1;renderEdit();
+            msg('🤖 AI chính đã chỉnh lại '+n+' quân ('+sec()+' giây). <b>So với ảnh gốc</b> rồi bấm <b>Xong</b>.','var(--jade)');return d;}
+          msg('🤖 AI chính đọc khác '+n+' quân so với bản nhanh. <button type="button" class="blmini" id="bl-usebest">Dùng bản AI chính</button>');
+          var ub=$('bl-usebest');if(ub)ub.onclick=function(){enterEdit(b,'r',shot.url,'🤖 Đã chuyển sang bản AI chính. So với ảnh gốc rồi bấm <b>Xong</b>.');};
+          return d;});
+      return Promise.all([fastP,bestP]);
+    }).then(function(rs){stopTick();
+      if(!shown){var er=(rs[1]&&rs[1].error)||(rs[0]&&rs[0].error)||'AI không đọc được ảnh';
+        return (window.DPG_AIERR?window.DPG_AIERR(new Error(er)):Promise.resolve(er)).then(function(t){msg('Lỗi: '+esc(t)+'<br>Bấm “✎ Tự xếp quân” để xếp tay.','var(--red)');});}
+    }).catch(function(e){stopTick();msg('Lỗi: '+esc((e&&e.message)||e)+'<br>Bấm “✎ Tự xếp quân” để xếp tay.','var(--red)');})
+      .then(function(){btn.disabled=false;});
+  }
 
   /* ---------- lưu / chia sẻ / ảnh ---------- */
   function b64e(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
