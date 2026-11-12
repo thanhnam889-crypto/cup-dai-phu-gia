@@ -224,7 +224,11 @@ a.poi.food .go{color:var(--jade)}
 @media(hover:hover){.hotel:hover{border-color:var(--red)}}
 .kqtoggle{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
 .kqtoggle button{min-width:calc(50% - 4px)}
-.kqtoggle button.wide{flex-basis:100%;font-size:15.5px;letter-spacing:.01em}
+.kqgiai{margin-top:18px}
+.kqgiai .gtitle{text-align:center;font-weight:800;font-size:15.5px;letter-spacing:.03em;text-transform:uppercase;padding:11px 12px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);margin-bottom:10px}
+.kqgiai .gchips{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.kqgiai .gchips button{padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font:inherit;font-weight:800;font-size:14.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.kqgiai .gchips button.on{color:var(--fg);border:2px solid var(--fg);background:var(--surface-2)}
 .kqtoggle button{flex:1;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--surface);
   color:var(--muted);font-weight:700;font-size:13px;cursor:pointer}
 .kqtoggle button.on{background:var(--red);color:#fff;border-color:var(--red)}
@@ -298,7 +302,16 @@ a.poi.food .go{color:var(--jade)}
 .giaiform{border:1.5px solid var(--red);border-radius:14px;padding:12px 12px 10px;margin:2px 0 12px;background:var(--surface)}
 .gftitle{font-weight:800;margin-bottom:8px}
 .ghint{font-size:12.5px;color:var(--muted);margin:-2px 0 8px}
-.kqback{display:block;width:100%;margin:14px 0 4px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--red);background:var(--surface);color:var(--red);font:inherit;font-weight:700;font-size:15px;cursor:pointer;position:sticky;top:68px;z-index:6;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.ndseg{display:flex;gap:8px;flex-wrap:wrap}
+.ndseg button{flex:1 1 40%;padding:9px 10px;border-radius:11px;border:1px solid var(--line);background:var(--surface);font:inherit;font-weight:700;font-size:15px;color:var(--fg);cursor:pointer;line-height:1.25}
+.ndseg button span{display:block;font-size:11.5px;font-weight:500;color:var(--muted)}
+.ndseg button.on{background:var(--red);color:#fff;border-color:var(--red)}
+.ndseg button.on span{color:rgba(255,255,255,.85)}
+.ndrow{display:grid;grid-template-columns:1fr 100px 40px;gap:6px;margin-bottom:6px}
+.ndrow .inp{min-width:0}
+.ndrow .del{border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer}
+.ndrow .del:disabled{opacity:.35;cursor:not-allowed}
+.kqback{display:inline-flex;align-items:center;gap:4px;margin:0 0 10px;padding:7px 12px;border-radius:999px;border:1px solid var(--red);background:var(--surface);color:var(--red);font:inherit;font-weight:700;font-size:13px;cursor:pointer}
 .ktab .hsx{display:block;font-size:10.5px;color:var(--muted);font-weight:500;margin-top:1px;white-space:nowrap}
 #adm-rows{counter-reset:ban}
 .erow{display:grid;grid-template-columns:1fr 112px;gap:6px;align-items:center;margin-bottom:10px;padding:26px 8px 8px;border:1px solid var(--line);border-radius:12px;position:relative;counter-increment:ban}
@@ -662,10 +675,8 @@ a.poi.food .go{color:var(--jade)}
   <h2 class="h-view serif">Kết quả thi đấu</h2>
   <p class="lead">Bốc thăm · kết quả · xếp hạng theo từng vòng</p>
 
-  <div class="kqtoggle" style="margin-top:18px">
-    <button class="on" data-kq="a">Cờ tướng</button>
-    <button data-kq="b">Cờ tướng úp</button>
-  </div>
+  <div class="kqgiai" id="kq-giai"></div>
+  <div class="kqtoggle"></div>
 
   <div id="kq-render"></div>
 
@@ -922,19 +933,25 @@ a.poi.food .go{color:var(--jade)}
     <div class="syncnote" id="adm-sync">● Đang lưu <b>trên máy này</b>. Để mọi người cùng thấy trực tiếp, cần kết nối Firebase (xem hướng dẫn).</div>
 
     <div class="field"><label>Giải đấu</label>
-      <div class="giairow"><select class="inp" id="adm-content"></select><button class="btn ghost" id="adm-gnew" type="button">＋ Tạo giải</button></div>
+      <div class="giairow"><select class="inp" id="adm-giai"></select><button class="btn ghost" id="adm-gnew" type="button">＋ Tạo giải</button></div>
       <div class="giaiinfo" id="adm-ginfo"></div>
-      <select id="adm-numrounds" hidden></select>
     </div>
     <div class="giaiform" id="adm-gform" hidden>
       <div class="gftitle" id="adm-gftitle">Tạo giải mới</div>
-      <div class="field"><label>Tên giải</label><input class="inp" id="adm-gname" maxlength="60" placeholder="VD: Cờ tướng nhanh – Bảng doanh nhân trẻ"></div>
-      <div class="field"><label>Số vòng thi đấu (chốt khi tạo giải)</label><select class="inp" id="adm-gvong"></select></div>
+      <div class="field"><label>Tên giải</label><input class="inp" id="adm-gname" maxlength="80" placeholder="VD: Giải Doanh nhân toàn quốc 2026"></div>
+      <div class="field"><label>Nội dung thi đấu · số vòng (chốt cho từng nội dung)</label>
+        <div id="adm-ndrows"></div>
+        <button class="btn ghost" id="adm-ndadd" type="button" style="padding:9px;margin-top:2px">＋ Thêm nội dung</button></div>
       <div class="ghint" id="adm-ghint"></div>
       <div class="admbar"><button class="btn" id="adm-gok" type="button">Tạo giải &amp; chốt số vòng</button><button class="btn ghost" id="adm-gcancel" type="button" style="flex:none;width:auto">Hủy</button></div>
       <button class="btn ghost" id="adm-gdel" type="button" style="margin-top:8px;color:var(--red)" hidden>Xóa giải này</button>
     </div>
     <div class="okmsg" id="adm-gmsg" style="margin:-4px 0 10px"></div>
+    <div class="field"><label>Nội dung</label>
+      <div class="ndseg" id="adm-ndseg"></div>
+      <div class="giaiinfo" id="adm-ndinfo"></div>
+      <select id="adm-content" hidden></select><select id="adm-numrounds" hidden></select>
+    </div>
     <div class="field"><label>Nhập cho vòng</label>
       <select class="inp" id="adm-round"></select></div>
 
@@ -1206,25 +1223,36 @@ var KQ={
   a:{demo:false,numRounds:9,rounds:{},final:[]},
   b:{demo:false,numRounds:9,rounds:{},final:[]}
 };
-/* Danh sách giải: s.giai=[{id,ten,vong}] — vong = số vòng đã chốt khi tạo giải. Chưa tạo thì mặc định 2 nội dung của Điều lệ. */
+/* Giải đấu -> Nội dung: s.giai=[{id,ten,nd:[{id,ten,vong}]}]. Kết quả lưu theo id nội dung: s[ndId]={numRounds,rounds,final}.
+   vong = số vòng đã chốt cho nội dung. Chưa tạo -> 1 giải gồm Cờ tướng (a) + Cờ tướng úp (b). Tự đọc được định dạng cũ (danh sách phẳng). */
+function ndHas(o){return !!(o&&o.rounds&&Object.keys(o.rounds).some(function(k){var r=o.rounds[k];return r&&((r.draw&&r.draw.length)||(r.games&&r.games.length)||(r.standings&&r.standings.length));}));}
 function giaiList(s){s=s||{};
-  var L=(Array.isArray(s.giai)&&s.giai.length)?s.giai.filter(function(g){return g&&g.id;})
-    :[{id:'a',ten:'Cờ tướng',vong:(s.a&&s.a.numRounds)||9},{id:'b',ten:'Cờ tướng úp',vong:(s.b&&s.b.numRounds)||9}];
-  // Giải tự tạo đứng trên, Cờ tướng / Cờ tướng úp ở dưới
-  return L.filter(function(g){return g.id!=='a'&&g.id!=='b'}).concat(L.filter(function(g){return g.id==='a'||g.id==='b'}));}
+  var G=Array.isArray(s.giai)?s.giai.filter(function(g){return g&&g.id;}):[];
+  function nv(x,d){return +x||+d||9;}
+  var hier=G.filter(function(g){return Array.isArray(g.nd);});
+  if(hier.length)return hier.map(function(g){return {id:g.id,ten:g.ten||'Giải đấu',nd:g.nd.filter(function(n){return n&&n.id;}).map(function(n){return {id:n.id,ten:n.ten||'Nội dung',vong:nv(n.vong)};})};});
+  var fa=G.filter(function(g){return g.id==='a';})[0],fb=G.filter(function(g){return g.id==='b';})[0];
+  var main={id:'dpg',ten:'Giải Doanh nhân toàn quốc 2026',nd:[{id:'a',ten:'Cờ tướng',vong:nv(fa&&fa.vong,s.a&&s.a.numRounds)},{id:'b',ten:'Cờ tướng úp',vong:nv(fb&&fb.vong,s.b&&s.b.numRounds)}]};
+  var out=[main],named=false;
+  G.forEach(function(g){if(g.id==='a'||g.id==='b'||Array.isArray(g.nd))return;
+    if(!named&&!ndHas(s[g.id])){main.ten=g.ten||main.ten;named=true;return;}
+    out.push({id:'G'+g.id,ten:g.ten,nd:[{id:g.id,ten:'Cờ tướng',vong:nv(g.vong)}]});});
+  return out;}
+function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j<L[i].nd.length;j++)if(L[i].nd[j].id===id)return {g:L[i],n:L[i].nd[j]};return null;}
 (function(){
   var box=document.getElementById('kq-render');if(!box)return;
-  var tg=document.querySelector('.kqtoggle');
+  var tg=document.querySelector('.kqtoggle'),gbox=document.getElementById('kq-giai');
   var SUB=[['draw','Bốc thăm'],['games','Kết quả'],['standings','Xếp hạng']];
-  var cur={c:null,r:1,tab:'standings'},manual=false,goFlag=false,cPicked=false;
+  var cur={c:null,r:1,tab:'standings'},manual=false,goFlag=false,cPicked=false,fromAdm=false;
   function rdHas(x){return x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length));}
   function latestR(d){var m=0;Object.keys(d.rounds||{}).forEach(function(k){if(rdHas(d.rounds[k])&&+k>m)m=+k;});return m;}
   function bestTab(rd){return !rd?'standings':(rd.standings&&rd.standings.length)?'standings':(rd.games&&rd.games.length)?'games':'draw';}
   function autoPick(){var d=getData(cur.c),m=latestR(d);cur.r=m||1;cur.tab=bestTab(d.rounds[cur.r]);}
   function isAdm(){try{return sessionStorage.getItem('dpg-adm')==='1'}catch(e){return false}}
   function hasData(x){return x&&((x.rounds&&Object.keys(x.rounds).length)||(x.final&&x.final.length))}
-  function giaiCur(){var src={};try{src=(window.DPG&&window.DPG.cloud)||JSON.parse(localStorage.getItem('dpg-kq')||'{}')||{}}catch(e){}return giaiList(src);}
-  function gV(c){var g=giaiCur().filter(function(x){return x.id===c})[0];return g?(+g.vong||9):9;}
+  function srcObj(){var src={};try{src=(window.DPG&&window.DPG.cloud)||JSON.parse(localStorage.getItem('dpg-kq')||'{}')||{}}catch(e){}return src;}
+  function giaiCur(){return giaiList(srcObj());}
+  function gV(c){var f=ndFind(srcObj(),c);return f?f.n.vong:9;}
   function norm(o,c){o.numRounds=gV(c)||o.numRounds||9;o.rounds=o.rounds||{};o.final=o.final||[];return o}
   function getData(c){
     try{if(window.DPG&&window.DPG.cloud&&hasData(window.DPG.cloud[c]))return norm(window.DPG.cloud[c],c);}catch(e){}
@@ -1234,11 +1262,26 @@ function giaiList(s){s=s||{};
     return {demo:false,numRounds:gV(c),rounds:{},final:[]};
   }
   function renderToggle(){
-    var L=giaiCur();
-    if(!cPicked||!L.some(function(g){return g.id===cur.c})){cur.c=L[0].id;for(var i=0;i<L.length;i++){if(latestR(getData(L[i].id))){cur.c=L[i].id;break;}}}
-    tg.innerHTML=L.map(function(g){var w=(g.id!=='a'&&g.id!=='b');return '<button data-kq="'+esc(g.id)+'" class="'+(w?'wide':'')+(g.id===cur.c?' on':'')+'">'+esc(g.ten)+'</button>'}).join('');
+    var L=giaiCur(),f=ndFind(srcObj(),cur.c);
+    if(!cPicked||!f){ // chưa chọn: mở nội dung đang có kết quả (theo thứ tự giải/nội dung)
+      cur.c=null;
+      L.forEach(function(g){g.nd.forEach(function(n){if(!cur.c&&latestR(getData(n.id)))cur.c=n.id;});});
+      if(!cur.c){var g0=L.filter(function(g){return g.nd.length})[0];cur.c=g0?g0.nd[0].id:'a';}
+      f=ndFind(srcObj(),cur.c);
+    }
+    cur.g=f?f.g.id:(L[0]&&L[0].id);
+    var G=L.filter(function(g){return g.id===cur.g})[0]||L[0];
+    if(L.length>1){
+      gbox.innerHTML='<div class="gchips">'+L.map(function(g){return '<button type="button" data-g="'+esc(g.id)+'"'+(g.id===cur.g?' class="on"':'')+'>🏆 '+esc(g.ten)+'</button>'}).join('')+'</div>';
+      gbox.querySelectorAll('button').forEach(function(b){b.onclick=function(){
+        var g=L.filter(function(x){return x.id===b.dataset.g})[0];if(!g||!g.nd.length)return;
+        cPicked=true;cur.c=g.nd[0].id;g.nd.forEach(function(n){if(cur.c===g.nd[0].id&&!latestR(getData(cur.c))&&latestR(getData(n.id)))cur.c=n.id;});
+        manual=false;manualTab=false;autoPick();renderToggle();render();};});
+    }else gbox.innerHTML=G?'<div class="gtitle">🏆 '+esc(G.ten)+'</div>':'';
+    tg.innerHTML=(G?G.nd:[]).map(function(n){return '<button data-kq="'+esc(n.id)+'"'+(n.id===cur.c?' class="on"':'')+'>'+esc(n.ten)+'</button>'}).join('');
     tg.querySelectorAll('button').forEach(function(b){b.onclick=function(){cPicked=true;cur.c=b.dataset.kq;manual=false;manualTab=false;autoPick();renderToggle();render();};});
   }
+
   function esc(s){return String(s).replace(/[&<>]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})}
   function empty(t,s){return '<div class="card"><div class="kqempty"><div class="ei">♟</div><div class="et">'+t+'</div><div class="es">'+s+'</div></div></div>'}
   function standTable(rows){
@@ -1248,7 +1291,7 @@ function giaiList(s){s=s||{};
   }
   function pairList(rows,withScore){
     var h='<div class="card games">';
-    rows.forEach(function(g){
+    rows.filter(function(g){return g&&(String(g[0]||'').trim()||!/^(none|a|b|draw)?$/.test(String(g[2]||'').trim()));}).forEach(function(g){
       var mid=withScore?('<div class="sc">'+esc(g[4])+'</div>'):'<div class="sc" style="color:var(--muted);font-weight:600">vs</div>';
       h+='<div class="g"><div class="pl"><div class="nm">'+esc(g[0])+'</div><div class="un">'+esc(g[1])+'</div></div>'+mid
         +'<div class="pl r"><div class="nm">'+esc(g[2])+'</div><div class="un">'+esc(g[3])+'</div></div></div>';
@@ -1257,7 +1300,7 @@ function giaiList(s){s=s||{};
   }
   function render(){
     var d=getData(cur.c),h='';
-    if(isAdm())h+='<button class="kqback" type="button" data-back="1">← Quay lại nhập kết quả (Admin)</button>';
+    if(isAdm()&&fromAdm)h+='<button class="kqback" type="button" data-back="1">← Quay lại nhập kết quả</button>';
     if(d.demo)h+='<div class="demobadge">● Dữ liệu mẫu minh họa</div>';
     // round chips
     h+='<div class="rchips">';
@@ -1301,7 +1344,7 @@ function giaiList(s){s=s||{};
   // Admin bấm "Xem tab Kết quả": mở đúng nội dung + vòng đang nhập
   window.__kqGo=function(c,r){cPicked=true;cur.c=c;var d=getData(c);cur.r=r;cur.tab=bestTab(d.rounds[r]);manual=true;manualTab=false;goFlag=true;
     renderToggle();render();};
-  window.addEventListener('hashchange',function(){if(location.hash!=='#ket-qua')return;if(goFlag){goFlag=false;return;}manual=false;manualTab=false;renderToggle();autoPick();render();});
+  window.addEventListener('hashchange',function(e){if(location.hash!=='#ket-qua')return;fromAdm=/#admin$/.test((e&&e.oldURL)||'');if(goFlag){goFlag=false;fromAdm=true;render();return;}manual=false;manualTab=false;renderToggle();autoPick();render();});
   renderToggle();autoPick();render();
 })();
 
@@ -1520,9 +1563,10 @@ function giaiList(s){s=s||{};
   function store(){try{return JSON.parse(localStorage.getItem('dpg-kq')||'{}')}catch(e){return{}}}
   function save(s){s._at=Date.now();try{localStorage.setItem('dpg-kq',JSON.stringify(s))}catch(e){}}
   function GL(){return giaiList(store());}
-  function gFind(id){return GL().filter(function(g){return g.id===id})[0];}
-  function gName(id){var g=gFind(id);return g?g.ten:id;}
-  function numRounds(c){var g=gFind(c);return g?(+g.vong||9):9}
+  function gById(id){return GL().filter(function(g){return g.id===id})[0];}
+  function ndF(c){return ndFind(store(),c);}
+  function gName(c){var f=ndF(c);return f?(f.n.ten+' – '+f.g.ten):c;}
+  function numRounds(c){var f=ndF(c);return f?f.n.vong:9}
 
   function fillSelect(sel,arr,val){sel.innerHTML='';arr.forEach(function(o){var op=document.createElement('option');op.value=o[0];op.textContent=o[1];if(String(o[0])===String(val))op.selected=true;sel.appendChild(op)})}
   function refreshRoundSel(){
@@ -1589,7 +1633,9 @@ function giaiList(s){s=s||{};
               if(d.vong&&d.vong!==r){
                 if(d.vong>=1&&d.vong<=+nSel.value){goRound(d.vong);r=d.vong;sw=' ↪ Đã chuyển sang Vòng '+r+' theo ảnh.';}
                 else warn+=' ⚠ Ảnh ghi Vòng '+d.vong+' nhưng giải chỉ có '+nSel.value+' vòng — kiểm tra lại.';}
-              if(d.nd&&(cSel.value==='a'||cSel.value==='b')&&((d.nd==='up')!==(cSel.value==='b')))warn+=' ⚠ Ảnh có vẻ là '+(d.nd==='up'?'Cờ tướng úp':'Cờ tướng')+' — kiểm tra ô "Giải đấu".';
+              if(d.nd){var isUp=function(t){return /(^|\s)up(\s|$)/.test(kn(t));},cf=ndF(cSel.value);
+                if(cf&&(d.nd==='up')!==isUp(cf.n.ten)&&cf.g.nd.some(function(n){return (d.nd==='up')===isUp(n.ten);}))
+                  warn+=' ⚠ Ảnh có vẻ là '+(d.nd==='up'?'Cờ tướng úp':'Cờ tướng')+' nhưng đang chọn nội dung “'+cf.n.ten+'” — kiểm tra lại.';}
               if(md==='rank'){
                 var rows=(d.rows||[]).filter(function(x){return x&&x.n;});
                 if(!rows.length)throw new Error('Không thấy dòng xếp hạng nào trong ảnh');
@@ -1708,55 +1754,83 @@ function giaiList(s){s=s||{};
     var done=x&&x.standings&&x.standings.length;nextBtn.hidden=!(done&&r<N);nextBtn.textContent='Sang nhập Vòng '+(r+1)+' ›';}
   nextBtn.onclick=function(){goRound(+rSel.value+1);window.scrollTo({top:document.getElementById('adm-round').getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'});};
   document.getElementById('adm-reset').onclick=function(){
-    if(confirmReset()){var z={_at:Date.now()},og=store().giai;if(Array.isArray(og)&&og.length)z.giai=og;try{localStorage.setItem('dpg-kq',JSON.stringify(z))}catch(e){}
+    if(confirmReset()){var z={_at:Date.now(),giai:GL()};try{localStorage.setItem('dpg-kq',JSON.stringify(z))}catch(e){}
       if(window.DPG){window.DPG.cloud=z;if(window.DPG.push)window.DPG.push(z).catch(function(){});}
-      okMsg.textContent='Đã xóa toàn bộ kết quả đã nhập.';if(window.__kqRefresh)window.__kqRefresh();loadRows();}
+      okMsg.textContent='Đã xóa toàn bộ kết quả đã nhập.';if(window.__kqRefresh)window.__kqRefresh();rSel.value=String(workRound(cSel.value));loadRows();}
   };
   var _rc=0;function confirmReset(){_rc++;if(_rc<2){okMsg.textContent='Bấm "Xóa toàn bộ" lần nữa để xác nhận.';okMsg.style.color='var(--red)';setTimeout(function(){_rc=0;okMsg.style.color='var(--jade)'},3000);return false}_rc=0;okMsg.style.color='var(--jade)';return true}
 
-  cSel.onchange=function(){applyGiai();refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();gForm.hidden=true;gMsg.textContent='';};
-  // ===== Giải đấu: tạo giải (tên + chốt số vòng), sửa tên, xóa; chọn giải để nhập =====
-  var gNew=document.getElementById('adm-gnew'),gForm=document.getElementById('adm-gform'),gTitle=document.getElementById('adm-gftitle'),
-      gNameI=document.getElementById('adm-gname'),gVong=document.getElementById('adm-gvong'),gOk=document.getElementById('adm-gok'),
+  // ===== Giải đấu -> Nội dung (mỗi nội dung chốt số vòng riêng); chọn giải + nội dung để nhập =====
+  var gSel=document.getElementById('adm-giai'),ndSeg=document.getElementById('adm-ndseg'),ndInfo=document.getElementById('adm-ndinfo'),
+      gNew=document.getElementById('adm-gnew'),gForm=document.getElementById('adm-gform'),gTitle=document.getElementById('adm-gftitle'),
+      gNameI=document.getElementById('adm-gname'),ndRows=document.getElementById('adm-ndrows'),gOk=document.getElementById('adm-gok'),
       gCancel=document.getElementById('adm-gcancel'),gDel=document.getElementById('adm-gdel'),gHint=document.getElementById('adm-ghint'),
       gMsg=document.getElementById('adm-gmsg'),gInfo=document.getElementById('adm-ginfo'),gEdit=null;
-  function gHasData(id){var d=store()[id];return !!(d&&d.rounds&&Object.keys(d.rounds).some(function(k){var x=d.rounds[k];return x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length));}));}
-  function fillGiai(v){var L=GL();v=v||cSel.value;if(!L.some(function(g){return g.id===v}))v=L[0].id;
-    fillSelect(cSel,L.map(function(g){return [g.id,g.ten+' · '+g.vong+' vòng']}),v);applyGiai();}
-  function applyGiai(){var g=gFind(cSel.value)||GL()[0];fillSelect(nSel,[[g.vong,g.vong+' vòng']],g.vong);
-    gInfo.innerHTML='🔒 Đã chốt <b>'+g.vong+' vòng</b> thi đấu · <button type="button" id="adm-gedit">✎ Sửa giải</button>';
-    document.getElementById('adm-gedit').onclick=openEdit;}
-  function vongOpts(v){var a=[];for(var i=3;i<=11;i++)a.push([i,i+' vòng']);fillSelect(gVong,a,v);}
   function gm(t,c){gMsg.style.color=c||'var(--jade)';gMsg.textContent=t;}
-  function openNew(){gEdit=null;gTitle.textContent='Tạo giải mới';gNameI.value='';vongOpts(9);gVong.disabled=false;
-    gOk.textContent='Tạo giải & chốt số vòng';gDel.hidden=true;gHint.textContent='Số vòng sẽ được chốt cố định cho giải này.';gForm.hidden=false;gm('');gNameI.focus();}
-  function openEdit(){var g=gFind(cSel.value);if(!g)return;gEdit=g.id;gTitle.textContent='Sửa giải';gNameI.value=g.ten;vongOpts(g.vong);
-    var locked=gHasData(g.id);gVong.disabled=locked;gOk.textContent='Lưu thay đổi';gDel.hidden=GL().length<2;gDel.dataset.c='';gDel.textContent='Xóa giải này';
-    gHint.textContent=locked?'🔒 Giải đã có kết quả nên số vòng bị khóa, chỉ sửa được tên.':'Giải chưa có kết quả nên còn đổi được số vòng.';gForm.hidden=false;gm('');}
+  function hint(t,red){gHint.style.color=red?'var(--red)':'';gHint.textContent=t;}
+  function fillGiai(gid,cid){
+    var L=GL();gid=gid||gSel.value;cid=cid||cSel.value;
+    if(!L.some(function(g){return g.id===gid})){var f=cid&&ndF(cid);gid=f?f.g.id:L[0].id;}
+    fillSelect(gSel,L.map(function(g){return [g.id,g.ten]}),gid);
+    var g=gById(gid);if(!g.nd.some(function(n){return n.id===cid}))cid=g.nd.length?g.nd[0].id:'';
+    fillSelect(cSel,g.nd.map(function(n){return [n.id,n.ten]}),cid);
+    ndSeg.innerHTML=g.nd.map(function(n){return '<button type="button" data-nd="'+ea(n.id)+'"'+(n.id===cid?' class="on"':'')+'>'+ea(n.ten)+'<span>'+n.vong+' vòng</span></button>'}).join('');
+    ndSeg.querySelectorAll('button').forEach(function(b){b.onclick=function(){if(cSel.value===b.dataset.nd)return;cSel.value=b.dataset.nd;cSel.onchange();};});
+    gInfo.innerHTML='<button type="button" id="adm-gedit">✎ Sửa giải / nội dung / số vòng</button>';
+    document.getElementById('adm-gedit').onclick=openEdit;
+    applyNd();
+  }
+  function applyNd(){var f=ndF(cSel.value),v=f?f.n.vong:9;fillSelect(nSel,[[v,v+' vòng']],v);
+    ndSeg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.nd===cSel.value);});
+    ndInfo.innerHTML=f?('🔒 <b>'+ea(f.n.ten)+'</b> đã chốt <b>'+v+' vòng</b> thi đấu'):'';}
+  function afterSwitch(){refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();gForm.hidden=true;gm('');}
+  gSel.onchange=function(){fillGiai(gSel.value,null);afterSwitch();};
+  cSel.onchange=function(){applyNd();afterSwitch();};
+  function vOpts(v){var h='';for(var i=3;i<=11;i++)h+='<option value="'+i+'"'+(i===+v?' selected':'')+'>'+i+' vòng</option>';return h;}
+  function ndRowHTML(n,locked){return '<div class="ndrow" data-id="'+ea(n.id||'')+'"><input class="inp nt" maxlength="40" placeholder="Tên nội dung (VD: Cờ tướng)" value="'+ea(n.ten||'')+'">'
+    +'<select class="inp nv"'+(locked?' disabled title="Đã có kết quả — số vòng bị khóa"':'')+'>'+vOpts(n.vong||9)+'</select>'
+    +'<button type="button" class="del"'+(locked?' disabled title="Đã có kết quả — không xóa được"':' title="Bỏ nội dung này"')+'>✕</button></div>';}
+  function bindNd(){ndRows.querySelectorAll('.del').forEach(function(b){b.onclick=function(){if(ndRows.querySelectorAll('.ndrow').length<2){hint('Giải phải có ít nhất 1 nội dung.',true);return;}b.closest('.ndrow').remove();};});}
+  document.getElementById('adm-ndadd').onclick=function(){ndRows.insertAdjacentHTML('beforeend',ndRowHTML({ten:'',vong:9},false));bindNd();ndRows.querySelector('.ndrow:last-child .nt').focus();};
+  function openNew(){gEdit=null;gTitle.textContent='Tạo giải mới';gNameI.value='';
+    ndRows.innerHTML=ndRowHTML({ten:'Cờ tướng',vong:9},false)+ndRowHTML({ten:'Cờ tướng úp',vong:9},false);bindNd();
+    gOk.textContent='Tạo giải & chốt số vòng';gDel.hidden=true;hint('Mỗi nội dung chọn số vòng riêng — số vòng được chốt khi tạo giải.');gForm.hidden=false;gm('');gNameI.focus();}
+  function openEdit(){var g=gById(gSel.value);if(!g)return;gEdit=g.id;gTitle.textContent='Sửa giải';gNameI.value=g.ten;
+    var st=store(),anyLock=false;ndRows.innerHTML=g.nd.map(function(n){var lk=ndHas(st[n.id]);anyLock=anyLock||lk;return ndRowHTML(n,lk);}).join('');bindNd();
+    gOk.textContent='Lưu thay đổi';gDel.hidden=GL().length<2;gDel.dataset.c='';gDel.textContent='Xóa giải này';
+    hint(anyLock?'🔒 Nội dung đã có kết quả thì khóa số vòng (chỉ sửa tên). Nội dung chưa có kết quả còn đổi được số vòng.':'Chưa có kết quả nên còn đổi được số vòng.');gForm.hidden=false;gm('');}
   gNew.onclick=function(){if(!gForm.hidden&&!gEdit){gForm.hidden=true;return;}openNew();};
   gCancel.onclick=function(){gForm.hidden=true;gm('');};
   gOk.onclick=function(){
-    var ten=gNameI.value.trim().replace(/\s+/g,' '),v=+gVong.value;
-    if(!ten){gHint.style.color='var(--red)';gHint.textContent='Nhập tên giải.';gNameI.focus();return;}
-    var s=store(),L=giaiList(s).map(function(g){return {id:g.id,ten:g.ten,vong:+g.vong||9}}),id;
-    if(L.some(function(g){return g.id!==gEdit&&kn(g.ten)===kn(ten)})){gHint.style.color='var(--red)';gHint.textContent='Đã có giải tên này.';return;}
-    gHint.style.color='';
-    if(gEdit){var e=L.filter(function(x){return x.id===gEdit})[0];e.ten=ten;if(!gVong.disabled&&!gHasData(gEdit))e.vong=v;id=gEdit;}
-    else{id='g'+Date.now().toString(36);L.push({id:id,ten:ten,vong:v});}
-    var g=L.filter(function(x){return x.id===id})[0];
-    s.giai=L;s[id]=s[id]||{demo:false,rounds:{},final:[]};s[id].numRounds=g.vong;s[id].name=g.ten;
-    save(s);gForm.hidden=true;fillGiai(id);refreshRoundSel();rSel.value=String(workRound(id));loadRows();
-    pushStore(s,gMsg,(gEdit?'thay đổi giải “':'giải mới “')+g.ten+'” · '+g.vong+' vòng');
+    var ten=gNameI.value.trim().replace(/\s+/g,' ');if(!ten){hint('Nhập tên giải.',true);gNameI.focus();return;}
+    var s=store(),L=GL(),old=gEdit?L.filter(function(g){return g.id===gEdit})[0]:null,stamp=Date.now().toString(36),nd=[],bad='';
+    ndRows.querySelectorAll('.ndrow').forEach(function(row,i){
+      var t=row.querySelector('.nt').value.trim().replace(/\s+/g,' '),v=+row.querySelector('.nv').value,id=row.dataset.id;
+      if(!t){bad='Nhập tên cho từng nội dung (hoặc bấm ✕ để bỏ).';return;}
+      if(nd.some(function(x){return kn(x.ten)===kn(t)})){bad='Hai nội dung trùng tên “'+t+'”.';return;}
+      if(id&&old){var o=old.nd.filter(function(x){return x.id===id})[0];if(o&&ndHas(s[id]))v=o.vong;}
+      nd.push({id:id||('n'+stamp+i),ten:t,vong:v});});
+    if(bad){hint(bad,true);return;}
+    if(!nd.length){hint('Giải phải có ít nhất 1 nội dung.',true);return;}
+    if(L.some(function(g){return g.id!==gEdit&&kn(g.ten)===kn(ten)})){hint('Đã có giải tên này.',true);return;}
+    var gid=gEdit||('g'+stamp),ng={id:gid,ten:ten,nd:nd};
+    if(old){old.nd.forEach(function(o){if(!nd.some(function(x){return x.id===o.id})&&!ndHas(s[o.id]))delete s[o.id];});L=L.map(function(g){return g.id===gid?ng:g});}
+    else L.push(ng);
+    s.giai=L;nd.forEach(function(n){s[n.id]=s[n.id]||{demo:false,rounds:{},final:[]};s[n.id].numRounds=n.vong;s[n.id].name=n.ten;});
+    save(s);gForm.hidden=true;var keep=nd.some(function(n){return n.id===cSel.value})?cSel.value:nd[0].id;
+    fillGiai(gid,keep);refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();
+    pushStore(s,gMsg,(gEdit?'thay đổi giải “':'giải mới “')+ten+'” · '+nd.map(function(n){return n.ten+' '+n.vong+' vòng'}).join(', '));
   };
   gDel.onclick=function(){
-    if(gDel.dataset.c!=='1'){gDel.dataset.c='1';gDel.textContent=gHasData(gEdit)?'Bấm lần nữa để XÓA giải và toàn bộ kết quả của giải':'Bấm lần nữa để xóa giải';
+    var g=gById(gEdit);if(!g)return;var has=g.nd.some(function(n){return ndHas(store()[n.id])});
+    if(gDel.dataset.c!=='1'){gDel.dataset.c='1';gDel.textContent=has?'Bấm lần nữa để XÓA giải và toàn bộ kết quả của giải':'Bấm lần nữa để xóa giải';
       setTimeout(function(){gDel.dataset.c='';gDel.textContent='Xóa giải này';},4000);return;}
-    var s=store(),L=giaiList(s).filter(function(g){return g.id!==gEdit}),ten=gName(gEdit);if(!L.length)return;
-    s.giai=L.map(function(g){return {id:g.id,ten:g.ten,vong:+g.vong||9}});delete s[gEdit];save(s);gForm.hidden=true;
-    fillGiai(L[0].id);refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();pushStore(s,gMsg,'xóa giải “'+ten+'”');
+    var s=store(),L=GL().filter(function(x){return x.id!==g.id});if(!L.length)return;
+    g.nd.forEach(function(n){delete s[n.id];});s.giai=L;save(s);gForm.hidden=true;
+    fillGiai(L[0].id,null);refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();pushStore(s,gMsg,'xóa giải “'+g.ten+'”');
   };
-  window.__admGiaiRefresh=function(){if(panel.hidden||!gForm.hidden)return;var v=cSel.value,before=cSel.innerHTML;fillGiai(v);
-    if(cSel.value!==v){refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();}else if(before!==cSel.innerHTML)refreshRoundSel();};
+  window.__admGiaiRefresh=function(){if(panel.hidden||!gForm.hidden)return;var g=gSel.value,c=cSel.value,before=gSel.innerHTML+ndSeg.innerHTML;fillGiai(g,c);
+    if(cSel.value!==c){refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();}else if(before!==gSel.innerHTML+ndSeg.innerHTML)refreshRoundSel();};
   nSel.onchange=function(){var s=store(),c=cSel.value;if(s[c]){s[c].numRounds=+nSel.value;save(s)}refreshRoundSel();loadRows()};
   rSel.onchange=loadRows;
 
