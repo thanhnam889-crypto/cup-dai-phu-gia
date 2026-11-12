@@ -224,6 +224,7 @@ a.poi.food .go{color:var(--jade)}
 @media(hover:hover){.hotel:hover{border-color:var(--red)}}
 .kqtoggle{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
 .kqtoggle button{min-width:calc(50% - 4px)}
+.kqtoggle button.wide{flex-basis:100%;font-size:15.5px;letter-spacing:.01em}
 .kqtoggle button{flex:1;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--surface);
   color:var(--muted);font-weight:700;font-size:13px;cursor:pointer}
 .kqtoggle button.on{background:var(--red);color:#fff;border-color:var(--red)}
@@ -1207,13 +1208,15 @@ var KQ={
 };
 /* Danh sách giải: s.giai=[{id,ten,vong}] — vong = số vòng đã chốt khi tạo giải. Chưa tạo thì mặc định 2 nội dung của Điều lệ. */
 function giaiList(s){s=s||{};
-  if(Array.isArray(s.giai)&&s.giai.length)return s.giai.filter(function(g){return g&&g.id;});
-  return [{id:'a',ten:'Cờ tướng',vong:(s.a&&s.a.numRounds)||9},{id:'b',ten:'Cờ tướng úp',vong:(s.b&&s.b.numRounds)||9}];}
+  var L=(Array.isArray(s.giai)&&s.giai.length)?s.giai.filter(function(g){return g&&g.id;})
+    :[{id:'a',ten:'Cờ tướng',vong:(s.a&&s.a.numRounds)||9},{id:'b',ten:'Cờ tướng úp',vong:(s.b&&s.b.numRounds)||9}];
+  // Giải tự tạo đứng trên, Cờ tướng / Cờ tướng úp ở dưới
+  return L.filter(function(g){return g.id!=='a'&&g.id!=='b'}).concat(L.filter(function(g){return g.id==='a'||g.id==='b'}));}
 (function(){
   var box=document.getElementById('kq-render');if(!box)return;
   var tg=document.querySelector('.kqtoggle');
   var SUB=[['draw','Bốc thăm'],['games','Kết quả'],['standings','Xếp hạng']];
-  var cur={c:'a',r:1,tab:'standings'},manual=false,goFlag=false;
+  var cur={c:null,r:1,tab:'standings'},manual=false,goFlag=false,cPicked=false;
   function rdHas(x){return x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length));}
   function latestR(d){var m=0;Object.keys(d.rounds||{}).forEach(function(k){if(rdHas(d.rounds[k])&&+k>m)m=+k;});return m;}
   function bestTab(rd){return !rd?'standings':(rd.standings&&rd.standings.length)?'standings':(rd.games&&rd.games.length)?'games':'draw';}
@@ -1231,9 +1234,10 @@ function giaiList(s){s=s||{};
     return {demo:false,numRounds:gV(c),rounds:{},final:[]};
   }
   function renderToggle(){
-    var L=giaiCur();if(!L.some(function(g){return g.id===cur.c}))cur.c=L[0].id;
-    tg.innerHTML=L.map(function(g){return '<button data-kq="'+esc(g.id)+'"'+(g.id===cur.c?' class="on"':'')+'>'+esc(g.ten)+'</button>'}).join('');
-    tg.querySelectorAll('button').forEach(function(b){b.onclick=function(){cur.c=b.dataset.kq;manual=false;manualTab=false;autoPick();renderToggle();render();};});
+    var L=giaiCur();
+    if(!cPicked||!L.some(function(g){return g.id===cur.c})){cur.c=L[0].id;for(var i=0;i<L.length;i++){if(latestR(getData(L[i].id))){cur.c=L[i].id;break;}}}
+    tg.innerHTML=L.map(function(g){var w=(g.id!=='a'&&g.id!=='b');return '<button data-kq="'+esc(g.id)+'" class="'+(w?'wide':'')+(g.id===cur.c?' on':'')+'">'+esc(g.ten)+'</button>'}).join('');
+    tg.querySelectorAll('button').forEach(function(b){b.onclick=function(){cPicked=true;cur.c=b.dataset.kq;manual=false;manualTab=false;autoPick();renderToggle();render();};});
   }
   function esc(s){return String(s).replace(/[&<>]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})}
   function empty(t,s){return '<div class="card"><div class="kqempty"><div class="ei">♟</div><div class="et">'+t+'</div><div class="es">'+s+'</div></div></div>'}
@@ -1295,7 +1299,7 @@ function giaiList(s){s=s||{};
   var manualTab=false;
   window.__kqRefresh=function(){renderToggle();if(!manual)autoPick();render()};
   // Admin bấm "Xem tab Kết quả": mở đúng nội dung + vòng đang nhập
-  window.__kqGo=function(c,r){cur.c=c;var d=getData(c);cur.r=r;cur.tab=bestTab(d.rounds[r]);manual=true;manualTab=false;goFlag=true;
+  window.__kqGo=function(c,r){cPicked=true;cur.c=c;var d=getData(c);cur.r=r;cur.tab=bestTab(d.rounds[r]);manual=true;manualTab=false;goFlag=true;
     renderToggle();render();};
   window.addEventListener('hashchange',function(){if(location.hash!=='#ket-qua')return;if(goFlag){goFlag=false;return;}manual=false;manualTab=false;renderToggle();autoPick();render();});
   renderToggle();autoPick();render();
