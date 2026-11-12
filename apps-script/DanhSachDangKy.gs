@@ -329,8 +329,8 @@ function readBoard_(req) {
       rotated: { type: 'BOOLEAN' },
       red_side: { type: 'STRING', enum: ['bottom', 'top'] },
       note: { type: 'STRING' } }, required: ['corners', 'pieces', 'red_side'] };
-  var opt = {};
-  var bm = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD'); if (bm) opt.model = bm;
+  // Đọc bàn cờ cần nhanh: dùng model nhẹ chạy ổn định (đổi được bằng Script Property GEMINI_MODEL_BOARD)
+  var opt = { model: PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD') || 'gemini-3.1-flash-lite' };
   if (req.dev === 'kan-test-201278' && req.mdl && /^[\w.-]+$/.test(req.mdl)) opt.model = req.mdl;   // chỉ để BTC thử model
   if (req.dev === 'kan-test-201278' && +req.think) opt.think = +req.think;
   var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema, opt);

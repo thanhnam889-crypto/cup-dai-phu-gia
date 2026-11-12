@@ -2911,22 +2911,24 @@ var XQ=(function(){
     fr.onload=function(){var im=new Image();im.onerror=function(){rej(new Error('Ảnh không hợp lệ'))};
       im.onload=function(){var sc=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');
         c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-        var u=c.toDataURL('image/jpeg',.85);res({url:u,b64:u.split(',')[1]});};im.src=fr.result;};
+        var u=c.toDataURL('image/jpeg',.82);res({url:u,b64:u.split(',')[1]});};im.src=fr.result;};
     fr.readAsDataURL(file);});}
   $('bl-photo').onclick=function(){$('bl-file').click()};
   $('bl-file').onchange=function(e){
     var file=e.target.files&&e.target.files[0];e.target.value='';if(!file)return;
     var url=window.DPG_SCRIPT,btn=$('bl-photo');
     if(!url){msg('Chưa kết nối máy chủ AI — bấm “Tự xếp quân” để xếp tay.','var(--red)');return;}
-    btn.disabled=true;msg('Đang chuẩn bị ảnh…');var shot;
-    shrink(file,1600).then(function(r){shot=r;msg('🤖 AI đang đọc bàn cờ… (thường 10–30 giây)');
-      return window.DPG_AIPOST({t:'board',image:r.b64,mime:'image/jpeg',dev:devId()},function(t){msg(t)});
-    }).then(function(d){
+    btn.disabled=true;msg('Đang chuẩn bị ảnh…');var shot,t0=Date.now(),base='',tick=null;
+    function stopTick(){if(tick){clearInterval(tick);tick=null;}}
+    function show(){var sec=Math.round((Date.now()-t0)/1000);msg(base+' <b>'+sec+' giây</b>'+(sec>=20?'<br><small>AI của Google đang đông — trong lúc chờ có thể bấm “✎ Tự xếp quân”.</small>':''));}
+    shrink(file,1280).then(function(r){shot=r;base='🤖 AI đang đọc bàn cờ…';t0=Date.now();show();tick=setInterval(show,1000);
+      return window.DPG_AIPOST({t:'board',image:r.b64,mime:'image/jpeg',dev:devId()},function(t){base=t;show();});
+    }).then(function(d){stopTick();
       if(!d||d.error||!d.rows)throw new Error((d&&d.error)||'AI không đọc được ảnh');
       var b=fromRows(d.rows,d.red);
       if(!b.some(Boolean))throw new Error('AI không thấy quân cờ nào trong ảnh');
-      enterEdit(b,'r',shot.url,'🤖 AI đã xếp '+b.filter(Boolean).length+' quân. <b>So với ảnh gốc</b>, chạm để sửa ô sai, chọn lượt đi rồi bấm <b>Xong</b>.'+(d.note?'<br><i>AI ghi chú: '+esc(d.note)+'</i>':''));
-    }).catch(function(err){var raw=String((err&&err.message)||err||'');return (window.DPG_AIERR?window.DPG_AIERR(err):Promise.resolve(raw)).then(function(t){msg('Lỗi: '+esc(t)+'<br>Trong lúc chờ, bấm “Tự xếp quân” để xếp tay.'+(raw&&raw!==t?'<br><small style="color:var(--muted);font-weight:400">Chi tiết: '+esc(raw.slice(0,200))+'</small>':''),'var(--red)');});})
+      enterEdit(b,'r',shot.url,'🤖 AI đã xếp '+b.filter(Boolean).length+' quân ('+Math.round((Date.now()-t0)/1000)+' giây). <b>So với ảnh gốc</b>, chạm để sửa ô sai, chọn lượt đi rồi bấm <b>Xong</b>.'+(d.note?'<br><i>AI ghi chú: '+esc(d.note)+'</i>':''));
+    }).catch(function(err){stopTick();var raw=String((err&&err.message)||err||'');return (window.DPG_AIERR?window.DPG_AIERR(err):Promise.resolve(raw)).then(function(t){msg('Lỗi: '+esc(t)+'<br>Trong lúc chờ, bấm “Tự xếp quân” để xếp tay.'+(raw&&raw!==t?'<br><small style="color:var(--muted);font-weight:400">Chi tiết: '+esc(raw.slice(0,200))+'</small>':''),'var(--red)');});})
       .then(function(){btn.disabled=false;});
   };
 
