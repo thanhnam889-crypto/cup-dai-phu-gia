@@ -288,6 +288,7 @@ a.poi.food .go{color:var(--jade)}
 .srow .inp{padding:8px 8px!important;font-size:14px}
 .srow .hs{grid-column:2/4;font-size:12px!important;padding:6px 8px!important;margin-top:-2px}
 .srow .del{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer}
+.kqback{display:block;width:100%;margin:14px 0 4px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--red);background:var(--surface);color:var(--red);font:inherit;font-weight:700;font-size:15px;cursor:pointer;position:sticky;top:68px;z-index:6;box-shadow:0 4px 14px rgba(0,0,0,.08)}
 .ktab .hsx{display:block;font-size:10.5px;color:var(--muted);font-weight:500;margin-top:1px;white-space:nowrap}
 #adm-rows{counter-reset:ban}
 .erow{display:grid;grid-template-columns:1fr 112px;gap:6px;align-items:center;margin-bottom:10px;padding:26px 8px 8px;border:1px solid var(--line);border-radius:12px;position:relative;counter-increment:ban}
@@ -949,6 +950,7 @@ a.poi.food .go{color:var(--jade)}
       </div>
       <button class="btn" id="adm-stsave" type="button" style="margin-top:8px">Lưu xếp hạng vòng này</button>
       <div class="okmsg" id="adm-stok"></div>
+      <button class="btn" id="adm-next" type="button" style="margin-top:10px;background:var(--jade)" hidden>Sang nhập vòng sau ›</button>
     </div>
 
     <div class="sec">
@@ -1190,7 +1192,12 @@ var KQ={
   var box=document.getElementById('kq-render');if(!box)return;
   var ctab=document.querySelectorAll('.kqtoggle button');
   var SUB=[['draw','Bốc thăm'],['games','Kết quả'],['standings','Xếp hạng']];
-  var cur={c:'a',r:1,tab:'standings'};
+  var cur={c:'a',r:1,tab:'standings'},manual=false,goFlag=false;
+  function rdHas(x){return x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length));}
+  function latestR(d){var m=0;Object.keys(d.rounds||{}).forEach(function(k){if(rdHas(d.rounds[k])&&+k>m)m=+k;});return m;}
+  function bestTab(rd){return !rd?'standings':(rd.standings&&rd.standings.length)?'standings':(rd.games&&rd.games.length)?'games':'draw';}
+  function autoPick(){var d=getData(cur.c),m=latestR(d);cur.r=m||1;cur.tab=bestTab(d.rounds[cur.r]);}
+  function isAdm(){try{return sessionStorage.getItem('dpg-adm')==='1'}catch(e){return false}}
   function hasData(x){return x&&((x.rounds&&Object.keys(x.rounds).length)||(x.final&&x.final.length))}
   function norm(o,c){o.numRounds=o.numRounds||KQ[c].numRounds;o.rounds=o.rounds||{};o.final=o.final||[];return o}
   function getData(c){
@@ -1218,6 +1225,7 @@ var KQ={
   }
   function render(){
     var d=getData(cur.c),h='';
+    if(isAdm())h+='<button class="kqback" type="button" data-back="1">← Quay lại nhập kết quả (Admin)</button>';
     if(d.demo)h+='<div class="demobadge">● Dữ liệu mẫu minh họa</div>';
     // round chips
     h+='<div class="rchips">';
@@ -1252,15 +1260,21 @@ var KQ={
     box.innerHTML=h;bind();
   }
   function bind(){
-    box.querySelectorAll('.rchips button').forEach(function(b){b.addEventListener('click',function(){cur.r=(b.dataset.r==='final'?'final':+b.dataset.r);render()})});
-    box.querySelectorAll('.subtabs button').forEach(function(b){b.addEventListener('click',function(){cur.tab=b.dataset.tab;render()})});
+    box.querySelectorAll('.rchips button').forEach(function(b){b.addEventListener('click',function(){manual=true;cur.r=(b.dataset.r==='final'?'final':+b.dataset.r);if(cur.r!=='final'){var d=getData(cur.c);if(!(d.rounds[cur.r]&&rdHas(d.rounds[cur.r])))cur.tab=cur.tab;else if(!manualTab)cur.tab=bestTab(d.rounds[cur.r]);}render()})});
+    box.querySelectorAll('.subtabs button').forEach(function(b){b.addEventListener('click',function(){manual=true;manualTab=true;cur.tab=b.dataset.tab;render()})});
+    box.querySelectorAll('[data-back]').forEach(function(b){b.addEventListener('click',function(){if(window.__admBack)window.__admBack();location.hash='admin';})});
   }
+  var manualTab=false;
   ctab.forEach(function(b){b.addEventListener('click',function(){
-    cur.c=b.dataset.kq;cur.r=1;
+    cur.c=b.dataset.kq;manual=false;manualTab=false;autoPick();
     ctab.forEach(function(x){x.classList.toggle('on',x===b)});render();
   });});
-  window.__kqRefresh=function(){cur.r=1;render()};
-  render();
+  window.__kqRefresh=function(){if(!manual)autoPick();render()};
+  // Admin bấm "Xem tab Kết quả": mở đúng nội dung + vòng đang nhập
+  window.__kqGo=function(c,r){cur.c=c;var d=getData(c);cur.r=r;cur.tab=bestTab(d.rounds[r]);manual=true;manualTab=false;goFlag=true;
+    ctab.forEach(function(x){x.classList.toggle('on',x.dataset.kq===c)});render();};
+  window.addEventListener('hashchange',function(){if(location.hash!=='#ket-qua')return;if(goFlag){goFlag=false;return;}manual=false;manualTab=false;autoPick();render();});
+  autoPick();render();
 })();
 
 /* ---- DANH SÁCH ĐĂNG KÝ: tự lấy từ Google Form (qua Apps Script, chỉ tên/chức vụ/đơn vị) ---- */
@@ -1476,7 +1490,7 @@ var KQ={
 
 
   function store(){try{return JSON.parse(localStorage.getItem('dpg-kq')||'{}')}catch(e){return{}}}
-  function save(s){try{localStorage.setItem('dpg-kq',JSON.stringify(s))}catch(e){}}
+  function save(s){s._at=Date.now();try{localStorage.setItem('dpg-kq',JSON.stringify(s))}catch(e){}}
   function numRounds(c){var s=store();return (s[c]&&s[c].numRounds)|| (window.KQ&&KQ[c].numRounds) ||7}
 
   function fillSelect(sel,arr,val){sel.innerHTML='';arr.forEach(function(o){var op=document.createElement('option');op.value=o[0];op.textContent=o[1];if(String(o[0])===String(val))op.selected=true;sel.appendChild(op)})}
@@ -1540,14 +1554,16 @@ var KQ={
               if(!d||d.error){var er=(d&&d.error)||'AI không đọc được ảnh';
                 if(/không được hỗ trợ/i.test(er))er='Máy chủ AI chưa có bản mới (cần dán mã Apps Script mới rồi Triển khai → Phiên bản mới).';
                 throw new Error(er);}
-              var r=+rSel.value,warn='';
-              if(d.vong&&d.vong!==r)warn+=' ⚠ Ảnh ghi Vòng '+d.vong+' nhưng ô "Nhập cho vòng" đang là Vòng '+r+'.';
+              var r=+rSel.value,warn='',sw='';
+              if(d.vong&&d.vong!==r){
+                if(d.vong>=1&&d.vong<=+nSel.value){goRound(d.vong);r=d.vong;sw=' ↪ Đã chuyển sang Vòng '+r+' theo ảnh.';}
+                else warn+=' ⚠ Ảnh ghi Vòng '+d.vong+' nhưng giải chỉ có '+nSel.value+' vòng — kiểm tra lại.';}
               if(d.nd&&((d.nd==='up')!==(cSel.value==='b')))warn+=' ⚠ Ảnh có vẻ là '+(d.nd==='up'?'Cờ tướng úp':'Cờ tướng')+' — kiểm tra ô "Nội dung".';
               if(md==='rank'){
                 var rows=(d.rows||[]).filter(function(x){return x&&x.n;});
                 if(!rows.length)throw new Error('Không thấy dòng xếp hạng nào trong ảnh');
                 fillStand(rows.map(function(x){return [x.h,x.n,x.dv||'',x.d,x.hs||''];}),true);
-                m('✓ AI đọc được '+rows.length+' dòng xếp hạng. Kiểm tra lại rồi bấm “Lưu xếp hạng vòng này”.'+warn,warn?'var(--gold)':'var(--jade)');
+                m('✓ AI đọc được '+rows.length+' dòng xếp hạng. Kiểm tra lại rồi bấm “Lưu xếp hạng vòng này”.'+sw+warn,warn?'var(--gold)':'var(--jade)');
                 document.getElementById('adm-stand').scrollIntoView({behavior:'smooth',block:'center'});
                 return;
               }
@@ -1557,7 +1573,7 @@ var KQ={
               if(md==='draw'||!ex.length){
                 rowsBox.innerHTML=g.map(function(x){return rowHTML(ea(x.a),ea(x.b),aiRes(x.kq))}).join('');bindRows();
                 var nr=g.filter(function(x){return x.kq!=='none'}).length;
-                m('✓ AI đọc được '+g.length+' cặp đấu'+(nr?(' ('+nr+' ván đã có kết quả)'):'')+'. Kiểm tra lại từng dòng rồi bấm “Lưu bốc thăm / kết quả vòng này”.'+warn,warn?'var(--gold)':'var(--jade)');
+                m('✓ AI đọc được '+g.length+' cặp đấu'+(nr?(' ('+nr+' ván đã có kết quả)'):'')+'. Kiểm tra lại từng dòng rồi bấm “Lưu bốc thăm / kết quả vòng này”.'+sw+warn,warn?'var(--gold)':'var(--jade)');
               }else{
                 var upd=0,add=0;
                 g.forEach(function(x){
@@ -1568,7 +1584,7 @@ var KQ={
                   else{rowsBox.insertAdjacentHTML('beforeend',rowHTML(ea(x.a),ea(x.b),res));add++;}
                 });
                 bindRows();
-                m('✓ Đã điền kết quả cho '+upd+' cặp'+(add?(', thêm '+add+' cặp mới không có trong bốc thăm'):'')+'. Kiểm tra lại rồi bấm “Lưu bốc thăm / kết quả vòng này”.'+warn,(warn||add)?'var(--gold)':'var(--jade)');
+                m('✓ Đã điền kết quả cho '+upd+' cặp'+(add?(', thêm '+add+' cặp mới không có trong bốc thăm'):'')+'. Kiểm tra lại rồi bấm “Lưu bốc thăm / kết quả vòng này”.'+sw+warn,(warn||add)?'var(--gold)':'var(--jade)');
               }
             }).catch(function(e){var raw=String((e&&e.message)||e||'');return (window.DPG_AIERR?window.DPG_AIERR(e):Promise.resolve(raw)).then(function(t){m('Lỗi: '+t+(raw&&raw!==t?' (chi tiết: '+raw.slice(0,160)+')':''),'var(--red)');});})
             .then(function(){busy(false);});
@@ -1589,15 +1605,15 @@ var KQ={
   }
   function loadStand(){
     var s=store(),c=cSel.value,r=rSel.value,rd=s[c]&&s[c].rounds&&s[c].rounds[r],st=(rd&&rd.standings)||[];
-    fillStand(st,false);stOk.textContent='';
+    fillStand(st,false);stOk.textContent='';if(typeof showNext==='function')showNext();
     stNote.textContent=st.length?'🔒 Xếp hạng chính thức do BTC nhập từ ảnh — giữ nguyên khi lưu lại bốc thăm / kết quả. Muốn thay: chụp ảnh mới rồi lưu lại.'
       :'Chưa có xếp hạng vòng này. Chụp ảnh bảng xếp hạng in từ Swiss-Manager (app không tự xếp hạng).';
   }
   function pushStore(s,okEl,tag){
     okEl.style.color='var(--jade)';
-    if(window.DPG&&window.DPG.push){okEl.textContent='Đang đồng bộ '+tag+'…';
-      window.DPG.push(s).then(function(){okEl.textContent='✓ Đã đồng bộ '+tag+' — mọi người đều thấy.';})
-        .catch(function(){okEl.style.color='var(--red)';okEl.textContent='⚠ Đã lưu máy này nhưng chưa đồng bộ được (kiểm tra mạng).';});
+    if(window.DPG&&window.DPG.push){okEl.textContent='✓ Đã lưu '+tag+' trên máy này · đang đồng bộ…';
+      window.DPG.push(s).then(function(){okEl.textContent='✓ Đã lưu & đồng bộ '+tag+' — mọi người đều thấy.';})
+        .catch(function(e){okEl.style.color='var(--red)';okEl.textContent='⚠ Đã lưu trên máy này nhưng chưa đồng bộ được ('+String((e&&e.message)||e).slice(0,80)+'). App sẽ tự đồng bộ lại khi có mạng.';});
     }else okEl.textContent='✓ Đã lưu '+tag+' trên máy này.';
     if(window.__kqRefresh)window.__kqRefresh();
   }
@@ -1640,24 +1656,34 @@ var KQ={
     var tag='Vòng '+r+' ('+(c==='a'?'Cờ tướng':'Cờ tướng úp')+')';
     okMsg.style.color='var(--jade)';
     if(window.DPG&&window.DPG.push){
-      okMsg.textContent='Đang đồng bộ '+tag+'…';
-      window.DPG.push(s).then(function(){okMsg.textContent='✓ Đã đồng bộ '+tag+' — mọi người đều thấy.';})
-        .catch(function(){okMsg.style.color='var(--red)';okMsg.textContent='⚠ Đã lưu máy này nhưng chưa đồng bộ được (kiểm tra mạng).';});
+      okMsg.textContent='✓ Đã lưu '+tag+' trên máy này · đang đồng bộ lên máy chủ…';
+      window.DPG.push(s).then(function(){okMsg.textContent='✓ Đã lưu & đồng bộ '+tag+' — mọi người đều thấy.';})
+        .catch(function(e){okMsg.style.color='var(--red)';okMsg.textContent='⚠ Đã lưu trên máy này nhưng chưa đồng bộ được ('+String((e&&e.message)||e).slice(0,80)+'). App sẽ tự đồng bộ lại khi có mạng.';});
     }else{
       okMsg.textContent='✓ Đã lưu '+tag+' trên máy này. Xem ở tab Kết quả.';
     }
     if(window.__kqRefresh)window.__kqRefresh();
     loadStand();
   };
-  document.getElementById('adm-view').onclick=function(){location.hash='ket-qua'};
+  document.getElementById('adm-view').onclick=function(){if(window.__kqGo)window.__kqGo(cSel.value,+rSel.value);location.hash='ket-qua'};
+  // Vòng đang làm: vòng mới nhất đã có dữ liệu; nếu vòng đó đã có xếp hạng (xong vòng) thì sang vòng kế
+  function workRound(c){var s=store(),d=s[c],N=+nSel.value||9,m=0;if(!d||!d.rounds)return 1;
+    Object.keys(d.rounds).forEach(function(k){var x=d.rounds[k];if(x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length))&&+k>m)m=+k;});
+    if(!m)return 1;var x=d.rounds[m];return (x.standings&&x.standings.length&&m<N)?m+1:m;}
+  function goRound(r){rSel.value=String(r);loadRows();okMsg.textContent='';}
+  window.__admBack=function(){var w=workRound(cSel.value);if(w>+rSel.value)goRound(w);};
+  var nextBtn=document.getElementById('adm-next');
+  function showNext(){if(!nextBtn)return;var r=+rSel.value,N=+nSel.value,s=store(),x=s[cSel.value]&&s[cSel.value].rounds&&s[cSel.value].rounds[r];
+    var done=x&&x.standings&&x.standings.length;nextBtn.hidden=!(done&&r<N);nextBtn.textContent='Sang nhập Vòng '+(r+1)+' ›';}
+  nextBtn.onclick=function(){goRound(+rSel.value+1);window.scrollTo({top:document.getElementById('adm-round').getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'});};
   document.getElementById('adm-reset').onclick=function(){
-    if(confirmReset()){try{localStorage.removeItem('dpg-kq')}catch(e){}
-      if(window.DPG){window.DPG.cloud=null;if(window.DPG.push)window.DPG.push({}).catch(function(){});}
+    if(confirmReset()){var z={_at:Date.now()};try{localStorage.setItem('dpg-kq',JSON.stringify(z))}catch(e){}
+      if(window.DPG){window.DPG.cloud=z;if(window.DPG.push)window.DPG.push(z).catch(function(){});}
       okMsg.textContent='Đã xóa toàn bộ kết quả đã nhập.';if(window.__kqRefresh)window.__kqRefresh();loadRows();}
   };
   var _rc=0;function confirmReset(){_rc++;if(_rc<2){okMsg.textContent='Bấm "Xóa toàn bộ" lần nữa để xác nhận.';okMsg.style.color='var(--red)';setTimeout(function(){_rc=0;okMsg.style.color='var(--jade)'},3000);return false}_rc=0;okMsg.style.color='var(--jade)';return true}
 
-  cSel.onchange=function(){refreshRoundSel();loadRows()};
+  cSel.onchange=function(){refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows()};
   nSel.onchange=function(){var s=store(),c=cSel.value;if(s[c]){s[c].numRounds=+nSel.value;save(s)}refreshRoundSel();loadRows()};
   rSel.onchange=loadRows;
 
@@ -2005,7 +2031,7 @@ var KQ={
   function initPanel(){
     var nArr=[];for(var i=3;i<=11;i++)nArr.push([i,i+' vòng']);
     fillSelect(nSel,nArr,numRounds(cSel.value));
-    refreshRoundSel();loadRows();prefillLinks();invRender();invgenRender();ldRender();
+    refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();prefillLinks();invRender();invgenRender();ldRender();
   }
   function unlock(){gate.hidden=true;panel.hidden=false;initPanel();try{sessionStorage.setItem('dpg-adm','1')}catch(e){}
     if(window.__regRender)window.__regRender();}
@@ -2690,22 +2716,37 @@ var XQ=(function(){
     appId:"1:766491464163:web:23287c4150ae878692d0d6"
   };
   window.DPG={cloud:null,config:null,ready:false,push:null,pushConfig:null};
+  // Kết quả lưu lên máy chủ dạng chuỗi JSON (Firestore không nhận mảng lồng nhau như [[tên,đơn vị,…]]).
+  function kqDec(d){if(!d)return null;if(typeof d.json==='string'){try{return JSON.parse(d.json)}catch(e){return null}}return d;}
+  function kqLoc(){try{return JSON.parse(localStorage.getItem('dpg-kq')||'null')}catch(e){return null}}
+  function kqHas(x){function h(o){return o&&o.rounds&&Object.keys(o.rounds).some(function(k){var r=o.rounds[k];return r&&((r.draw&&r.draw.length)||(r.games&&r.games.length)||(r.standings&&r.standings.length))});}return !!(x&&(h(x.a)||h(x.b)));}
   function syncNote(txt,color){var el=document.getElementById('adm-sync');if(el){el.innerHTML=txt;if(color)el.style.color=color;}}
   if(typeof firebase==='undefined'||!firebase.firestore){return;} // SDK bị chặn (vd khi xem trên claude.ai) -> dùng bản lưu máy
   try{
     firebase.initializeApp(cfg);
     var fs=firebase.firestore();
     var ref=fs.collection('app').doc('results');
-    window.DPG.push=function(obj){return ref.set(obj||{});};
+    window.DPG.push=function(obj){
+      try{obj=obj||{};if(!obj._at)obj._at=Date.now();return ref.set({v:2,at:obj._at,json:JSON.stringify(obj)});}
+      catch(e){return Promise.reject(e);}
+    };
     ref.onSnapshot(function(snap){
       window.DPG.ready=true;
-      window.DPG.cloud=(snap&&snap.exists)?snap.data():null;
-      try{if(window.DPG.cloud)localStorage.setItem('dpg-kq',JSON.stringify(window.DPG.cloud));}catch(e){}
+      var cloud=(snap&&snap.exists)?kqDec(snap.data()):null,L=kqLoc(),lat=(L&&L._at)||0,cat=(cloud&&cloud._at)||0;
+      // Máy này có bản mới hơn máy chủ (lưu lúc mất mạng / tắt app trước khi đồng bộ xong) -> giữ bản máy này và đẩy lại lên
+      if(L&&(lat>cat||(!lat&&!cat&&kqHas(L)&&!kqHas(cloud)))){
+        window.DPG.cloud=L;
+        if(!(snap.metadata&&snap.metadata.hasPendingWrites))window.DPG.push(L).catch(function(){});
+      }else{
+        window.DPG.cloud=cloud;
+        try{localStorage.setItem('dpg-kq',JSON.stringify(cloud||{}));}catch(e){}
+      }
       if(window.__kqRefresh)window.__kqRefresh();
       syncNote('● <b>Đã kết nối trực tiếp</b> — kết quả nhập xong hiện ngay cho mọi người.','var(--jade)');
     },function(err){
       syncNote('● Chưa kết nối được máy chủ. Đang lưu <b>trên máy này</b>, thử lại khi có mạng.','var(--red)');
     });
+    window.addEventListener('online',function(){var L=kqLoc(),C=window.DPG.cloud;if(L&&L._at&&(!C||!C._at||L._at>C._at))window.DPG.push(L).catch(function(){});});
     var cref=fs.collection('app').doc('config');
     window.DPG.pushConfig=function(obj){return cref.set(obj||{},{merge:true});};
     cref.onSnapshot(function(snap){
