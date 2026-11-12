@@ -975,6 +975,7 @@ a.poi.food .go{color:var(--jade)}
       <button class="btn ghost" id="adm-view" style="flex:none;width:auto">Xem tab Kết quả</button>
     </div>
     <div class="okmsg" id="adm-ok"></div>
+    <button class="btn ghost" id="adm-delround" type="button" style="margin-top:8px;padding:10px;color:var(--red)">🗑 Xóa dữ liệu vòng này (bốc thăm, kết quả, xếp hạng)</button>
 
     <div class="field" style="margin-top:14px"><label>Xếp hạng sau vòng này</label>
       <div class="stnote" id="adm-stnote"></div>
@@ -1700,7 +1701,10 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       var n=row.querySelector('.sn').value.trim();if(!n)return;
       var d=parseFloat(row.querySelector('.sd').value.replace(',','.'));
       rows.push([+row.querySelector('.sh').value||0,n,unitOf(n)||row.dataset.dv||'',isNaN(d)?0:d,row.querySelector('.hs').value.trim()]);});
-    if(!rows.length){stOk.style.color='var(--red)';stOk.textContent='Chưa có dòng nào.';return;}
+    if(!rows.length){var s0=store(),c0=cSel.value,r0=rSel.value,x0=s0[c0]&&s0[c0].rounds&&s0[c0].rounds[r0];
+      if(x0&&x0.standings&&x0.standings.length){x0.standings=[];delete x0.standSrc;save(s0);loadStand();pushStore(s0,stOk,'xóa xếp hạng Vòng '+r0+' ('+gName(c0)+')');}
+      else{stOk.style.color='var(--red)';stOk.textContent='Chưa có dòng nào.';}
+      return;}
     rows.sort(function(x,y){return (x[0]||999)-(y[0]||999)});rows.forEach(function(x,i){if(!x[0])x[0]=i+1;});
     var s=store(),c=cSel.value,r=rSel.value;
     if(!s[c])s[c]={demo:false,numRounds:+nSel.value,rounds:{},final:[]};
@@ -1741,6 +1745,15 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     }
     if(window.__kqRefresh)window.__kqRefresh();
     loadStand();
+  };
+  var delR=document.getElementById('adm-delround');
+  delR.onclick=function(){
+    var s=store(),c=cSel.value,r=rSel.value,x=s[c]&&s[c].rounds&&s[c].rounds[r];
+    if(!x){okMsg.style.color='var(--muted)';okMsg.textContent='Vòng '+r+' chưa có dữ liệu.';return;}
+    if(delR.dataset.c!=='1'){delR.dataset.c='1';delR.textContent='Bấm lần nữa để XÓA toàn bộ dữ liệu Vòng '+r+' ('+gName(c)+')';
+      setTimeout(function(){delR.dataset.c='';delR.textContent='🗑 Xóa dữ liệu vòng này (bốc thăm, kết quả, xếp hạng)';},4000);return;}
+    delR.dataset.c='';delR.textContent='🗑 Xóa dữ liệu vòng này (bốc thăm, kết quả, xếp hạng)';
+    delete s[c].rounds[r];save(s);loadRows();pushStore(s,okMsg,'xóa dữ liệu Vòng '+r+' ('+gName(c)+')');
   };
   document.getElementById('adm-view').onclick=function(){if(window.__kqGo)window.__kqGo(cSel.value,+rSel.value);location.hash='ket-qua'};
   // Vòng đang làm: vòng mới nhất đã có dữ liệu; nếu vòng đó đã có xếp hạng (xong vòng) thì sang vòng kế
