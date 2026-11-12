@@ -222,7 +222,8 @@ a.poi.food .go{color:var(--jade)}
 .hotel .hcall{flex:none;width:42px;height:42px;border-radius:11px;background:var(--red-soft);color:var(--red);
   display:grid;place-items:center;font-size:19px}
 @media(hover:hover){.hotel:hover{border-color:var(--red)}}
-.kqtoggle{display:flex;gap:8px;margin:0 0 14px}
+.kqtoggle{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
+.kqtoggle button{min-width:calc(50% - 4px)}
 .kqtoggle button{flex:1;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--surface);
   color:var(--muted);font-weight:700;font-size:13px;cursor:pointer}
 .kqtoggle button.on{background:var(--red);color:#fff;border-color:var(--red)}
@@ -288,6 +289,14 @@ a.poi.food .go{color:var(--jade)}
 .srow .inp{padding:8px 8px!important;font-size:14px}
 .srow .hs{grid-column:2/4;font-size:12px!important;padding:6px 8px!important;margin-top:-2px}
 .srow .del{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer}
+.giairow{display:flex;gap:8px}
+.giairow .inp{flex:1;min-width:0}
+.giairow .btn{flex:none;width:auto;padding:0 14px;white-space:nowrap}
+.giaiinfo{font-size:13px;color:var(--muted);margin-top:6px}
+.giaiinfo button{border:0;background:none;color:var(--red);font:inherit;font-weight:700;cursor:pointer;padding:0 2px}
+.giaiform{border:1.5px solid var(--red);border-radius:14px;padding:12px 12px 10px;margin:2px 0 12px;background:var(--surface)}
+.gftitle{font-weight:800;margin-bottom:8px}
+.ghint{font-size:12.5px;color:var(--muted);margin:-2px 0 8px}
 .kqback{display:block;width:100%;margin:14px 0 4px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--red);background:var(--surface);color:var(--red);font:inherit;font-weight:700;font-size:15px;cursor:pointer;position:sticky;top:68px;z-index:6;box-shadow:0 4px 14px rgba(0,0,0,.08)}
 .ktab .hsx{display:block;font-size:10.5px;color:var(--muted);font-weight:500;margin-top:1px;white-space:nowrap}
 #adm-rows{counter-reset:ban}
@@ -653,8 +662,8 @@ a.poi.food .go{color:var(--jade)}
   <p class="lead">Bốc thăm · kết quả · xếp hạng theo từng vòng</p>
 
   <div class="kqtoggle" style="margin-top:18px">
-    <button id="kq-a" class="on" data-kq="a">Cờ tướng</button>
-    <button id="kq-b" data-kq="b">Cờ tướng úp</button>
+    <button class="on" data-kq="a">Cờ tướng</button>
+    <button data-kq="b">Cờ tướng úp</button>
   </div>
 
   <div id="kq-render"></div>
@@ -911,12 +920,20 @@ a.poi.food .go{color:var(--jade)}
   <div id="adm-panel" hidden style="margin-top:4px">
     <div class="syncnote" id="adm-sync">● Đang lưu <b>trên máy này</b>. Để mọi người cùng thấy trực tiếp, cần kết nối Firebase (xem hướng dẫn).</div>
 
-    <div class="admrow2">
-      <div class="field"><label>Nội dung</label>
-        <select class="inp" id="adm-content"><option value="a">Cờ tướng</option><option value="b">Cờ tướng úp</option></select></div>
-      <div class="field"><label>Số vòng</label>
-        <select class="inp" id="adm-numrounds"></select></div>
+    <div class="field"><label>Giải đấu</label>
+      <div class="giairow"><select class="inp" id="adm-content"></select><button class="btn ghost" id="adm-gnew" type="button">＋ Tạo giải</button></div>
+      <div class="giaiinfo" id="adm-ginfo"></div>
+      <select id="adm-numrounds" hidden></select>
     </div>
+    <div class="giaiform" id="adm-gform" hidden>
+      <div class="gftitle" id="adm-gftitle">Tạo giải mới</div>
+      <div class="field"><label>Tên giải</label><input class="inp" id="adm-gname" maxlength="60" placeholder="VD: Cờ tướng nhanh – Bảng doanh nhân trẻ"></div>
+      <div class="field"><label>Số vòng thi đấu (chốt khi tạo giải)</label><select class="inp" id="adm-gvong"></select></div>
+      <div class="ghint" id="adm-ghint"></div>
+      <div class="admbar"><button class="btn" id="adm-gok" type="button">Tạo giải &amp; chốt số vòng</button><button class="btn ghost" id="adm-gcancel" type="button" style="flex:none;width:auto">Hủy</button></div>
+      <button class="btn ghost" id="adm-gdel" type="button" style="margin-top:8px;color:var(--red)" hidden>Xóa giải này</button>
+    </div>
+    <div class="okmsg" id="adm-gmsg" style="margin:-4px 0 10px"></div>
     <div class="field"><label>Nhập cho vòng</label>
       <select class="inp" id="adm-round"></select></div>
 
@@ -1188,9 +1205,13 @@ var KQ={
   a:{demo:false,numRounds:9,rounds:{},final:[]},
   b:{demo:false,numRounds:9,rounds:{},final:[]}
 };
+/* Danh sách giải: s.giai=[{id,ten,vong}] — vong = số vòng đã chốt khi tạo giải. Chưa tạo thì mặc định 2 nội dung của Điều lệ. */
+function giaiList(s){s=s||{};
+  if(Array.isArray(s.giai)&&s.giai.length)return s.giai.filter(function(g){return g&&g.id;});
+  return [{id:'a',ten:'Cờ tướng',vong:(s.a&&s.a.numRounds)||9},{id:'b',ten:'Cờ tướng úp',vong:(s.b&&s.b.numRounds)||9}];}
 (function(){
   var box=document.getElementById('kq-render');if(!box)return;
-  var ctab=document.querySelectorAll('.kqtoggle button');
+  var tg=document.querySelector('.kqtoggle');
   var SUB=[['draw','Bốc thăm'],['games','Kết quả'],['standings','Xếp hạng']];
   var cur={c:'a',r:1,tab:'standings'},manual=false,goFlag=false;
   function rdHas(x){return x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length));}
@@ -1199,13 +1220,20 @@ var KQ={
   function autoPick(){var d=getData(cur.c),m=latestR(d);cur.r=m||1;cur.tab=bestTab(d.rounds[cur.r]);}
   function isAdm(){try{return sessionStorage.getItem('dpg-adm')==='1'}catch(e){return false}}
   function hasData(x){return x&&((x.rounds&&Object.keys(x.rounds).length)||(x.final&&x.final.length))}
-  function norm(o,c){o.numRounds=o.numRounds||KQ[c].numRounds;o.rounds=o.rounds||{};o.final=o.final||[];return o}
+  function giaiCur(){var src={};try{src=(window.DPG&&window.DPG.cloud)||JSON.parse(localStorage.getItem('dpg-kq')||'{}')||{}}catch(e){}return giaiList(src);}
+  function gV(c){var g=giaiCur().filter(function(x){return x.id===c})[0];return g?(+g.vong||9):9;}
+  function norm(o,c){o.numRounds=gV(c)||o.numRounds||9;o.rounds=o.rounds||{};o.final=o.final||[];return o}
   function getData(c){
     try{if(window.DPG&&window.DPG.cloud&&hasData(window.DPG.cloud[c]))return norm(window.DPG.cloud[c],c);}catch(e){}
     try{var s=JSON.parse(localStorage.getItem('dpg-kq')||'{}');
       if(hasData(s[c]))return norm(s[c],c);
     }catch(e){}
-    return KQ[c];
+    return {demo:false,numRounds:gV(c),rounds:{},final:[]};
+  }
+  function renderToggle(){
+    var L=giaiCur();if(!L.some(function(g){return g.id===cur.c}))cur.c=L[0].id;
+    tg.innerHTML=L.map(function(g){return '<button data-kq="'+esc(g.id)+'"'+(g.id===cur.c?' class="on"':'')+'>'+esc(g.ten)+'</button>'}).join('');
+    tg.querySelectorAll('button').forEach(function(b){b.onclick=function(){cur.c=b.dataset.kq;manual=false;manualTab=false;autoPick();renderToggle();render();};});
   }
   function esc(s){return String(s).replace(/[&<>]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})}
   function empty(t,s){return '<div class="card"><div class="kqempty"><div class="ei">♟</div><div class="et">'+t+'</div><div class="es">'+s+'</div></div></div>'}
@@ -1265,16 +1293,12 @@ var KQ={
     box.querySelectorAll('[data-back]').forEach(function(b){b.addEventListener('click',function(){if(window.__admBack)window.__admBack();location.hash='admin';})});
   }
   var manualTab=false;
-  ctab.forEach(function(b){b.addEventListener('click',function(){
-    cur.c=b.dataset.kq;manual=false;manualTab=false;autoPick();
-    ctab.forEach(function(x){x.classList.toggle('on',x===b)});render();
-  });});
-  window.__kqRefresh=function(){if(!manual)autoPick();render()};
+  window.__kqRefresh=function(){renderToggle();if(!manual)autoPick();render()};
   // Admin bấm "Xem tab Kết quả": mở đúng nội dung + vòng đang nhập
   window.__kqGo=function(c,r){cur.c=c;var d=getData(c);cur.r=r;cur.tab=bestTab(d.rounds[r]);manual=true;manualTab=false;goFlag=true;
-    ctab.forEach(function(x){x.classList.toggle('on',x.dataset.kq===c)});render();};
-  window.addEventListener('hashchange',function(){if(location.hash!=='#ket-qua')return;if(goFlag){goFlag=false;return;}manual=false;manualTab=false;autoPick();render();});
-  autoPick();render();
+    renderToggle();render();};
+  window.addEventListener('hashchange',function(){if(location.hash!=='#ket-qua')return;if(goFlag){goFlag=false;return;}manual=false;manualTab=false;renderToggle();autoPick();render();});
+  renderToggle();autoPick();render();
 })();
 
 /* ---- DANH SÁCH ĐĂNG KÝ: tự lấy từ Google Form (qua Apps Script, chỉ tên/chức vụ/đơn vị) ---- */
@@ -1491,7 +1515,10 @@ var KQ={
 
   function store(){try{return JSON.parse(localStorage.getItem('dpg-kq')||'{}')}catch(e){return{}}}
   function save(s){s._at=Date.now();try{localStorage.setItem('dpg-kq',JSON.stringify(s))}catch(e){}}
-  function numRounds(c){var s=store();return (s[c]&&s[c].numRounds)|| (window.KQ&&KQ[c].numRounds) ||7}
+  function GL(){return giaiList(store());}
+  function gFind(id){return GL().filter(function(g){return g.id===id})[0];}
+  function gName(id){var g=gFind(id);return g?g.ten:id;}
+  function numRounds(c){var g=gFind(c);return g?(+g.vong||9):9}
 
   function fillSelect(sel,arr,val){sel.innerHTML='';arr.forEach(function(o){var op=document.createElement('option');op.value=o[0];op.textContent=o[1];if(String(o[0])===String(val))op.selected=true;sel.appendChild(op)})}
   function refreshRoundSel(){
@@ -1558,7 +1585,7 @@ var KQ={
               if(d.vong&&d.vong!==r){
                 if(d.vong>=1&&d.vong<=+nSel.value){goRound(d.vong);r=d.vong;sw=' ↪ Đã chuyển sang Vòng '+r+' theo ảnh.';}
                 else warn+=' ⚠ Ảnh ghi Vòng '+d.vong+' nhưng giải chỉ có '+nSel.value+' vòng — kiểm tra lại.';}
-              if(d.nd&&((d.nd==='up')!==(cSel.value==='b')))warn+=' ⚠ Ảnh có vẻ là '+(d.nd==='up'?'Cờ tướng úp':'Cờ tướng')+' — kiểm tra ô "Nội dung".';
+              if(d.nd&&(cSel.value==='a'||cSel.value==='b')&&((d.nd==='up')!==(cSel.value==='b')))warn+=' ⚠ Ảnh có vẻ là '+(d.nd==='up'?'Cờ tướng úp':'Cờ tướng')+' — kiểm tra ô "Giải đấu".';
               if(md==='rank'){
                 var rows=(d.rows||[]).filter(function(x){return x&&x.n;});
                 if(!rows.length)throw new Error('Không thấy dòng xếp hạng nào trong ảnh');
@@ -1629,7 +1656,7 @@ var KQ={
     if(!s[c])s[c]={demo:false,numRounds:+nSel.value,rounds:{},final:[]};
     s[c].demo=false;s[c].rounds=s[c].rounds||{};var rd=s[c].rounds[r]||{draw:[],games:[]};
     rd.standings=rows;rd.standSrc='btc';s[c].rounds[r]=rd;save(s);loadStand();
-    pushStore(s,stOk,'xếp hạng Vòng '+r+' ('+(c==='a'?'Cờ tướng':'Cờ tướng úp')+')');
+    pushStore(s,stOk,'xếp hạng Vòng '+r+' ('+gName(c)+')');
   };
   document.getElementById('adm-stauto').onclick=function(){var b=document.querySelector('.aiphoto [data-ai="rank"]');if(b)b.click();};
 
@@ -1653,7 +1680,7 @@ var KQ={
     if(old.standSrc)nr.standSrc=old.standSrc;
     s[c].rounds[r]=nr;
     save(s);
-    var tag='Vòng '+r+' ('+(c==='a'?'Cờ tướng':'Cờ tướng úp')+')';
+    var tag='Vòng '+r+' ('+gName(c)+')';
     okMsg.style.color='var(--jade)';
     if(window.DPG&&window.DPG.push){
       okMsg.textContent='✓ Đã lưu '+tag+' trên máy này · đang đồng bộ lên máy chủ…';
@@ -1677,13 +1704,55 @@ var KQ={
     var done=x&&x.standings&&x.standings.length;nextBtn.hidden=!(done&&r<N);nextBtn.textContent='Sang nhập Vòng '+(r+1)+' ›';}
   nextBtn.onclick=function(){goRound(+rSel.value+1);window.scrollTo({top:document.getElementById('adm-round').getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'});};
   document.getElementById('adm-reset').onclick=function(){
-    if(confirmReset()){var z={_at:Date.now()};try{localStorage.setItem('dpg-kq',JSON.stringify(z))}catch(e){}
+    if(confirmReset()){var z={_at:Date.now()},og=store().giai;if(Array.isArray(og)&&og.length)z.giai=og;try{localStorage.setItem('dpg-kq',JSON.stringify(z))}catch(e){}
       if(window.DPG){window.DPG.cloud=z;if(window.DPG.push)window.DPG.push(z).catch(function(){});}
       okMsg.textContent='Đã xóa toàn bộ kết quả đã nhập.';if(window.__kqRefresh)window.__kqRefresh();loadRows();}
   };
   var _rc=0;function confirmReset(){_rc++;if(_rc<2){okMsg.textContent='Bấm "Xóa toàn bộ" lần nữa để xác nhận.';okMsg.style.color='var(--red)';setTimeout(function(){_rc=0;okMsg.style.color='var(--jade)'},3000);return false}_rc=0;okMsg.style.color='var(--jade)';return true}
 
-  cSel.onchange=function(){refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows()};
+  cSel.onchange=function(){applyGiai();refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();gForm.hidden=true;gMsg.textContent='';};
+  // ===== Giải đấu: tạo giải (tên + chốt số vòng), sửa tên, xóa; chọn giải để nhập =====
+  var gNew=document.getElementById('adm-gnew'),gForm=document.getElementById('adm-gform'),gTitle=document.getElementById('adm-gftitle'),
+      gNameI=document.getElementById('adm-gname'),gVong=document.getElementById('adm-gvong'),gOk=document.getElementById('adm-gok'),
+      gCancel=document.getElementById('adm-gcancel'),gDel=document.getElementById('adm-gdel'),gHint=document.getElementById('adm-ghint'),
+      gMsg=document.getElementById('adm-gmsg'),gInfo=document.getElementById('adm-ginfo'),gEdit=null;
+  function gHasData(id){var d=store()[id];return !!(d&&d.rounds&&Object.keys(d.rounds).some(function(k){var x=d.rounds[k];return x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length));}));}
+  function fillGiai(v){var L=GL();v=v||cSel.value;if(!L.some(function(g){return g.id===v}))v=L[0].id;
+    fillSelect(cSel,L.map(function(g){return [g.id,g.ten+' · '+g.vong+' vòng']}),v);applyGiai();}
+  function applyGiai(){var g=gFind(cSel.value)||GL()[0];fillSelect(nSel,[[g.vong,g.vong+' vòng']],g.vong);
+    gInfo.innerHTML='🔒 Đã chốt <b>'+g.vong+' vòng</b> thi đấu · <button type="button" id="adm-gedit">✎ Sửa giải</button>';
+    document.getElementById('adm-gedit').onclick=openEdit;}
+  function vongOpts(v){var a=[];for(var i=3;i<=11;i++)a.push([i,i+' vòng']);fillSelect(gVong,a,v);}
+  function gm(t,c){gMsg.style.color=c||'var(--jade)';gMsg.textContent=t;}
+  function openNew(){gEdit=null;gTitle.textContent='Tạo giải mới';gNameI.value='';vongOpts(9);gVong.disabled=false;
+    gOk.textContent='Tạo giải & chốt số vòng';gDel.hidden=true;gHint.textContent='Số vòng sẽ được chốt cố định cho giải này.';gForm.hidden=false;gm('');gNameI.focus();}
+  function openEdit(){var g=gFind(cSel.value);if(!g)return;gEdit=g.id;gTitle.textContent='Sửa giải';gNameI.value=g.ten;vongOpts(g.vong);
+    var locked=gHasData(g.id);gVong.disabled=locked;gOk.textContent='Lưu thay đổi';gDel.hidden=GL().length<2;gDel.dataset.c='';gDel.textContent='Xóa giải này';
+    gHint.textContent=locked?'🔒 Giải đã có kết quả nên số vòng bị khóa, chỉ sửa được tên.':'Giải chưa có kết quả nên còn đổi được số vòng.';gForm.hidden=false;gm('');}
+  gNew.onclick=function(){if(!gForm.hidden&&!gEdit){gForm.hidden=true;return;}openNew();};
+  gCancel.onclick=function(){gForm.hidden=true;gm('');};
+  gOk.onclick=function(){
+    var ten=gNameI.value.trim().replace(/\s+/g,' '),v=+gVong.value;
+    if(!ten){gHint.style.color='var(--red)';gHint.textContent='Nhập tên giải.';gNameI.focus();return;}
+    var s=store(),L=giaiList(s).map(function(g){return {id:g.id,ten:g.ten,vong:+g.vong||9}}),id;
+    if(L.some(function(g){return g.id!==gEdit&&kn(g.ten)===kn(ten)})){gHint.style.color='var(--red)';gHint.textContent='Đã có giải tên này.';return;}
+    gHint.style.color='';
+    if(gEdit){var e=L.filter(function(x){return x.id===gEdit})[0];e.ten=ten;if(!gVong.disabled&&!gHasData(gEdit))e.vong=v;id=gEdit;}
+    else{id='g'+Date.now().toString(36);L.push({id:id,ten:ten,vong:v});}
+    var g=L.filter(function(x){return x.id===id})[0];
+    s.giai=L;s[id]=s[id]||{demo:false,rounds:{},final:[]};s[id].numRounds=g.vong;s[id].name=g.ten;
+    save(s);gForm.hidden=true;fillGiai(id);refreshRoundSel();rSel.value=String(workRound(id));loadRows();
+    pushStore(s,gMsg,(gEdit?'thay đổi giải “':'giải mới “')+g.ten+'” · '+g.vong+' vòng');
+  };
+  gDel.onclick=function(){
+    if(gDel.dataset.c!=='1'){gDel.dataset.c='1';gDel.textContent=gHasData(gEdit)?'Bấm lần nữa để XÓA giải và toàn bộ kết quả của giải':'Bấm lần nữa để xóa giải';
+      setTimeout(function(){gDel.dataset.c='';gDel.textContent='Xóa giải này';},4000);return;}
+    var s=store(),L=giaiList(s).filter(function(g){return g.id!==gEdit}),ten=gName(gEdit);if(!L.length)return;
+    s.giai=L.map(function(g){return {id:g.id,ten:g.ten,vong:+g.vong||9}});delete s[gEdit];save(s);gForm.hidden=true;
+    fillGiai(L[0].id);refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();pushStore(s,gMsg,'xóa giải “'+ten+'”');
+  };
+  window.__admGiaiRefresh=function(){if(panel.hidden||!gForm.hidden)return;var v=cSel.value,before=cSel.innerHTML;fillGiai(v);
+    if(cSel.value!==v){refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();}else if(before!==cSel.innerHTML)refreshRoundSel();};
   nSel.onchange=function(){var s=store(),c=cSel.value;if(s[c]){s[c].numRounds=+nSel.value;save(s)}refreshRoundSel();loadRows()};
   rSel.onchange=loadRows;
 
@@ -2029,8 +2098,7 @@ var KQ={
   };
 
   function initPanel(){
-    var nArr=[];for(var i=3;i<=11;i++)nArr.push([i,i+' vòng']);
-    fillSelect(nSel,nArr,numRounds(cSel.value));
+    fillGiai();
     refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();prefillLinks();invRender();invgenRender();ldRender();
   }
   function unlock(){gate.hidden=true;panel.hidden=false;initPanel();try{sessionStorage.setItem('dpg-adm','1')}catch(e){}
@@ -2719,7 +2787,7 @@ var XQ=(function(){
   // Kết quả lưu lên máy chủ dạng chuỗi JSON (Firestore không nhận mảng lồng nhau như [[tên,đơn vị,…]]).
   function kqDec(d){if(!d)return null;if(typeof d.json==='string'){try{return JSON.parse(d.json)}catch(e){return null}}return d;}
   function kqLoc(){try{return JSON.parse(localStorage.getItem('dpg-kq')||'null')}catch(e){return null}}
-  function kqHas(x){function h(o){return o&&o.rounds&&Object.keys(o.rounds).some(function(k){var r=o.rounds[k];return r&&((r.draw&&r.draw.length)||(r.games&&r.games.length)||(r.standings&&r.standings.length))});}return !!(x&&(h(x.a)||h(x.b)));}
+  function kqHas(x){function h(o){return o&&o.rounds&&Object.keys(o.rounds).some(function(k){var r=o.rounds[k];return r&&((r.draw&&r.draw.length)||(r.games&&r.games.length)||(r.standings&&r.standings.length))});}return !!(x&&Object.keys(x).some(function(k){return k!=='giai'&&k!=='_at'&&h(x[k]);}));}
   function syncNote(txt,color){var el=document.getElementById('adm-sync');if(el){el.innerHTML=txt;if(color)el.style.color=color;}}
   if(typeof firebase==='undefined'||!firebase.firestore){return;} // SDK bị chặn (vd khi xem trên claude.ai) -> dùng bản lưu máy
   try{
@@ -2742,6 +2810,7 @@ var XQ=(function(){
         try{localStorage.setItem('dpg-kq',JSON.stringify(cloud||{}));}catch(e){}
       }
       if(window.__kqRefresh)window.__kqRefresh();
+      if(window.__admGiaiRefresh)window.__admGiaiRefresh();
       syncNote('● <b>Đã kết nối trực tiếp</b> — kết quả nhập xong hiện ngay cho mọi người.','var(--jade)');
     },function(err){
       syncNote('● Chưa kết nối được máy chủ. Đang lưu <b>trên máy này</b>, thử lại khi có mạng.','var(--red)');
