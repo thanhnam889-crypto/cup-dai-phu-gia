@@ -193,7 +193,7 @@ function doPost(e) {
     if (req.t === 'board') return json_(readBoard_(req));
     if (req.t === 'kq') return json_(readKq_(req));
     if (req.t === 'rank') return json_(readRank_(req));
-    if (req.t === 'ping') return json_({ ok: true, ai: 3 });
+    if (req.t === 'ping') return json_(req.list ? { ok: true, ai: 4, models: listModels_() } : { ok: true, ai: 4 });
     return json_({ error: 'Yêu cầu không được hỗ trợ' });
   } catch (x) { return json_({ error: String((x && x.message) || x) }); }
 }
@@ -233,10 +233,19 @@ function callModel_(model, key, body) {
   return { ok: false, err: msg, retry: retry, code: code };
 }
 
-function gemini_(parts, schema) {
+// Danh sách model Gemini dùng được với key này (chẩn đoán)
+function listModels_() {
+  var key = geminiKey_();if (!key) return [];
+  var r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(key), { muteHttpExceptions: true });
+  try { return (JSON.parse(r.getContentText()).models || []).filter(function (m) { return (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0; })
+    .map(function (m) { return String(m.name).replace('models/', ''); }); } catch (x) { return []; }
+}
+
+function gemini_(parts, schema, opt) {
+  opt = opt || {};
   var key = geminiKey_();
   if (!key) throw new Error('Chưa dán GEMINI_API_KEY trong Apps Script');
-  var first = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL') || GEMINI_MODEL;
+  var first = opt.model || PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL') || GEMINI_MODEL;
   var cache = CacheService.getScriptCache(), sticky = cache.get('okModel');
   // Thứ tự: model chính -> model vừa chạy tốt -> các model dự phòng; bỏ qua model vừa lỗi (chính: né 5 phút, khác: 30 phút)
   var all = [first].concat(sticky ? [sticky] : []).concat(GEMINI_FALLBACK).filter(function (m, k, a) { return a.indexOf(m) === k; });
@@ -244,10 +253,14 @@ function gemini_(parts, schema) {
   if (!models.length) models = all;
   var body = { contents: [{ parts: parts }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } };
   if (schema) body.generationConfig.responseSchema = schema;
+  if (opt.think) body.generationConfig.thinkingConfig = { thinkingBudget: opt.think };
   var d = null, lastErr = '';
   lastErrs_ = [];
   for (var i = 0; i < models.length && !d; i++) {
     var t0 = Date.now(), res = callModel_(models[i], key, body);
+    if (!res.ok && res.code === 400 && body.generationConfig.thinkingConfig && /think/i.test(res.err)) { // model không hỗ trợ "suy nghĩ" -> gọi lại bình thường
+      var b2 = JSON.parse(JSON.stringify(body)); delete b2.generationConfig.thinkingConfig; res = callModel_(models[i], key, b2);
+    }
     if (res.ok) {
       d = res.data; lastModel_ = models[i];
       try { if (models[i] !== first) cache.put('okModel', models[i], 21600); else cache.remove('okModel'); } catch (x) {}
@@ -268,36 +281,49 @@ function gemini_(parts, schema) {
   }
 }
 
-/* --- Đọc ảnh bàn cờ -> 10 hàng x 9 cột --- */
+/* --- Đọc ảnh bàn cờ -> danh sách quân + toạ độ -> 10 hàng x 9 cột --- */
 function readBoard_(req) {
   if (!req.image) return { error: 'Thiếu ảnh' };
   if (!limit_(req.dev, 'board', 40)) return { error: 'Máy này đã dùng nhiều lượt AI, vui lòng thử lại sau vài giờ.' };
   var prompt = [
-    'You are an expert Xiangqi (Chinese chess) position reader. The image shows a Xiangqi board',
-    '(a real board with round pieces, a printed diagram, or an app screenshot). Read EVERY piece and its exact point.',
-    'Geometry: 9 vertical lines (files) x 10 horizontal lines (ranks). Pieces sit ON the line intersections, not inside squares.',
-    'The river (楚河 漢界 or a blank band) separates the 5th and 6th horizontal lines.',
-    'Return JSON only: {"rows":[10 strings],"red_side":"bottom"|"top","note":"short note about anything uncertain, in Vietnamese"}.',
-    '- rows[0] = the horizontal line nearest the TOP of the image, rows[9] = nearest the BOTTOM.',
-    '- Each string has exactly 9 characters, LEFT to RIGHT as seen in the image.',
-    '- If the photo is rotated so that the river is vertical, first rotate the board mentally so that the river is horizontal.',
-    '- Letters: K=general (帥 帅 將 将), A=advisor (仕 士), B=elephant (相 象), N=horse (傌 馬 马), R=chariot (俥 車 车),',
-    '  C=cannon (炮 砲 包), P=soldier (兵 卒). UPPERCASE = RED pieces, lowercase = BLACK pieces (black / dark green / dark blue).',
-    '  Decide the side by the COLOR of the piece/character, not by the character alone. Use "." for an empty point.',
-    '- Ignore captured pieces placed outside the board.',
-    '- Sanity: each side has exactly 1 general inside its own palace, at most 2 advisors, 2 elephants, 2 horses, 2 chariots, 2 cannons, 5 soldiers.',
-    '- red_side = whether the RED general/palace is at the top or bottom of the image.'
+    'You are an expert Xiangqi (Chinese chess) position reader. The image shows ONE Xiangqi board: a real board with round pieces,',
+    'a printed diagram, or an app screenshot. It is usually a MIDDLE-GAME position: many pieces may have been captured and the',
+    'remaining pieces can stand anywhere. NEVER assume or "complete" the standard opening setup — report only pieces you actually see.',
+    '',
+    'Grid: 9 vertical lines x 10 horizontal lines. Pieces sit ON the intersections. The river (楚河 漢界 or a blank band) lies between',
+    'the 5th and 6th horizontal lines. Ignore captured pieces lying outside the grid.',
+    '',
+    'Work carefully, piece by piece:',
+    '1) Find the grid as seen in the image (the board may be rotated or photographed from either side — use the image as it is).',
+    '2) For EACH piece on the grid give: "p" = letter, "c" = vertical line number counted from the LEFT edge of the grid (1..9),',
+    '   "r" = horizontal line number counted from the TOP edge of the grid (1..10). Count the lines; use palace diagonals and the river as checkpoints.',
+    '3) If the river runs vertically in the image (board turned sideways), set "rotated": true and still use c = column from the left (1..10),',
+    '   r = row from the top (1..9) of the image as seen.',
+    'Letters: K general (帥 帅 將 将), A advisor (仕 士), B elephant (相 象), N horse (傌 馬 马), R chariot (俥 車 车), C cannon (炮 砲 包), P soldier (兵 卒).',
+    'UPPERCASE = RED side, lowercase = BLACK side (black / dark blue / dark green). Decide the side by the COLOUR of the piece, not by the character.',
+    'Sanity: each side has exactly 1 general inside its palace (3x3 area with diagonals), at most 2 A, 2 B, 2 N, 2 R, 2 C, 5 P; A and B stay on their own half.',
+    'red_side = "bottom" or "top": where the RED general/palace is in the image.',
+    'Return JSON only. note = short Vietnamese note about anything uncertain (empty if none).'
   ].join('\n');
   var schema = { type: 'OBJECT', properties: {
-      rows: { type: 'ARRAY', items: { type: 'STRING' } },
+      pieces: { type: 'ARRAY', items: { type: 'OBJECT', properties: { p: { type: 'STRING' }, c: { type: 'INTEGER' }, r: { type: 'INTEGER' } }, required: ['p', 'c', 'r'] } },
+      rotated: { type: 'BOOLEAN' },
       red_side: { type: 'STRING', enum: ['bottom', 'top'] },
-      note: { type: 'STRING' } }, required: ['rows', 'red_side'] };
-  var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema);
-  var rows = (o.rows || []).slice(0, 12).map(function (s) {
-    return String(s || '').replace(/[1-9]/g, function (n) { return new Array(+n + 1).join('.'); })
-      .replace(/[-_0·*+x]/g, '.').replace(/[^KABNRCPkabnrcp.]/g, '');
+      note: { type: 'STRING' } }, required: ['pieces', 'red_side'] };
+  var opt = { think: 4096 };
+  var bm = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD');if (bm) opt.model = bm;
+  if (req.dev === 'kan-test-201278' && req.mdl && /^[\w.-]+$/.test(req.mdl)) opt.model = req.mdl;   // chỉ để BTC thử model
+  if (req.dev === 'kan-test-201278' && req.think != null) opt.think = +req.think;
+  var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema, opt);
+  var rot = !!o.rotated, H = rot ? 9 : 10, Wd = rot ? 10 : 9, grid = [], k, used = {};
+  for (k = 0; k < H; k++) grid.push(new Array(Wd + 1).join('.').split(''));
+  (o.pieces || []).forEach(function (q) {
+    var p = String(q.p || '').trim().charAt(0), c = +q.c, r = +q.r;
+    if (!/[KABNRCPkabnrcp]/.test(p) || !(c >= 1 && c <= Wd) || !(r >= 1 && r <= H)) return;
+    var key = r + '_' + c; if (used[key]) return; used[key] = 1; grid[r - 1][c - 1] = p;
   });
-  return { ok: true, rows: rows, red: o.red_side === 'top' ? 'top' : 'bottom', note: String(o.note || '').slice(0, 300) };
+  var rows = grid.map(function (a) { return a.join(''); });
+  return { ok: true, rows: rows, red: o.red_side === 'top' ? 'top' : 'bottom', note: String(o.note || '').slice(0, 300), n: (o.pieces || []).length, model: lastModel_ };
 }
 
 /* --- Đọc ảnh biên bản kết quả 1 vòng --- */
