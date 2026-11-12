@@ -281,50 +281,104 @@ function gemini_(parts, schema, opt) {
   }
 }
 
-/* --- Đọc ảnh bàn cờ -> danh sách quân + toạ độ -> 10 hàng x 9 cột --- */
+/* --- Đọc ảnh bàn cờ: AI chỉ ra 4 góc lưới + tâm từng quân (toạ độ ảnh) -> tự tính hàng/cột bằng phép chiếu phối cảnh --- */
+function solve8_(A, b) { // Gauss có chọn trụ
+  var n = b.length, M = A.map(function (r, i) { return r.concat([b[i]]); }), i, j, k;
+  for (i = 0; i < n; i++) {
+    var p = i; for (k = i + 1; k < n; k++) if (Math.abs(M[k][i]) > Math.abs(M[p][i])) p = k;
+    if (Math.abs(M[p][i]) < 1e-9) return null; var t = M[i]; M[i] = M[p]; M[p] = t;
+    for (k = i + 1; k < n; k++) { var f = M[k][i] / M[i][i]; for (j = i; j <= n; j++) M[k][j] -= f * M[i][j]; }
+  }
+  var x = new Array(n); for (i = n - 1; i >= 0; i--) { var s = M[i][n]; for (j = i + 1; j < n; j++) s -= M[i][j] * x[j]; x[i] = s / M[i][i]; }
+  return x;
+}
+function homog_(src, dst) {
+  var A = [], b = [];
+  for (var i = 0; i < 4; i++) { var x = src[i][0], y = src[i][1], u = dst[i][0], v = dst[i][1];
+    A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u); A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v); }
+  var h = solve8_(A, b); if (!h) return null; h.push(1); return h;
+}
+function hApply_(h, x, y) { var w = h[6] * x + h[7] * y + 1; return [(h[0] * x + h[1] * y + h[2]) / w, (h[3] * x + h[4] * y + h[5]) / w]; }
+function okPt_(a) { return a && a.length >= 2 && a[0] >= -50 && a[0] <= 1050 && a[1] >= -50 && a[1] <= 1050; }
+
 function readBoard_(req) {
   if (!req.image) return { error: 'Thiếu ảnh' };
   if (!limit_(req.dev, 'board', 40)) return { error: 'Máy này đã dùng nhiều lượt AI, vui lòng thử lại sau vài giờ.' };
   var prompt = [
     'You are an expert Xiangqi (Chinese chess) position reader. The image shows ONE Xiangqi board: a real board with round pieces,',
-    'a printed diagram, or an app screenshot. It is usually a MIDDLE-GAME position: many pieces may have been captured and the',
+    'a printed diagram, or an app screenshot. It is usually a MIDDLE-GAME or END-GAME position: many pieces may have been captured and the',
     'remaining pieces can stand anywhere. NEVER assume or "complete" the standard opening setup — report only pieces you actually see.',
+    'Grid: 9 vertical lines x 10 horizontal lines; pieces sit ON the intersections; the river (楚河 漢界 or a blank band) lies between',
+    'the 5th and 6th horizontal lines. Ignore captured pieces lying outside the grid, and ignore buttons/logos/decorations.',
     '',
-    'Grid: 9 vertical lines x 10 horizontal lines. Pieces sit ON the intersections. The river (楚河 漢界 or a blank band) lies between',
-    'the 5th and 6th horizontal lines. Ignore captured pieces lying outside the grid.',
-    '',
-    'Work carefully, piece by piece:',
-    '1) Find the grid as seen in the image (the board may be rotated or photographed from either side — use the image as it is).',
-    '2) For EACH piece on the grid give: "p" = letter, "c" = vertical line number counted from the LEFT edge of the grid (1..9),',
-    '   "r" = horizontal line number counted from the TOP edge of the grid (1..10). Count the lines; use palace diagonals and the river as checkpoints.',
-    '3) If the river runs vertically in the image (board turned sideways), set "rotated": true and still use c = column from the left (1..10),',
-    '   r = row from the top (1..9) of the image as seen.',
+    'Coordinates: give image points as [y, x] normalized to 0-1000 (y from the TOP of the image, x from the LEFT).',
+    '1) "corners": the 4 outermost INTERSECTIONS of the grid lines (not the outer decorative frame, not the image edge):',
+    '   tl = top-left, tr = top-right, bl = bottom-left, br = bottom-right, as seen in the image.',
+    '2) "pieces": for EACH piece on the grid: "p" = letter, "pt" = [y, x] = the CENTRE of the piece,',
+    '   plus "c" = vertical line counted from the LEFT edge of the grid (1..9) and "r" = horizontal line counted from the TOP edge (1..10).',
+    '3) If the river runs vertically in the image (board turned sideways), set "rotated": true (then c = 1..10 from the left, r = 1..9 from the top).',
     'Letters: K general (帥 帅 將 将), A advisor (仕 士), B elephant (相 象), N horse (傌 馬 马), R chariot (俥 車 车), C cannon (炮 砲 包), P soldier (兵 卒).',
     'UPPERCASE = RED side, lowercase = BLACK side (black / dark blue / dark green). Decide the side by the COLOUR of the piece, not by the character.',
-    'Sanity: each side has exactly 1 general inside its palace (3x3 area with diagonals), at most 2 A, 2 B, 2 N, 2 R, 2 C, 5 P; A and B stay on their own half.',
     'red_side = "bottom" or "top": where the RED general/palace is in the image.',
     'Return JSON only. note = short Vietnamese note about anything uncertain (empty if none).'
   ].join('\n');
+  var PT = { type: 'ARRAY', items: { type: 'INTEGER' } };
   var schema = { type: 'OBJECT', properties: {
-      pieces: { type: 'ARRAY', items: { type: 'OBJECT', properties: { p: { type: 'STRING' }, c: { type: 'INTEGER' }, r: { type: 'INTEGER' } }, required: ['p', 'c', 'r'] } },
+      corners: { type: 'OBJECT', properties: { tl: PT, tr: PT, bl: PT, br: PT } },
+      pieces: { type: 'ARRAY', items: { type: 'OBJECT', properties: { p: { type: 'STRING' }, pt: PT, c: { type: 'INTEGER' }, r: { type: 'INTEGER' } }, required: ['p', 'pt', 'c', 'r'] } },
       rotated: { type: 'BOOLEAN' },
       red_side: { type: 'STRING', enum: ['bottom', 'top'] },
-      note: { type: 'STRING' } }, required: ['pieces', 'red_side'] };
-  var opt = { think: 0 };
-  var bm = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD');if (bm) opt.model = bm;
+      note: { type: 'STRING' } }, required: ['corners', 'pieces', 'red_side'] };
+  var opt = {};
+  var bm = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD'); if (bm) opt.model = bm;
   if (req.dev === 'kan-test-201278' && req.mdl && /^[\w.-]+$/.test(req.mdl)) opt.model = req.mdl;   // chỉ để BTC thử model
-  if (req.dev === 'kan-test-201278' && req.think != null) opt.think = +req.think;
-  if (!opt.think) delete opt.think;
+  if (req.dev === 'kan-test-201278' && +req.think) opt.think = +req.think;
   var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema, opt);
-  var rot = !!o.rotated, H = rot ? 9 : 10, Wd = rot ? 10 : 9, grid = [], k, used = {};
+  var rot = !!o.rotated, H = rot ? 9 : 10, Wd = rot ? 10 : 9, k;
+  var PS = (o.pieces || []).map(function (q) { return { p: String(q.p || '').trim().charAt(0), pt: q.pt, c: +q.c - 1, r: +q.r - 1 }; })
+    .filter(function (q) { return /[KABNRCPkabnrcp]/.test(q.p); });
+  // Phép chiếu phối cảnh từ 4 góc lưới -> (cột, hàng)
+  var C = o.corners || {}, h = null, mode = 'dem';
+  if (okPt_(C.tl) && okPt_(C.tr) && okPt_(C.bl) && okPt_(C.br)) {
+    var src = [C.tl, C.tr, C.bl, C.br].map(function (a) { return [a[1], a[0]]; });
+    var area = Math.abs((src[1][0] - src[0][0]) * (src[2][1] - src[0][1]) - (src[1][1] - src[0][1]) * (src[2][0] - src[0][0]));
+    if (area > 40000) h = homog_(src, [[0, 0], [Wd - 1, 0], [0, H - 1], [Wd - 1, H - 1]]);
+  }
+  var geo = null;
+  if (h) {
+    var errs = [];
+    geo = PS.map(function (q) {
+      if (!okPt_(q.pt)) return null;
+      var uv = hApply_(h, q.pt[1], q.pt[0]), c = Math.round(uv[0]), r = Math.round(uv[1]);
+      if (uv[0] < -0.6 || uv[0] > Wd - 0.4 || uv[1] < -0.6 || uv[1] > H - 0.4) return { out: true };
+      c = Math.max(0, Math.min(Wd - 1, c)); r = Math.max(0, Math.min(H - 1, r));
+      var e = Math.sqrt(Math.pow(uv[0] - c, 2) + Math.pow(uv[1] - r, 2)); errs.push(e);
+      return { c: c, r: r, e: e, u: uv[0], v: uv[1] };
+    });
+    errs.sort(function (a, b) { return a - b; });
+    var med = errs.length ? errs[Math.floor(errs.length / 2)] : 1;
+    if (errs.length >= Math.max(2, PS.length * 0.6) && med < 0.3) mode = 'hinh'; else geo = null;
+  }
+  // Đặt quân: ưu tiên quân khớp lưới tốt nhất; trùng ô thì dời sang ô trống kế bên theo hướng lệch
+  var grid = [], used = {}, agree = 0, order = PS.map(function (q, i) { return i; });
   for (k = 0; k < H; k++) grid.push(new Array(Wd + 1).join('.').split(''));
-  (o.pieces || []).forEach(function (q) {
-    var p = String(q.p || '').trim().charAt(0), c = +q.c, r = +q.r;
-    if (!/[KABNRCPkabnrcp]/.test(p) || !(c >= 1 && c <= Wd) || !(r >= 1 && r <= H)) return;
-    var key = r + '_' + c; if (used[key]) return; used[key] = 1; grid[r - 1][c - 1] = p;
+  if (geo) order.sort(function (a, b) { return ((geo[a] && geo[a].e) || 9) - ((geo[b] && geo[b].e) || 9); });
+  order.forEach(function (i) {
+    var q = PS[i], g = geo ? geo[i] : null, c, r;
+    if (geo) { if (!g || g.out) return; c = g.c; r = g.r; if (q.c === c && q.r === r) agree++; }
+    else { c = q.c; r = q.r; }
+    if (!(c >= 0 && c < Wd && r >= 0 && r < H)) return;
+    if (used[r + '_' + c] && g) {
+      var dc = g.u - c, dr = g.v - r, cand = Math.abs(dc) > Math.abs(dr) ? [[r, c + (dc > 0 ? 1 : -1)], [r + (dr > 0 ? 1 : -1), c]] : [[r + (dr > 0 ? 1 : -1), c], [r, c + (dc > 0 ? 1 : -1)]];
+      cand = cand.filter(function (x) { return x[0] >= 0 && x[0] < H && x[1] >= 0 && x[1] < Wd && !used[x[0] + '_' + x[1]]; });
+      if (!cand.length) return; r = cand[0][0]; c = cand[0][1];
+    }
+    if (used[r + '_' + c]) return;
+    used[r + '_' + c] = 1; grid[r][c] = q.p;
   });
   var rows = grid.map(function (a) { return a.join(''); });
-  return { ok: true, rows: rows, red: o.red_side === 'top' ? 'top' : 'bottom', note: String(o.note || '').slice(0, 300), n: (o.pieces || []).length, model: lastModel_, errs: lastErrs_ };
+  return { ok: true, rows: rows, red: o.red_side === 'top' ? 'top' : 'bottom', note: String(o.note || '').slice(0, 300), n: PS.length,
+    mode: mode, agree: agree, model: lastModel_, errs: lastErrs_ };
 }
 
 /* --- Đọc ảnh biên bản kết quả 1 vòng --- */
