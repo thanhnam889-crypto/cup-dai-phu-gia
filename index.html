@@ -3001,7 +3001,7 @@ var XQ=(function(){
   }
   window.addEventListener('hashchange',openShared);
 
-  /* ---------- Phòng bình luận chung: đồng bộ trực tiếp qua Firebase (rooms/{mã}) ---------- */
+  /* ---------- Phòng bình luận chung: đồng bộ trực tiếp qua Firebase (app/rooms/r/{mã}) ---------- */
   var RM=null,CID=(function(){var c='';try{c=sessionStorage.getItem('dpg-cid')||'';if(!c){c=Math.random().toString(36).slice(2,10);sessionStorage.setItem('dpg-cid',c);}}catch(e){c=Math.random().toString(36).slice(2,10);}return c;})();
   function myName(){var v='';try{v=localStorage.getItem('dpg-bl-name')||''}catch(e){}return String(v).trim().slice(0,24)||'Khách';}
   function fsReady(cb,n){if(window.DPG&&window.DPG.fs)return cb(window.DPG.fs);if((n||0)>30)return cb(null);setTimeout(function(){fsReady(cb,(n||0)+1)},200);}
@@ -3034,7 +3034,7 @@ var XQ=(function(){
     fsReady(function(fs){
       if(!fs){if(!auto)msg('Không kết nối được máy chủ phòng — kiểm tra mạng rồi thử lại.','var(--red)');return;}
       leaveRoom(true);
-      var ref=fs.collection('rooms').doc(id),js0=JSON.stringify(dump());
+      var ref=fs.collection('app').doc('rooms').collection('r').doc(id),js0=JSON.stringify(dump()); // nằm trong nhánh app/ (đã mở quyền)
       var start=create?ref.set({v:1,json:js0,at:Date.now(),by:myName(),cid:CID,created:Date.now()})
         :ref.get().then(function(sn){if(!sn.exists)throw new Error('notfound');return sn;});
       if(!auto)msg(create?'Đang tạo phòng…':'Đang vào phòng '+esc(id)+'…');
@@ -3063,7 +3063,7 @@ var XQ=(function(){
       },function(e){
         var nf=e&&e.message==='notfound';
         var pd=e&&/permission/i.test(String(e.code||e.message));
-        if(!auto)msg(nf?('Không có phòng <b>'+esc(id)+'</b> — kiểm tra lại mã.'):pd?'Máy chủ chưa mở quyền cho phòng bình luận — báo Ban tổ chức (cần mở quyền “rooms” trong Firebase).':('Không vào được phòng: '+esc((e&&(e.code||e.message))||e)),'var(--red)');
+        if(!auto)msg(nf?('Không có phòng <b>'+esc(id)+'</b> — kiểm tra lại mã.'):pd?'Máy chủ chưa cho phép tạo phòng bình luận — báo Ban tổ chức.':('Không vào được phòng: '+esc((e&&(e.code||e.message))||e)),'var(--red)');
         if(nf||auto)try{localStorage.removeItem('dpg-bl-room')}catch(x){}
       });
     });

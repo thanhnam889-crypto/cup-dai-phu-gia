@@ -333,18 +333,29 @@ function readBoard_(req) {
       red_side: { type: 'STRING', enum: ['bottom', 'top'] },
       note: { type: 'STRING' } }, required: ['corners', 'pieces', 'red_side'] };
   // Đọc bàn cờ: gemini-3.5-flash đọc toạ độ chính xác (~20–30 giây); bận thì chuyển sang bản nhẹ (đổi bằng Script Property GEMINI_MODEL_BOARD)
-  var opt = { model: PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD') || 'gemini-3.5-flash', maxTokens: 4096,
+  var opt = { model: PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD') || 'gemini-3.5-flash', maxTokens: 8192,
     fallback: ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest'],
-    salvage: function (t) { // câu trả lời bị cắt giữa chừng -> lấy những quân đã đọc được
-      var ps = [], re = /\{\s*"p"\s*:\s*"([KABNRCPkabnrcp])"\s*,\s*"y"\s*:\s*(\d+)\s*,\s*"x"\s*:\s*(\d+)\s*,\s*"c"\s*:\s*(\d+)\s*,\s*"r"\s*:\s*(\d+)\s*\}/g, m;
-      while ((m = re.exec(t)) && ps.length < 32) ps.push({ p: m[1], y: +m[2], x: +m[3], c: +m[4], r: +m[5] });
-      var cm = {}; ['tl', 'tr', 'bl', 'br'].forEach(function (k) { var mm = new RegExp('"' + k + '"\\s*:\\s*\\{\\s*"y"\\s*:\\s*(\\d+)\\s*,\\s*"x"\\s*:\\s*(\\d+)').exec(t); if (mm) cm[k] = { y: +mm[1], x: +mm[2] }; });
+    think: 2048,
+    salvage: function (t) { // câu trả lời bị cắt giữa chừng -> lấy những quân đã đọc được (không phụ thuộc thứ tự khoá)
+      var ps = [], objs = t.match(/\{[^{}]*"p"\s*:\s*"[KABNRCPkabnrcp]"[^{}]*\}/g) || [];
+      objs.forEach(function (o) { if (ps.length >= 32) return;
+        function g(k) { var m = new RegExp('"' + k + '"\\s*:\\s*(-?\\d+)').exec(o); return m ? +m[1] : null; }
+        var p = /"p"\s*:\s*"([KABNRCPkabnrcp])"/.exec(o)[1], q = { p: p, y: g('y'), x: g('x'), c: g('c'), r: g('r') };
+        if (q.c != null && q.r != null) ps.push(q); });
+      var cm = {}; ['tl', 'tr', 'bl', 'br'].forEach(function (k) { var mm = new RegExp('"' + k + '"\\s*:\\s*\\{([^{}]*)\\}').exec(t);
+        if (mm) { var y = /"y"\s*:\s*(\d+)/.exec(mm[1]), x = /"x"\s*:\s*(\d+)/.exec(mm[1]); if (y && x) cm[k] = { y: +y[1], x: +x[1] }; } });
       var rs = /"red_side"\s*:\s*"(top|bottom)"/.exec(t);
       return ps.length ? { pieces: ps, corners: cm, red_side: rs ? rs[1] : 'bottom', note: 'AI trả lời bị ngắt — có thể thiếu quân' } : null;
     } };
   if (req.dev === 'kan-test-201278' && req.mdl && /^[\w.-]+$/.test(req.mdl)) opt.model = req.mdl;   // chỉ để BTC thử model
-  if (req.dev === 'kan-test-201278' && +req.think) opt.think = +req.think;
-  var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema, opt);
+  if (req.dev === 'kan-test-201278' && req.think != null) opt.think = +req.think;
+  if (!opt.think) delete opt.think;
+  var parts = [{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], o;
+  try { o = gemini_(parts, schema, opt); }
+  catch (e) { // model chính trả lời hỏng -> đọc lại bằng bản nhẹ
+    if (!/không đọc được/.test(String(e && e.message))) throw e;
+    o = gemini_(parts, schema, { model: 'gemini-3.5-flash-lite', fallback: ['gemini-3.1-flash-lite', 'gemini-flash-lite-latest'], maxTokens: 8192, salvage: opt.salvage });
+  }
   var rot = !!o.rotated, H = rot ? 9 : 10, Wd = rot ? 10 : 9, k;
   var PS = (o.pieces || []).slice(0, 40).map(function (q) { return { p: String(q.p || '').trim().charAt(0), pt: (q.y != null && q.x != null) ? [+q.y, +q.x] : q.pt, c: +q.c - 1, r: +q.r - 1 }; })
     .filter(function (q) { return /[KABNRCPkabnrcp]/.test(q.p); });
