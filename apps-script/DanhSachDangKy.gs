@@ -20,16 +20,36 @@ var SHEET_ID = ''; // để trống = dùng chính file đang gắn script (khuy
 var GEMINI_API_KEY = 'DAN_KEY_GEMINI_VAO_DAY';
 var GEMINI_MODEL = 'gemini-3.8-flash';
 
-function doGet() {
+// Đếm người đang dùng app: mỗi máy gửi kèm mã máy khi tải danh sách (app tự tải lại mỗi 5 phút khi đang mở)
+function presence_(dev) {
+  var c = CacheService.getScriptCache(), lock = LockService.getScriptLock(), now = Date.now(), r = { on: 0, day: 0, peak: 0 };
+  try { lock.waitLock(3000); } catch (x) { return null; }
+  try {
+    var m = {}; try { m = JSON.parse(c.get('pres') || '{}'); } catch (x) {}
+    m[dev] = now; var keep = {};
+    Object.keys(m).forEach(function (k) { if (now - m[k] < 7 * 60000) { keep[k] = m[k]; r.on++; } });
+    c.put('pres', JSON.stringify(keep), 21600);
+    var dk = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMdd'), d = {};
+    try { d = JSON.parse(c.get('day_' + dk) || '{}'); } catch (x) {}
+    d[dev] = 1; c.put('day_' + dk, JSON.stringify(d), 21600); r.day = Object.keys(d).length;
+    var pk = +(c.get('peak_' + dk) || 0); if (r.on > pk) { pk = r.on; } c.put('peak_' + dk, String(pk), 21600); r.peak = pk;
+  } finally { lock.releaseLock(); }
+  return r;
+}
+
+function doGet(e) {
+  var dev = String((e && e.parameter && e.parameter.dev) || '').replace(/[^a-z0-9]/gi, '').slice(0, 24), pres = null;
+  if (dev) { try { pres = presence_(dev); } catch (x) {} }
   var cache = CacheService.getScriptCache();
   var hit = cache.get('reg');
-  if (hit) return out_(hit);
+  if (hit) { if (!pres) return out_(hit); try { var o = JSON.parse(hit); o.online = pres.on; o.today = pres.day; o.peak = pres.peak; return out_(JSON.stringify(o)); } catch (x) { return out_(hit); } }
   var data;
   try { data = build_(); } catch (e) { data = { updated: null, count: 0, list: [], error: String(e && e.message || e) }; }
-  data.ai = 5; // 3 = có đọc ảnh bốc thăm, kết quả và bảng xếp hạng; 5 = đọc bàn cờ 2 tầng (nhanh + chính xác)
+  data.ai = 5; // 3 = có đọc ảnh bốc thăm, kết quả và bảng xếp hạng; 5 = đọc bàn cờ 2 tầng (nhanh + chính xác) + đếm người dùng
   try { data.key = !!geminiKey_(); } catch (e) { data.key = null; }
   var json = JSON.stringify(data);
   if (!data.error) { try { cache.put('reg', json, 60); } catch (e) {} }
+  if (pres) { data.online = pres.on; data.today = pres.day; data.peak = pres.peak; json = JSON.stringify(data); }
   return out_(json);
 }
 

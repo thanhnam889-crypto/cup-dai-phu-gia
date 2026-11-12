@@ -294,6 +294,11 @@ a.poi.food .go{color:var(--jade)}
 .srow .inp{padding:8px 8px!important;font-size:14px}
 .srow .hs{grid-column:2/4;font-size:12px!important;padding:6px 8px!important;margin-top:-2px}
 .srow .del{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer}
+.onlinebox{margin:6px 0 10px;padding:12px 14px;border-radius:14px;background:var(--jade-soft);border:1.5px solid var(--jade)}
+.onlinebox .ob1{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--fg)}
+.onlinebox .ob1 b{font-size:26px;line-height:1;color:var(--jade);font-variant-numeric:tabular-nums}
+.onlinebox .dot{width:10px;height:10px;border-radius:50%;background:#1FAE6B;box-shadow:0 0 0 3px rgba(31,174,107,.22);animation:blpulse 1.6s infinite}
+.onlinebox .ob2{font-size:12.5px;color:var(--muted);margin-top:4px}
 .giairow{display:flex;gap:8px}
 .giairow .inp{flex:1;min-width:0}
 .giairow .btn{flex:none;width:auto;padding:0 14px;white-space:nowrap}
@@ -983,6 +988,7 @@ a.poi.food .go{color:var(--jade)}
   </div>
 
   <div id="adm-panel" hidden style="margin-top:4px">
+    <div class="onlinebox" id="adm-online"><div class="ob1"><span class="dot"></span><b id="adm-on-n">—</b> người đang mở app</div><div class="ob2" id="adm-on-sub">Đang đếm…</div></div>
     <div class="syncnote" id="adm-sync">● Đang lưu <b>trên máy này</b>. Để mọi người cùng thấy trực tiếp, cần kết nối Firebase (xem hướng dẫn).</div>
 
     <div class="field"><label>Giải đấu</label>
@@ -1573,11 +1579,13 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   function setSync(o){sync=o;try{localStorage.setItem('dpg-reg-sync',JSON.stringify(o))}catch(e){};renderSync();}
   function refresh(){
     if(!REG_URL||busy)return;busy=true;renderSync();
-    fetch(REG_URL+(REG_URL.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store',redirect:'follow'})
+    var dv='';try{dv=localStorage.getItem('dpg-dev')||'';if(!dv){dv=Math.random().toString(36).slice(2,12);localStorage.setItem('dpg-dev',dv);}}catch(e){}
+    fetch(REG_URL+(REG_URL.indexOf('?')<0?'?':'&')+'t='+Date.now()+(dv?'&dev='+encodeURIComponent(dv):''),{cache:'no-store',redirect:'follow'})
     .then(function(r){return r.text()}).then(function(t){
       var j;try{j=JSON.parse(t)}catch(e){throw new Error(/<html|<!doctype/i.test(t)?'máy chủ trả về trang web thay vì dữ liệu (kiểm tra quyền truy cập "Bất kỳ ai" của Apps Script)':'dữ liệu máy chủ không đọc được');}
       if(j&&j.error)throw new Error('máy chủ báo: '+j.error);
       window.DPG_AIVER=(j&&+j.ai)||0;
+      if(j&&j.online!=null){window.DPG_ONLINE={on:+j.online,day:+j.today||0,peak:+j.peak||0,at:Date.now()};if(window.__onlineRender)window.__onlineRender();}
       var L=j&&okList(j.list);if(!L)throw new Error('máy chủ không có danh sách');
       cur={updated:j.updated,off:!!j.official,raw:L,list:merge(L,!!j.official,j.updated)};try{localStorage.setItem('dpg-reg',JSON.stringify({updated:cur.updated,off:cur.off,raw:L}))}catch(e){}
       setSync({ok:true,at:Date.now(),srv:j.updated||null,rows:L.length,src:j.src||''});
@@ -1586,6 +1594,13 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     .then(function(){busy=false;last=Date.now();renderSync();});
   }
   window.DPGREG={list:function(){return cur.list||[]},on:function(f){subs.push(f)},refresh:refresh};
+  window.__onlineRender=function(){var o=window.DPG_ONLINE,n=document.getElementById('adm-on-n'),sub=document.getElementById('adm-on-sub');if(!n)return;
+    if(!o){n.textContent='—';sub.textContent='Bộ đếm sẽ hiện khi máy chủ có bản mới.';return;}
+    var d=new Date(o.at);function p2(x){return(x<10?'0':'')+x}
+    n.textContent=o.on;sub.innerHTML='Trong 7 phút qua · Hôm nay: <b>'+o.day+'</b> máy đã mở app · Cao nhất cùng lúc: <b>'+o.peak+'</b> · cập nhật '+p2(d.getHours())+':'+p2(d.getMinutes());};
+  setInterval(function(){if(!document.hidden&&location.hash==='#admin')refresh();},60000);
+  window.addEventListener('hashchange',function(){if(location.hash==='#admin'&&Date.now()-last>20000)refresh();});
+  setTimeout(function(){if(window.__onlineRender)window.__onlineRender();},0);
   window.__regRender=render;
   var rl=document.getElementById('reg-login');
   if(rl)rl.onclick=function(){try{sessionStorage.setItem('dpg-ret','dang-ky')}catch(e){}location.hash='admin';};
