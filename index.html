@@ -945,7 +945,7 @@ a.poi.food .go{color:var(--jade)}
       <div id="adm-stand"></div>
       <div class="admbar" style="margin-top:6px">
         <button class="btn ghost" id="adm-stadd" type="button" style="flex:1;padding:11px">＋ Thêm dòng</button>
-        <button class="btn ghost" id="adm-stauto" type="button" style="flex:1;padding:11px">↻ Tự tính từ kết quả</button>
+        <button class="btn ghost" id="adm-stauto" type="button" style="flex:1;padding:11px">📷 Chụp ảnh xếp hạng</button>
       </div>
       <button class="btn" id="adm-stsave" type="button" style="margin-top:8px">Lưu xếp hạng vòng này</button>
       <div class="okmsg" id="adm-stok"></div>
@@ -1590,9 +1590,8 @@ var KQ={
   function loadStand(){
     var s=store(),c=cSel.value,r=rSel.value,rd=s[c]&&s[c].rounds&&s[c].rounds[r],st=(rd&&rd.standings)||[];
     fillStand(st,false);stOk.textContent='';
-    stNote.textContent=(rd&&rd.standSrc)?'🔒 Xếp hạng chính thức do BTC nhập (ảnh / sửa tay) — giữ nguyên khi lưu lại kết quả. Bấm “↻ Tự tính từ kết quả” nếu muốn app tự xếp.'
-      :st.length?'App đang tự xếp hạng từ kết quả (điểm → đối đầu → Buchholz → số ván thắng → số ván đi sau → thắng khi đi sau). Chụp ảnh bảng xếp hạng Swiss-Manager để dùng bảng chính thức.'
-      :'Chưa có xếp hạng vòng này. Lưu kết quả để app tự tính, hoặc chụp ảnh bảng xếp hạng.';
+    stNote.textContent=st.length?'🔒 Xếp hạng chính thức do BTC nhập từ ảnh — giữ nguyên khi lưu lại bốc thăm / kết quả. Muốn thay: chụp ảnh mới rồi lưu lại.'
+      :'Chưa có xếp hạng vòng này. Chụp ảnh bảng xếp hạng in từ Swiss-Manager (app không tự xếp hạng).';
   }
   function pushStore(s,okEl,tag){
     okEl.style.color='var(--jade)';
@@ -1616,46 +1615,13 @@ var KQ={
     rd.standings=rows;rd.standSrc='btc';s[c].rounds[r]=rd;save(s);loadStand();
     pushStore(s,stOk,'xếp hạng Vòng '+r+' ('+(c==='a'?'Cờ tướng':'Cờ tướng úp')+')');
   };
-  document.getElementById('adm-stauto').onclick=function(){
-    var s=store(),c=cSel.value,r=rSel.value,rd=s[c]&&s[c].rounds&&s[c].rounds[r];
-    if(!rd){stOk.style.color='var(--red)';stOk.textContent='Vòng này chưa có kết quả để tính.';return;}
-    delete rd.standSrc;rd.standings=[];recompute(s[c]);save(s);loadStand();
-    pushStore(s,stOk,'xếp hạng tự tính Vòng '+r);
-  };
+  document.getElementById('adm-stauto').onclick=function(){var b=document.querySelector('.aiphoto [data-ai="rank"]');if(b)b.click();};
 
   function scoreStr(res){return res==='a'?'1 - 0':res==='b'?'0 - 1':res==='draw'?'½ - ½':''}
   function pts(sc,side){ // side 0=left,1=right
     if(!sc)return 0;var p=sc.split('-').map(function(x){return x.trim()==='½'?0.5:parseFloat(x)});
     return p[side]||0;
   }
-  // Xếp hạng tự tính theo Điều lệ: điểm → đối đầu (nhóm bằng điểm đã gặp nhau đủ) → Buchholz → số ván thắng → số ván đi sau → số ván thắng đi sau
-  function isBye(n){return !n||/^(bye|nghỉ|nghi|miễn|mien)/i.test(String(n).trim());}
-  function recompute(cData){
-    var maxR=0;Object.keys(cData.rounds).forEach(function(k){if(+k>maxR)maxR=+k});
-    for(var R=1;R<=maxR;R++){
-      if(!cData.rounds[R]||cData.rounds[R].standSrc)continue;
-      var P={};
-      var pl=function(n,u){if(isBye(n))return null;if(!P[n])P[n]={u:u||unitOf(n),p:0,w:0,bl:0,bw:0,opp:[],vs:{}};return P[n];};
-      for(var r=1;r<=R;r++){
-        var rd=cData.rounds[r];if(!rd)continue;
-        (rd.draw||[]).forEach(function(d){pl(d[0],d[1]);pl(d[2],d[3]);});
-        (rd.games||[]).forEach(function(g){
-          if(!g[4])return;var A=pl(g[0],g[1]),B=pl(g[2],g[3]),sa=pts(g[4],0),sb=pts(g[4],1);
-          if(A){A.p+=sa;if(sa===1)A.w++;if(B){A.opp.push(g[2]);A.vs[g[2]]=(A.vs[g[2]]||0)+sa;}}
-          if(B){B.p+=sb;B.bl++;if(sb===1){B.w++;B.bw++;}if(A){B.opp.push(g[0]);B.vs[g[0]]=(B.vs[g[0]]||0)+sb;}}
-        });
-      }
-      var names=Object.keys(P);
-      names.forEach(function(n){var o=P[n];o.bh=o.opp.reduce(function(t,x){return t+(P[x]?P[x].p:0)},0);o.de=0;});
-      var byP={};names.forEach(function(n){(byP[P[n].p]=byP[P[n].p]||[]).push(n);});
-      Object.keys(byP).forEach(function(k){var grp=byP[k];if(grp.length<2)return;
-        var all=grp.every(function(a){return grp.every(function(b){return a===b||P[a].vs[b]!==undefined;});});
-        if(all)grp.forEach(function(a){P[a].de=grp.reduce(function(t,b){return t+(a===b?0:P[a].vs[b])},0);});});
-      names.sort(function(x,y){var a=P[x],b=P[y];return b.p-a.p||b.de-a.de||b.bh-a.bh||b.w-a.w||b.bl-a.bl||b.bw-a.bw||x.localeCompare(y,'vi');});
-      cData.rounds[R].standings=names.map(function(n,i){var o=P[n];return [i+1,n,o.u,o.p,'BH '+String(o.bh).replace('.',',')+' · Thắng '+o.w];});
-    }
-  }
-
   document.getElementById('adm-save').onclick=function(){
     var s=store(),c=cSel.value,r=rSel.value;
     if(!s[c])s[c]={demo:false,numRounds:+nSel.value,rounds:{},final:[]};
@@ -1667,10 +1633,9 @@ var KQ={
       draw.push([a,unitOf(a),b,unitOf(b)]);
       if(res!=='none')games.push([a,unitOf(a),b,unitOf(b),scoreStr(res)]);
     });
-    var old=s[c].rounds[r]||{},nr={draw:draw,games:games,standings:[]};
-    if(old.standSrc){nr.standings=old.standings||[];nr.standSrc=old.standSrc;}
+    var old=s[c].rounds[r]||{},nr={draw:draw,games:games,standings:old.standings||[]};
+    if(old.standSrc)nr.standSrc=old.standSrc;
     s[c].rounds[r]=nr;
-    recompute(s[c]);
     save(s);
     var tag='Vòng '+r+' ('+(c==='a'?'Cờ tướng':'Cờ tướng úp')+')';
     okMsg.style.color='var(--jade)';
