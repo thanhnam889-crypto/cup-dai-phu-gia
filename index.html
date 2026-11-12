@@ -514,6 +514,7 @@ a.poi.food .go{color:var(--jade)}
 .blpc.tool{background:var(--surface-2);border-color:var(--line);color:var(--fg);font-family:inherit;font-size:15px}
 .blpc.on{outline:3px solid var(--gold);outline-offset:2px}
 .bltools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px}
+.blscope.on{background:var(--jade);color:#fff;border-color:var(--jade)}
 .bltl{font-size:12.5px;color:var(--muted);font-weight:600}
 .blturn,.blmini{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
 .blturn.on{background:var(--red);border-color:var(--red);color:#fff}
@@ -920,7 +921,10 @@ a.poi.food .go{color:var(--jade)}
       <button class="blmini" id="bl-ed-clear">Xóa hết</button>
     </div>
     <div class="bltools blshift">
-      <span class="bltl">Dời cả bàn 1 ô:</span>
+      <span class="bltl">AI đặt lệch? Dời 1 ô:</span>
+      <button class="blmini blscope on" data-scope="all">Cả bàn</button><button class="blmini blscope" data-scope="top">Nửa trên sông</button><button class="blmini blscope" data-scope="bot">Nửa dưới sông</button>
+    </div>
+    <div class="bltools blshift" style="margin-top:6px">
       <button class="blmini" data-shift="0,1" title="Dời tất cả quân lên 1 hàng">↑ Lên</button><button class="blmini" data-shift="0,-1" title="Dời tất cả quân xuống 1 hàng">↓ Xuống</button>
       <button class="blmini" data-shift="-1,0" title="Dời tất cả quân sang trái 1 cột">← Trái</button><button class="blmini" data-shift="1,0" title="Dời tất cả quân sang phải 1 cột">→ Phải</button>
     </div>
@@ -2881,11 +2885,17 @@ var XQ=(function(){
   $('bl-ed-flip').onclick=function(){st.flip=!st.flip;renderEdit()};
   $('bl-ed-start').onclick=function(){st.edit=XQ.parse(XQ.START).b;st.eTurn='r';renderEdit()};
   // AI đọc lệch cả bàn 1 hàng/1 cột -> dời toàn bộ quân (theo hướng nhìn trên màn hình)
+  var shScope='all';
+  view.querySelectorAll('[data-scope]').forEach(function(b){b.onclick=function(){shScope=b.dataset.scope;view.querySelectorAll('[data-scope]').forEach(function(x){x.classList.toggle('on',x===b)});};});
   view.querySelectorAll('[data-shift]').forEach(function(btn){btn.onclick=function(){
-    var d=btn.dataset.shift.split(',').map(Number),dx=st.flip?-d[0]:d[0],dy=st.flip?-d[1]:d[1],b=[],i,ok=true;
-    for(i=0;i<90;i++)b.push(null);
-    for(i=0;i<90;i++){var p=st.edit[i];if(!p)continue;var f=i%9+dx,r=(i-i%9)/9+dy;if(f<0||f>8||r<0||r>9){ok=false;break;}b[r*9+f]=p;}
+    var d=btn.dataset.shift.split(',').map(Number),dx=st.flip?-d[0]:d[0],dy=st.flip?-d[1]:d[1],b=st.edit.slice(),i,ok=true,mv=[];
+    function inScope(r){if(shScope==='all')return true;var topHalf=st.flip?r<=4:r>=5;return shScope==='top'?topHalf:!topHalf;}
+    for(i=0;i<90;i++){var p=st.edit[i];if(!p)continue;var r0=(i-i%9)/9;if(!inScope(r0))continue;var f=i%9+dx,r=r0+dy;if(f<0||f>8||r<0||r>9){ok=false;break;}mv.push([i,r*9+f,p]);}
     if(!ok){msg('Không dời được — có quân sẽ ra ngoài bàn. Dời từng quân bằng ✋.','var(--red)');return;}
+    if(!mv.length){msg('Phần này không có quân để dời.');return;}
+    mv.forEach(function(m){b[m[0]]=null;});
+    for(i=0;i<mv.length;i++){if(b[mv[i][1]]){ok=false;break;}b[mv[i][1]]=mv[i][2];}
+    if(!ok){msg('Không dời được — sẽ chồng lên quân khác. Dời từng quân bằng ✋.','var(--red)');return;}
     st.edit=b;st.pick=-1;msg('');renderEdit();};});
   $('bl-ed-clear').onclick=function(){var b=[];for(var i=0;i<90;i++)b.push(null);st.edit=b;renderEdit()};
   $('bl-ed-cancel').onclick=function(){msg('');exitEdit()};
