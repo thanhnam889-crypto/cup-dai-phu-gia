@@ -1847,19 +1847,22 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   function afterSwitch(){refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();gForm.hidden=true;gm('');}
   gSel.onchange=function(){fillGiai(gSel.value,null);afterSwitch();};
   cSel.onchange=function(){applyNd();afterSwitch();};
-  function vOpts(v){var h='';for(var i=3;i<=11;i++)h+='<option value="'+i+'"'+(i===+v?' selected':'')+'>'+i+' vòng</option>';return h;}
-  function ndRowHTML(n,locked){return '<div class="ndrow" data-id="'+ea(n.id||'')+'"><input class="inp nt" maxlength="40" placeholder="Tên nội dung (VD: Cờ tướng)" value="'+ea(n.ten||'')+'">'
-    +'<select class="inp nv"'+(locked?' disabled title="Đã có kết quả — số vòng bị khóa"':'')+'>'+vOpts(n.vong||9)+'</select>'
-    +'<button type="button" class="del"'+(locked?' disabled title="Đã có kết quả — không xóa được"':' title="Bỏ nội dung này"')+'>✕</button></div>';}
+  // Vòng cao nhất đã có dữ liệu của 1 nội dung (0 = chưa có)
+  function ndMaxR(id){var d=store()[id],m=0;if(d&&d.rounds)Object.keys(d.rounds).forEach(function(k){var x=d.rounds[k];if(x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length))&&+k>m)m=+k;});return m;}
+  function vOpts(v,min){var h='';for(var i=Math.max(3,min||0);i<=11;i++)h+='<option value="'+i+'"'+(i===+v?' selected':'')+'>'+i+' vòng</option>';return h;}
+  // Đổi số vòng lúc nào cũng được, chỉ không được ít hơn vòng đã có kết quả; nội dung đã có kết quả thì không bỏ được
+  function ndRowHTML(n,maxR){maxR=+maxR||0;return '<div class="ndrow" data-id="'+ea(n.id||'')+'" data-max="'+maxR+'"><input class="inp nt" maxlength="40" placeholder="Tên nội dung (VD: Cờ tướng)" value="'+ea(n.ten||'')+'">'
+    +'<select class="inp nv"'+(maxR?' title="Đã có kết quả đến Vòng '+maxR+' — chọn từ '+Math.max(3,maxR)+' vòng trở lên"':'')+'>'+vOpts(Math.max(n.vong||9,maxR),maxR)+'</select>'
+    +'<button type="button" class="del"'+(maxR?' disabled title="Đã có kết quả — muốn bỏ thì xóa kết quả trước"':' title="Bỏ nội dung này"')+'>✕</button></div>';}
   function bindNd(){ndRows.querySelectorAll('.del').forEach(function(b){b.onclick=function(){if(ndRows.querySelectorAll('.ndrow').length<2){hint('Giải phải có ít nhất 1 nội dung.',true);return;}b.closest('.ndrow').remove();};});}
-  document.getElementById('adm-ndadd').onclick=function(){ndRows.insertAdjacentHTML('beforeend',ndRowHTML({ten:'',vong:9},false));bindNd();ndRows.querySelector('.ndrow:last-child .nt').focus();};
+  document.getElementById('adm-ndadd').onclick=function(){ndRows.insertAdjacentHTML('beforeend',ndRowHTML({ten:'',vong:9},0));bindNd();ndRows.querySelector('.ndrow:last-child .nt').focus();};
   function openNew(){gEdit=null;gTitle.textContent='Tạo giải mới';gNameI.value='';
-    ndRows.innerHTML=ndRowHTML({ten:'Cờ tướng',vong:9},false)+ndRowHTML({ten:'Cờ tướng úp',vong:9},false);bindNd();
+    ndRows.innerHTML=ndRowHTML({ten:'Cờ tướng',vong:9},0)+ndRowHTML({ten:'Cờ tướng úp',vong:9},0);bindNd();
     gOk.textContent='Tạo giải & chốt số vòng';gDel.hidden=true;hint('Mỗi nội dung chọn số vòng riêng — số vòng được chốt khi tạo giải.');gForm.hidden=false;gm('');gNameI.focus();}
   function openEdit(){var g=gById(gSel.value);if(!g)return;gEdit=g.id;gTitle.textContent='Sửa giải';gNameI.value=g.ten;
-    var st=store(),anyLock=false;ndRows.innerHTML=g.nd.map(function(n){var lk=ndHas(st[n.id]);anyLock=anyLock||lk;return ndRowHTML(n,lk);}).join('');bindNd();
+    var lockTxt=[];ndRows.innerHTML=g.nd.map(function(n){var m=ndMaxR(n.id);if(m)lockTxt.push(n.ten+' đã có kết quả đến Vòng '+m);return ndRowHTML(n,m);}).join('');bindNd();
     gOk.textContent='Lưu thay đổi';gDel.hidden=GL().length<2;gDel.dataset.c='';gDel.textContent='Xóa giải này';
-    hint(anyLock?'🔒 Nội dung đã có kết quả thì khóa số vòng (chỉ sửa tên). Nội dung chưa có kết quả còn đổi được số vòng.':'Chưa có kết quả nên còn đổi được số vòng.');gForm.hidden=false;gm('');}
+    hint(lockTxt.length?('Đổi được số vòng, nhưng không ít hơn vòng đã thi: '+lockTxt.join('; ')+'.'):'Chưa có kết quả — đổi số vòng thoải mái.');gForm.hidden=false;gm('');}
   gNew.onclick=function(){if(!gForm.hidden&&!gEdit){gForm.hidden=true;return;}openNew();};
   gCancel.onclick=function(){gForm.hidden=true;gm('');};
   gOk.onclick=function(){
@@ -1869,7 +1872,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       var t=row.querySelector('.nt').value.trim().replace(/\s+/g,' '),v=+row.querySelector('.nv').value,id=row.dataset.id;
       if(!t){bad='Nhập tên cho từng nội dung (hoặc bấm ✕ để bỏ).';return;}
       if(nd.some(function(x){return kn(x.ten)===kn(t)})){bad='Hai nội dung trùng tên “'+t+'”.';return;}
-      if(id&&old){var o=old.nd.filter(function(x){return x.id===id})[0];if(o&&ndHas(s[id]))v=o.vong;}
+      var mx=+row.dataset.max||0;if(mx&&v<mx){bad='“'+t+'” đã có kết quả đến Vòng '+mx+' — số vòng phải từ '+mx+' trở lên.';return;}
       nd.push({id:id||('n'+stamp+i),ten:t,vong:v});});
     if(bad){hint(bad,true);return;}
     if(!nd.length){hint('Giải phải có ít nhất 1 nội dung.',true);return;}
