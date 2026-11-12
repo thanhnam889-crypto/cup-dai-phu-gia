@@ -892,6 +892,11 @@ a.poi.food .go{color:var(--jade)}
       <button class="blmini" id="bl-ed-start">Bàn đầu</button>
       <button class="blmini" id="bl-ed-clear">Xóa hết</button>
     </div>
+    <div class="bltools blshift">
+      <span class="bltl">Dời cả bàn 1 ô:</span>
+      <button class="blmini" data-shift="0,1" title="Dời tất cả quân lên 1 hàng">↑ Lên</button><button class="blmini" data-shift="0,-1" title="Dời tất cả quân xuống 1 hàng">↓ Xuống</button>
+      <button class="blmini" data-shift="-1,0" title="Dời tất cả quân sang trái 1 cột">← Trái</button><button class="blmini" data-shift="1,0" title="Dời tất cả quân sang phải 1 cột">→ Phải</button>
+    </div>
     <div class="blwarn" id="bl-warn"></div>
     <div class="blbar2">
       <button class="btn ghost" id="bl-ed-cancel">Hủy</button>
@@ -2845,6 +2850,13 @@ var XQ=(function(){
   view.querySelectorAll('.blturn').forEach(function(b){b.onclick=function(){st.eTurn=b.dataset.turn;renderEdit()}});
   $('bl-ed-flip').onclick=function(){st.flip=!st.flip;renderEdit()};
   $('bl-ed-start').onclick=function(){st.edit=XQ.parse(XQ.START).b;st.eTurn='r';renderEdit()};
+  // AI đọc lệch cả bàn 1 hàng/1 cột -> dời toàn bộ quân (theo hướng nhìn trên màn hình)
+  view.querySelectorAll('[data-shift]').forEach(function(btn){btn.onclick=function(){
+    var d=btn.dataset.shift.split(',').map(Number),dx=st.flip?-d[0]:d[0],dy=st.flip?-d[1]:d[1],b=[],i,ok=true;
+    for(i=0;i<90;i++)b.push(null);
+    for(i=0;i<90;i++){var p=st.edit[i];if(!p)continue;var f=i%9+dx,r=(i-i%9)/9+dy;if(f<0||f>8||r<0||r>9){ok=false;break;}b[r*9+f]=p;}
+    if(!ok){msg('Không dời được — có quân sẽ ra ngoài bàn. Dời từng quân bằng ✋.','var(--red)');return;}
+    st.edit=b;st.pick=-1;msg('');renderEdit();};});
   $('bl-ed-clear').onclick=function(){var b=[];for(var i=0;i<90;i++)b.push(null);st.edit=b;renderEdit()};
   $('bl-ed-cancel').onclick=function(){msg('');exitEdit()};
   $('bl-ed-done').onclick=function(){
