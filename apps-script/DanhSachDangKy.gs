@@ -247,8 +247,8 @@ function gemini_(parts, schema, opt) {
   if (!key) throw new Error('Chưa dán GEMINI_API_KEY trong Apps Script');
   var first = opt.model || PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL') || GEMINI_MODEL;
   var cache = CacheService.getScriptCache(), sticky = cache.get('okModel');
-  // Thứ tự: model chính -> model vừa chạy tốt -> các model dự phòng; bỏ qua model vừa lỗi (chính: né 5 phút, khác: 30 phút)
-  var all = [first].concat(sticky ? [sticky] : []).concat(GEMINI_FALLBACK).filter(function (m, k, a) { return a.indexOf(m) === k; });
+  // Thứ tự: model vừa chạy tốt (đỡ phải chờ model đang quá tải) -> model chính -> các model dự phòng; bỏ qua model vừa lỗi
+  var all = (sticky && !opt.model ? [sticky] : []).concat([first]).concat(sticky ? [sticky] : []).concat(GEMINI_FALLBACK).filter(function (m, k, a) { return a.indexOf(m) === k; });
   var models = all.filter(function (m) { return !cache.get('bad_' + m); });
   if (!models.length) models = all;
   var body = { contents: [{ parts: parts }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } };
@@ -269,7 +269,7 @@ function gemini_(parts, schema, opt) {
     lastErr = res.err;
     lastErrs_.push(models[i] + ' → ' + res.code + ' ' + String(res.err).slice(0, 90) + ' (' + Math.round((Date.now() - t0) / 100) / 10 + 's)');
     if (!res.retry) throw new Error(lastErr);          // lỗi key / chặn vùng… -> báo ngay
-    try { cache.put('bad_' + models[i], '1', models[i] === first ? 300 : 1800); } catch (x) {}
+    try { cache.put('bad_' + models[i], '1', (models[i] === first && !/high demand|overloaded|unavailable/i.test(String(res.err))) ? 300 : 1800); } catch (x) {}
   }
   if (!d) throw new Error('AI đang quá tải, vui lòng thử lại sau ít phút. (' + lastErr + ')');
   var txt = '';
@@ -310,10 +310,11 @@ function readBoard_(req) {
       rotated: { type: 'BOOLEAN' },
       red_side: { type: 'STRING', enum: ['bottom', 'top'] },
       note: { type: 'STRING' } }, required: ['pieces', 'red_side'] };
-  var opt = { think: 4096 };
+  var opt = { think: 0 };
   var bm = PropertiesService.getScriptProperties().getProperty('GEMINI_MODEL_BOARD');if (bm) opt.model = bm;
   if (req.dev === 'kan-test-201278' && req.mdl && /^[\w.-]+$/.test(req.mdl)) opt.model = req.mdl;   // chỉ để BTC thử model
   if (req.dev === 'kan-test-201278' && req.think != null) opt.think = +req.think;
+  if (!opt.think) delete opt.think;
   var o = gemini_([{ text: prompt }, { inline_data: { mime_type: req.mime || 'image/jpeg', data: req.image } }], schema, opt);
   var rot = !!o.rotated, H = rot ? 9 : 10, Wd = rot ? 10 : 9, grid = [], k, used = {};
   for (k = 0; k < H; k++) grid.push(new Array(Wd + 1).join('.').split(''));
