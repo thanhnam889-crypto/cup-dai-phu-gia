@@ -452,6 +452,20 @@ a.poi.food .go{color:var(--jade)}
 /* ---- Bàn cờ bình luận ---- */
 .blbar{display:flex;gap:8px;margin:16px 0 0}.blbar .btn{flex:1}
 .blbar2{display:flex;gap:8px;margin-top:8px}.blbar2 .btn{flex:1}
+.blpick{margin-top:8px;padding:12px;border:1.5px solid var(--jade);border-radius:14px;background:var(--surface)}
+.blpick2{display:flex;gap:8px;margin-top:8px}.blpick2 .inp{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.08em}.blpick2 .btn{flex:none;width:auto;padding:0 18px}
+.blpicknote{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+.blroombar{margin-top:8px;padding:10px 12px;border-radius:14px;background:var(--jade-soft);border:1.5px solid var(--jade)}
+.blroombar .rb1{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:14.5px;color:var(--fg)}
+.blroombar .rb1 b{letter-spacing:.04em}
+.blroombar .dot{width:9px;height:9px;border-radius:50%;background:#1FAE6B;box-shadow:0 0 0 3px rgba(31,174,107,.22);animation:blpulse 1.6s infinite}
+@keyframes blpulse{50%{box-shadow:0 0 0 6px rgba(31,174,107,.05)}}
+.blroombar .ppl{font-size:12.5px;color:var(--muted)}
+.blroombar .rb2{font-size:12.5px;color:var(--muted);margin:3px 0 8px;line-height:1.4}
+.blroombar .rb3{display:flex;gap:6px}
+.blroombar .rb3 .inp{flex:1;min-width:0;padding:8px 10px;font-size:14px}
+.blroombar .rb3 button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:0 11px;font:inherit;font-size:13.5px;font-weight:700;color:var(--fg);cursor:pointer}
+.blroombar .rb3 #bl-room-invite{background:var(--jade);border-color:var(--jade);color:#fff}
 .blmsg{margin-top:8px;min-height:0}
 .blphoto{margin:10px 0 0;padding:8px;border:1px dashed var(--line);border-radius:12px;background:var(--surface)}
 .blphoto img{display:block;width:100%;max-height:300px;object-fit:contain;border-radius:8px}
@@ -874,6 +888,19 @@ a.poi.food .go{color:var(--jade)}
   <div class="blbar2">
     <button class="btn ghost" id="bl-setup">✎ Tự xếp quân</button>
     <button class="btn ghost" id="bl-new">↺ Ván mới</button>
+  </div>
+  <div id="bl-room">
+    <button class="btn ghost" id="bl-room-open" type="button" style="margin-top:8px">👥 Phòng bình luận chung — cùng đi quân, cùng bình</button>
+    <div class="blpick" id="bl-room-pick" hidden>
+      <button class="btn" id="bl-room-new" type="button">＋ Tạo phòng mới từ ván đang có</button>
+      <div class="blpick2"><input class="inp" id="bl-room-code" maxlength="8" autocapitalize="characters" placeholder="Hoặc nhập mã phòng (VD: K7P2QX)"><button class="btn ghost" id="bl-room-join" type="button">Vào</button></div>
+      <div class="blpicknote">Mọi người trong phòng thấy ngay nước đi, nhánh phương án và lời bình của nhau — như cùng ngồi quanh một bàn cờ.</div>
+    </div>
+  </div>
+  <div class="blroombar" id="bl-roombar" hidden>
+    <div class="rb1"><span class="dot"></span><b>Phòng <span id="bl-room-id"></span></b><span class="ppl" id="bl-room-ppl"></span></div>
+    <div class="rb2" id="bl-room-last"></div>
+    <div class="rb3"><input class="inp" id="bl-room-name" maxlength="24" placeholder="Tên của bạn"><button type="button" id="bl-room-invite">🔗 Mời</button><button type="button" id="bl-room-leave">Rời phòng</button></div>
   </div>
   <div class="okmsg blmsg" id="bl-msg"></div>
 
@@ -2607,7 +2634,7 @@ var XQ=(function(){
   }
   function countMoves(n){var c=0;(n.kids||[]).forEach(function(k){c+=1+countMoves(k)});return c}
   function hasWork(){return G&&(countMoves(G.root)>0||G.root.note||G.fen!==XQ.START)}
-  function saveCur(){try{localStorage.setItem(CKEY,JSON.stringify(dump()))}catch(e){}}
+  function saveCur(){try{localStorage.setItem(CKEY,JSON.stringify(dump()))}catch(e){}if(typeof roomPush==='function')roomPush();}
   function getList(){try{var l=JSON.parse(localStorage.getItem(LKEY)||'[]');return Array.isArray(l)?l:[]}catch(e){return[]}}
   function setList(l){try{localStorage.setItem(LKEY,JSON.stringify(l.slice(0,40)))}catch(e){msg('⚠ Bộ nhớ máy đầy, không lưu được.','var(--red)')}}
   function stash(title){ // tự lưu ván đang có trước khi thay bằng ván khác
@@ -2714,7 +2741,7 @@ var XQ=(function(){
     var nt=$('bl-note');if(document.activeElement!==nt)nt.value=n.note||'';
     nt.placeholder=n.parent?'Lời bình cho nước '+vnOf(n)+'…':'Lời bình cho thế cờ ban đầu…';
     $('bl-first').disabled=$('bl-back').disabled=!n.parent;$('bl-fwd').disabled=$('bl-last').disabled=!n.kids.length;
-    cdbLink();
+    cdbLink();roomPush();
   }
   $('bl-note').addEventListener('input',function(){var n=cur(),v=this.value.slice(0,2000);n.note=v;saveCur();
     var b=$('bl-moves').querySelector('.blmv.on');if(b)b.classList.toggle('nt',!!v);});
@@ -2951,6 +2978,7 @@ var XQ=(function(){
   };
   function openShared(){
     var h=location.hash.slice(1);if(h.indexOf('binh-luan/')!==0)return;
+    if(h.indexOf('binh-luan/phong-')===0){joinRoom(h.slice(16),false);try{history.replaceState(null,'','#binh-luan')}catch(e){}return;}
     try{var d=JSON.parse(b64d(h.slice(10)));stash('Tự lưu trước khi mở link');load(d);saveCur();
       if(st.mode==='edit')exitEdit();else renderAna();renderList();msg('✓ Đã mở ván được chia sẻ. Chạm quân để đi thử.','var(--jade)');}
     catch(e){msg('Link ván cờ bị lỗi hoặc không đầy đủ.','var(--red)')}
@@ -2958,10 +2986,90 @@ var XQ=(function(){
   }
   window.addEventListener('hashchange',openShared);
 
+  /* ---------- Phòng bình luận chung: đồng bộ trực tiếp qua Firebase (rooms/{mã}) ---------- */
+  var RM=null,CID=(function(){var c='';try{c=sessionStorage.getItem('dpg-cid')||'';if(!c){c=Math.random().toString(36).slice(2,10);sessionStorage.setItem('dpg-cid',c);}}catch(e){c=Math.random().toString(36).slice(2,10);}return c;})();
+  function myName(){var v='';try{v=localStorage.getItem('dpg-bl-name')||''}catch(e){}return String(v).trim().slice(0,24)||'Khách';}
+  function fsReady(cb,n){if(window.DPG&&window.DPG.fs)return cb(window.DPG.fs);if((n||0)>30)return cb(null);setTimeout(function(){fsReady(cb,(n||0)+1)},200);}
+  function roomCode(){var A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',r='';for(var i=0;i<6;i++)r+=A.charAt(Math.floor(Math.random()*A.length));return r;}
+  function roomLink(id){return 'https://cup-dai-phu-gia.pages.dev/#binh-luan/phong-'+id;}
+  function roomPush(){
+    if(!RM||RM.applying)return;clearTimeout(RM.t);
+    RM.t=setTimeout(function(){if(!RM)return;var js=JSON.stringify(dump());if(js===RM.last)return;RM.last=js;
+      RM.ref.set({json:js,at:Date.now(),by:myName(),cid:CID},{merge:true}).then(function(){if(RM&&RM.warn){RM.warn='';roomBar();}},
+        function(){if(RM){RM.warn='⚠ Chưa gửi được lên phòng — kiểm tra mạng.';roomBar();}});},350);
+  }
+  function presence(){if(!RM)return;var o={};o[CID]={t:Date.now(),n:myName()};RM.ref.set({p:o},{merge:true}).catch(function(){});}
+  function roomBar(){
+    var bar=$('bl-roombar');if(!RM){bar.hidden=true;$('bl-room').hidden=false;return;}
+    bar.hidden=false;$('bl-room').hidden=true;$('bl-room-pick').hidden=true;$('bl-room-id').textContent=RM.id;
+    var now=Date.now(),n=0,others=[],P=RM.p||{};
+    Object.keys(P).forEach(function(k){if(P[k]&&now-(+P[k].t||0)<75000){n++;if(k!==CID)others.push(P[k].n||'Khách');}});
+    $('bl-room-ppl').textContent='· '+Math.max(n,1)+' người đang xem'+(others.length?(': '+others.slice(0,4).join(', ')+(others.length>4?'…':'')):'');
+    $('bl-room-last').innerHTML=RM.warn?('<span style="color:var(--red)">'+esc(RM.warn)+'</span>')
+      :(RM.lastBy?('✏ <b>'+esc(RM.lastBy)+'</b> vừa cập nhật bàn cờ'+(RM.lastAt?' lúc '+fmtT(RM.lastAt).slice(-5):'')+'.'):'Ai đi quân hay ghi lời bình, cả phòng thấy ngay. Bấm “🔗 Mời” để gửi link cho anh em.');
+    var ni=$('bl-room-name');if(document.activeElement!==ni)ni.value=myName()==='Khách'?'':myName();
+  }
+  function leaveRoom(silent){
+    if(!RM)return;try{RM.unsub&&RM.unsub()}catch(e){}clearInterval(RM.pi);clearTimeout(RM.t);
+    try{var o={};o[CID]=firebase.firestore.FieldValue.delete();RM.ref.set({p:o},{merge:true}).catch(function(){});}catch(e){}
+    RM=null;try{localStorage.removeItem('dpg-bl-room')}catch(e){}roomBar();if(!silent)msg('Đã rời phòng — ván vẫn còn trên máy này.');
+  }
+  function joinRoom(id,create,auto){
+    id=String(id||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);if(!id)return;
+    fsReady(function(fs){
+      if(!fs){if(!auto)msg('Không kết nối được máy chủ phòng — kiểm tra mạng rồi thử lại.','var(--red)');return;}
+      leaveRoom(true);
+      var ref=fs.collection('rooms').doc(id),js0=JSON.stringify(dump());
+      var start=create?ref.set({v:1,json:js0,at:Date.now(),by:myName(),cid:CID,created:Date.now()})
+        :ref.get().then(function(sn){if(!sn.exists)throw new Error('notfound');return sn;});
+      if(!auto)msg(create?'Đang tạo phòng…':'Đang vào phòng '+esc(id)+'…');
+      start.then(function(sn){
+        if(!create&&!auto&&sn&&sn.data()&&sn.data().json!==js0)stash('Tự lưu trước khi vào phòng '+id);
+        RM={id:id,ref:ref,last:create?js0:'',p:{},t:null,warn:''};
+        try{localStorage.setItem('dpg-bl-room',id)}catch(e){}
+        if(!create&&sn){var d0=sn.data()||{};RM.p=d0.p||{};if(d0.json){RM.last=d0.json;RM.applying=true;
+          try{var o0=JSON.parse(d0.json),f0=st.flip;load(o0);try{localStorage.setItem(CKEY,d0.json)}catch(e){}st.flip=f0;st.sel=-1;st.targets=[];if(st.mode==='edit')exitEdit();else renderAna();}catch(e){}
+          RM.applying=false;}}
+        RM.unsub=ref.onSnapshot(function(snap){
+          if(!RM||RM.ref!==ref)return;
+          if(!snap.exists){leaveRoom(true);msg('Phòng đã bị xóa.','var(--red)');return;}
+          var d=snap.data()||{};RM.p=d.p||{};if(d.cid&&d.cid!==CID){RM.lastBy=d.by||'Khách';RM.lastAt=d.at;}
+          if(d.json&&d.json!==RM.last&&!(snap.metadata&&snap.metadata.hasPendingWrites)){
+            RM.last=d.json;RM.applying=true;
+            try{var o=JSON.parse(d.json),fl=st.flip;load(o);try{localStorage.setItem(CKEY,d.json)}catch(e){}st.flip=fl;st.sel=-1;st.targets=[];
+              if(st.mode!=='edit')renderAna();}catch(e){}
+            RM.applying=false;
+          }
+          roomBar();
+        },function(err){if(RM){RM.warn='⚠ Mất kết nối phòng'+(err&&err.code?' ('+err.code+')':'')+' — thử tải lại trang.';roomBar();}});
+        presence();RM.pi=setInterval(function(){presence();roomBar();},25000);
+        if(!auto)msg(create?('✓ Đã tạo phòng <b>'+id+'</b>. Bấm “🔗 Mời” để gửi link cho anh em.'):('✓ Đã vào phòng <b>'+id+'</b>.'),'var(--jade)');
+        roomBar();
+      },function(e){
+        var nf=e&&e.message==='notfound';
+        var pd=e&&/permission/i.test(String(e.code||e.message));
+        if(!auto)msg(nf?('Không có phòng <b>'+esc(id)+'</b> — kiểm tra lại mã.'):pd?'Máy chủ chưa mở quyền cho phòng bình luận — báo Ban tổ chức (cần mở quyền “rooms” trong Firebase).':('Không vào được phòng: '+esc((e&&(e.code||e.message))||e)),'var(--red)');
+        if(nf||auto)try{localStorage.removeItem('dpg-bl-room')}catch(x){}
+      });
+    });
+  }
+  $('bl-room-open').onclick=function(){var pk=$('bl-room-pick');pk.hidden=!pk.hidden;};
+  $('bl-room-new').onclick=function(){if(st.mode==='edit'){msg('Bấm “Xong” xếp quân trước rồi mới tạo phòng.','var(--red)');return;}joinRoom(roomCode(),true);};
+  $('bl-room-join').onclick=function(){var c=$('bl-room-code').value;if(!c.trim()){$('bl-room-code').focus();return;}joinRoom(c,false);};
+  $('bl-room-code').addEventListener('keydown',function(e){if(e.key==='Enter')$('bl-room-join').click();});
+  $('bl-room-leave').onclick=function(){leaveRoom(false);};
+  $('bl-room-name').addEventListener('change',function(){try{localStorage.setItem('dpg-bl-name',this.value.trim().slice(0,24))}catch(e){}presence();});
+  $('bl-room-invite').onclick=function(){if(!RM)return;var url=roomLink(RM.id),t='Vào phòng bình luận cờ tướng '+RM.id+' — Cúp Đại Phú Gia 2026';
+    if(navigator.share){navigator.share({title:t,text:t,url:url}).catch(function(){});return;}
+    (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(function(){msg('✓ Đã copy link phòng <b>'+RM.id+'</b> — dán vào Zalo để mời.','var(--jade)')},function(){prompt('Copy link phòng:',url)});};
+  window.addEventListener('pagehide',function(){if(RM){try{var o={};o[CID]=firebase.firestore.FieldValue.delete();RM.ref.set({p:o},{merge:true});}catch(e){}}});
+
   /* ---------- khởi động ---------- */
   buildPal();
   try{var c=JSON.parse(localStorage.getItem(CKEY)||'null');if(c)load(c);else newGame(XQ.START);}catch(e){newGame(XQ.START);}
-  renderAna();renderList();openShared();
+  renderAna();renderList();
+  (function(){var rid='';try{rid=localStorage.getItem('dpg-bl-room')||''}catch(e){}if(rid&&location.hash.indexOf('binh-luan/')<0)joinRoom(rid,false,true);})();
+  openShared();
   window.__blDebug={get G(){return G},st:st,fromRows:fromRows,validate:validate};
 })();
 
@@ -2984,7 +3092,7 @@ var XQ=(function(){
   if(typeof firebase==='undefined'||!firebase.firestore){return;} // SDK bị chặn (vd khi xem trên claude.ai) -> dùng bản lưu máy
   try{
     firebase.initializeApp(cfg);
-    var fs=firebase.firestore();
+    var fs=firebase.firestore();window.DPG.fs=fs;
     var ref=fs.collection('app').doc('results');
     window.DPG.push=function(obj){
       try{obj=obj||{};if(!obj._at)obj._at=Date.now();return ref.set({v:2,at:obj._at,json:JSON.stringify(obj)});}
