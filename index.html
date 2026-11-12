@@ -933,6 +933,7 @@ a.poi.food .go{color:var(--jade)}
       <button class="btn ghost" id="bl-ed-cancel">Hủy</button>
       <button class="btn" id="bl-ed-done">✓ Xong — bắt đầu bình luận</button>
     </div>
+    <div class="blhint" style="margin-top:8px">Bấm <b>Xong</b> để chuyển sang bình luận: đi thử quân, <b>🤖 Máy đi</b>, <b>Máy tự đáp</b>, ghi lời bình, mở phòng chung.</div>
   </div>
 
   <!-- Chế độ bình luận -->
@@ -2863,17 +2864,29 @@ var XQ=(function(){
       if(t==='A'&&!APTS.some(function(q){return q[0]===ff&&q[1]===rr}))w.push({t:nm+' không đúng vị trí của Sĩ.'});
       if(t==='B'&&!BPTS.some(function(q){return q[0]===ff&&q[1]===rr}))w.push({t:nm+' không đúng vị trí của Tượng.'});
       if(t==='P'&&(rr<3||(rr<5&&f%2)))w.push({t:nm+' không đúng vị trí của Tốt.'});}
-    if(cnt.K===1&&cnt.k===1&&!w.some(function(x){return x.hard})&&XQ.inCheck(b,XQ.opp(turn)))
-      w.push({hard:1,t:'Bên '+(turn==='r'?'Đen':'Đỏ')+' đang bị chiếu (hoặc 2 tướng đối mặt) trong khi tới lượt '+(turn==='r'?'Đỏ':'Đen')+' — đổi "Lượt đi" hoặc sửa quân.'});
+    if(cnt.K===1&&cnt.k===1&&!w.some(function(x){return x.hard})&&XQ.inCheck(b,XQ.opp(turn))){
+      var ck=checkInfo(b,XQ.opp(turn)),who=turn==='r'?'Đen':'Đỏ';
+      w.push({hard:1,chk:ck,t:'Tướng '+who+' đang bị chiếu bởi '+(ck.desc||'quân bên kia')+' trong khi tới lượt '+(turn==='r'?'Đỏ':'Đen')+' — thế cờ này không thể có. Thường là AI đặt sai quân đó (so lại với ảnh gốc), hoặc bấm “'+who+' đi” nếu đúng là tới lượt '+who+'.'});}
     return w;
   }
+  // Ai đang chiếu tướng bên "side": trả về ô tướng, các ô quân chiếu và mô tả
+  function checkInfo(b,side){
+    var kc=side==='r'?'K':'k',ks=b.indexOf(kc),att=[],i,o={b:b,turn:XQ.opp(side)};
+    for(i=0;i<90;i++){var p=b[i];if(!p||XQ.side(p)===side)continue;if(XQ.movesFrom(o,i).indexOf(ks)>=0)att.push(i);}
+    var oks=b.indexOf(side==='r'?'k':'K'),face=false;
+    if(ks>=0&&oks>=0&&ks%9===oks%9){face=true;for(i=Math.min(ks,oks)+9;i<Math.max(ks,oks);i+=9)if(b[i]){face=false;break;}}
+    var d=att.map(function(q){var p=b[q];return NM[p.toUpperCase()]+' '+(XQ.side(p)==='r'?'Đỏ':'Đen')+' ở '+XQ.sqName(q);});
+    if(face)d.push('Tướng bên kia (2 tướng đối mặt, không có quân chắn)');
+    return {k:ks,att:att.concat(face?[oks]:[]),desc:d.join(', ')};
+  }
   function renderEdit(){
-    svg.innerHTML=boardSVG(st.edit,{pick:st.pick});
+    var w0=validate(st.edit,st.eTurn),ck=null;w0.forEach(function(x){if(x.chk)ck=x.chk;});
+    svg.innerHTML=boardSVG(st.edit,{pick:st.pick,check:ck?ck.k:-1,targets:ck?ck.att:[]});
     $('bl-pal').querySelectorAll('.blpc').forEach(function(b){b.classList.toggle('on',b.dataset.t===st.tool)});
     view.querySelectorAll('.blturn').forEach(function(b){b.classList.toggle('on',b.dataset.turn===st.eTurn)});
     var w=validate(st.edit,st.eTurn),n=st.edit.filter(Boolean).length;
     $('bl-warn').innerHTML=w.length?w.map(function(x){return '<div class="'+(x.hard?'hard':'')+'">'+(x.hard?'⛔ ':'⚠ ')+esc(x.t)+'</div>'}).join('')
-      :'<div class="ok">✓ Thế cờ hợp lệ ('+n+' quân). Bấm “Xong” để bắt đầu bình luận.</div>';
+      :'<div class="ok">✓ Thế cờ hợp lệ ('+n+' quân). Bấm “Xong” để bắt đầu bình luận — có nút 🤖 Máy đi, Máy tự đáp, phòng bình luận chung.</div>';
   }
   function enterEdit(b,turn,photo,note){
     st.mode='edit';st.edit=b.slice();st.eTurn=turn||'r';st.tool='move';st.pick=-1;st.sel=-1;st.targets=[];
