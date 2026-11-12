@@ -323,7 +323,7 @@ function readBoard_(req) {
     var key = r + '_' + c; if (used[key]) return; used[key] = 1; grid[r - 1][c - 1] = p;
   });
   var rows = grid.map(function (a) { return a.join(''); });
-  return { ok: true, rows: rows, red: o.red_side === 'top' ? 'top' : 'bottom', note: String(o.note || '').slice(0, 300), n: (o.pieces || []).length, model: lastModel_ };
+  return { ok: true, rows: rows, red: o.red_side === 'top' ? 'top' : 'bottom', note: String(o.note || '').slice(0, 300), n: (o.pieces || []).length, model: lastModel_, errs: lastErrs_ };
 }
 
 /* --- Đọc ảnh biên bản kết quả 1 vòng --- */
