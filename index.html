@@ -260,6 +260,8 @@ a.poi.food .go{color:var(--jade)}
 .subtabs button{flex:1;padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--surface);
   color:var(--muted);font-weight:700;font-size:12px;cursor:pointer}
 .subtabs button.on{background:var(--red);color:#fff;border-color:var(--red)}
+.kqsearch{width:100%;box-sizing:border-box;padding:10px 12px;margin:0 0 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-size:14px}
+.kqnone{padding:18px 4px;text-align:center;color:var(--muted);font-size:13px}
 .dkhead{display:flex;align-items:center;gap:10px;margin:0 2px 10px}
 .dkhead .cnt{font-family:var(--disp);font-weight:800;font-size:22px;color:var(--red)}
 .dkhead .ct{font-size:13px;color:var(--muted)}
@@ -1302,12 +1304,23 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
 (function(){
   var box=document.getElementById('kq-render');if(!box)return;
   var tg=document.querySelector('.kqtoggle'),gbox=document.getElementById('kq-giai');
-  var SUB=[['draw','Bốc thăm'],['games','Kết quả'],['standings','Xếp hạng']];
+  var SUB=[['list','Danh sách'],['draw','Bốc thăm'],['games','Kết quả'],['standings','Xếp hạng']];
+  // Danh sách VĐV theo nội dung: lấy từ danh sách đăng ký chính thức (chỉ tên + đơn vị). a = Cờ tướng, b = Cờ tướng úp
+  function nk(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d');}
+  function escA(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
+  function players(c){if(c!=='a'&&c!=='b')return null;var L=(window.DPGREG&&window.DPGREG.list())||[];
+    return L.filter(function(p){var x=nk(p.nd),up=/\bup\b/.test(x),both=/\+|ca hai|ca 2/.test(x);return both||(c==='b'?up:(!up&&/tuong/.test(x)));});}
+  function listView(c){var P=players(c),f=ndFind(srcObj(),c),nm=f?f.n.ten:'';
+    if(!P||!P.length)return '<div class="kqcap">Danh sách vận động viên</div>'+empty('Chưa có danh sách','Danh sách VĐV của nội dung này sẽ cập nhật tại đây.');
+    var h='<div class="kqcap">Danh sách VĐV · '+escA(nm)+' · '+P.length+' người</div>';
+    if(P.length>10)h+='<input class="kqsearch" type="search" placeholder="🔎 Tìm tên hoặc đơn vị…" aria-label="Tìm vận động viên">';
+    h+='<div class="card plist">'+P.map(function(p,i){return '<div class="reg" data-k="'+escA(nk(p.n+' '+(p.cty||'')))+'"><span class="no">'+(i+1)+'</span><div class="ri"><div class="rn">'+escA(p.n)+'</div>'+(p.cty?'<div class="ru">'+escA(p.cty)+'</div>':'')+'</div></div>';}).join('')+'</div>';
+    return h+'<div class="kqnone" hidden>Không tìm thấy VĐV phù hợp.</div>';}
   var cur={c:null,r:1,tab:'standings'},manual=false,goFlag=false,cPicked=false,fromAdm=false;
   function rdHas(x){return x&&((x.draw&&x.draw.length)||(x.games&&x.games.length)||(x.standings&&x.standings.length));}
   function latestR(d){var m=0;Object.keys(d.rounds||{}).forEach(function(k){if(rdHas(d.rounds[k])&&+k>m)m=+k;});return m;}
   function bestTab(rd){return !rd?'standings':(rd.standings&&rd.standings.length)?'standings':(rd.games&&rd.games.length)?'games':'draw';}
-  function autoPick(){var d=getData(cur.c),m=latestR(d);cur.r=m||1;cur.tab=bestTab(d.rounds[cur.r]);}
+  function autoPick(){var d=getData(cur.c),m=latestR(d);cur.r=m||1;cur.tab=m?bestTab(d.rounds[cur.r]):'list';}
   function isAdm(){try{return sessionStorage.getItem('dpg-adm')==='1'}catch(e){return false}}
   function hasData(x){return x&&((x.rounds&&Object.keys(x.rounds).length)||(x.final&&x.final.length))}
   function srcObj(){var src={};try{src=(window.DPG&&window.DPG.cloud)||JSON.parse(localStorage.getItem('dpg-kq')||'{}')||{}}catch(e){}return src;}
@@ -1378,6 +1391,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     h+='<div class="subtabs">';
     SUB.forEach(function(s){h+='<button data-tab="'+s[0]+'"'+(cur.tab===s[0]?' class="on"':'')+'>'+s[1]+'</button>'});
     h+='</div>';
+    if(cur.tab==='list'){h+=listView(cur.c);box.innerHTML=h;bind();return;}
     if(!rd){
       h+=empty('Vòng '+cur.r+' chưa diễn ra','Bốc thăm, kết quả và xếp hạng của vòng này sẽ cập nhật trong ngày thi đấu 15/11.');
       box.innerHTML=h;bind();return;
@@ -1398,6 +1412,9 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     box.querySelectorAll('.rchips button').forEach(function(b){b.addEventListener('click',function(){manual=true;cur.r=(b.dataset.r==='final'?'final':+b.dataset.r);if(cur.r!=='final'){var d=getData(cur.c);if(!(d.rounds[cur.r]&&rdHas(d.rounds[cur.r])))cur.tab=cur.tab;else if(!manualTab)cur.tab=bestTab(d.rounds[cur.r]);}render()})});
     box.querySelectorAll('.subtabs button').forEach(function(b){b.addEventListener('click',function(){manual=true;manualTab=true;cur.tab=b.dataset.tab;render()})});
     box.querySelectorAll('[data-back]').forEach(function(b){b.addEventListener('click',function(){if(window.__admBack)window.__admBack();location.hash='admin';})});
+    var q=box.querySelector('.kqsearch');if(q)q.addEventListener('input',function(){var v=nk(q.value).trim(),n=0;
+      box.querySelectorAll('.plist .reg').forEach(function(r){var ok=!v||r.dataset.k.indexOf(v)>=0;r.hidden=!ok;if(ok)n++;});
+      var no=box.querySelector('.kqnone');if(no)no.hidden=n>0;var pl=box.querySelector('.plist');if(pl)pl.hidden=!n;});
   }
   var manualTab=false;
   window.__kqRefresh=function(){renderToggle();if(!manual)autoPick();render()};
@@ -1438,18 +1455,15 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       return 'Apps Script chưa được cấp quyền gọi AI — mở Apps Script, chạy hàm kiemTraGemini 1 lần, rồi Deploy → Manage deployments → New version.';
     },function(){return 'Không kết nối được máy chủ AI — có thể Apps Script chưa được cấp quyền, hoặc mạng yếu.'});
   };
-  var DEF={updated:'11/11',list:[
-    // Theo file final "Tổng hợp DS đăng ký" của Ban tổ chức (9/11) — 55 kỳ thủ + 7 đăng ký tối 9/11 = 62
-    {n:'Phạm Hoàng Dương',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam - Nhiệm kỳ I',nd:'Cờ tướng úp'},
-    {n:'Nguyễn Văn Bình',cv:'Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
+  // FINAL=true: danh sách chính thức do Ban tổ chức chốt là chuẩn duy nhất (không ghép thêm từ Google Form nữa)
+  var FINAL=true;
+  var DEF={updated:'13/11',list:[
+    // File "Tổng hợp DS đăng ký 2" của Ban tổ chức (13/11) — 55 VĐV: 31 Cờ tướng + 24 Cờ tướng úp (STT theo file)
     {n:'Tôn Thất Lương Chính',cv:'Phó Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
-    {n:'Bùi Trung Hiếu',cv:'Phó Giám đốc',cty:'Sở Văn hóa, Thể thao và Du lịch tỉnh Gia Lai',nd:'Cờ tướng úp'},
-    {n:'Dương Minh Quang',cv:'Tổng Giám đốc',cty:'Công ty Cổ phần Xây dựng 47',nd:'Cờ tướng úp'},
     {n:'Lục Văn Dũng',cv:'Giám đốc',cty:'Trung tâm Huấn luyện và Thi đấu thể thao tỉnh Gia Lai',nd:'Cờ tướng úp'},
     {n:'Mai Đức Thiện',cv:'Giám đốc',cty:'Công ty Nhôm đúc Lý Thiện Phát',nd:'Cờ tướng'},
     {n:'Trương Hòa Nhân',cv:'Chủ tịch',cty:'Công ty Cổ phần Đá Hoa Cương cao cấp Hải Dương',nd:'Cờ tướng úp'},
     {n:'Phạm Quang Minh',cv:'Tổng Giám đốc',cty:'Công ty Thang máy ROYAL Việt Nam',nd:'Cờ tướng'},
-    {n:'Đại Ngọc Lâm',cv:'Giám đốc',cty:'Công ty TNHH ECONSUN Việt Nam',nd:'Cờ tướng úp'},
     {n:'Văn Quốc Vinh',cv:'Phó Tổng Giám đốc',cty:'Công ty TNHH CAF Việt Nam (Kiểm toán CAF)',nd:'Cờ tướng úp'},
     {n:'Nguyễn Văn Khánh',cv:'Phó Giám đốc',cty:'Công ty Xây dựng Tân Phương',nd:'Cờ tướng úp'},
     {n:'Nguyễn Thành Nam',cv:'Giám đốc',cty:'Công ty TNHH Tư vấn K.A.N',nd:'Cờ tướng'},
@@ -1458,32 +1472,25 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     {n:'Nguyễn Văn Hà',cv:'Nguyên Giám đốc Kinh doanh',cty:'Viettel Construction Đăk Lăk',nd:'Cờ tướng'},
     {n:'Nguyễn Văn Thanh',cv:'Phó Giám đốc',cty:'Công ty TNHH Nông nghiệp AGreen Cao Nguyên',nd:'Cờ tướng'},
     {n:'Trần Minh Đức',cv:'Giám đốc',cty:'Công ty TNHH XD, Thương mại và Dịch vụ Trình Minh',nd:'Cờ tướng'},
-    {n:'Lê Khả Trung',cv:'Giám đốc',cty:'Công ty TNHH Một Thành viên Trung Phong Mang Yang - Gia Lai',nd:'Cờ tướng'},
-    {n:'Lê Văn Tùng',cv:'Giám đốc',cty:'Công ty TNHH Hưng Trường Thịnh',nd:'Cờ tướng úp'},
-    {n:'Nguyễn Hoàng Sa',cv:'Giám đốc',cty:'Công ty TNHH Chiếu sáng và Năng lượng Mặt trời Miền Trung',nd:'Cờ tướng'},
     {n:'Lê Quang Tri',cv:'Giám đốc',cty:'Công ty TNHH Quang Tri',nd:'Cờ tướng'},
     {n:'Châu Anh Phong',cv:'Giám đốc',cty:'Công ty TNHH Một thành viên Xây dựng Thiên Bằng',nd:'Cờ tướng'},
     {n:'Nguyễn Xuân Độ',cv:'Tổng Giám đốc',cty:'Công ty TNHH Thương mại, Đầu tư và Phát triển Thiện Tâm',nd:'Cờ tướng'},
     {n:'Đỗ Ngọc Hùng',cv:'Phó Giám đốc',cty:'Cty TNHH MTV Thời Gian Vàng',nd:'Cờ tướng'},
     {n:'Dương Phi Huy',cv:'Phó phòng Kinh doanh',cty:'Công ty TNHH MTV Thời Gian Vàng',nd:'Cờ tướng'},
-    {n:'Nguyễn Hữu Bảo Thuần',cv:'Giám đốc, Phó Chủ tịch',cty:'Nhà máy CTy Dây cáp điện Vĩnh Thịnh. Hội Doanh nghiệp Thái Mỹ TP. HCM',nd:'Cờ tướng'},
+    {n:'Nguyễn Hữu Bảo Thuần',cv:'Giám đốc · Phó Chủ tịch',cty:'Nhà máy CTy Dây cáp điện Vĩnh Thịnh. · Hội Doanh nghiệp Thái Mỹ TP. HCM',nd:'Cờ tướng'},
     {n:'Phạm Văn Hùng',cv:'Kế toán trưởng',cty:'Công ty TNHH Du lịch - LOGISTICS Tấn Phong',nd:'Cờ tướng'},
     {n:'Nguyễn Hợp',cv:'Giám đốc',cty:'Công ty TNHH Hợp Thảo',nd:'Cờ tướng'},
     {n:'Nguyễn Anh Huy',cv:'Phó Giám đốc Sản xuất',cty:'Công ty TNHH MTV Gỗ Phú Tài Bình Định',nd:'Cờ tướng'},
     {n:'Nguyễn Văn Thắng',cv:'Giám đốc',cty:'Công Ty TNHH Viễn Thông và Xây Dựng Khang Vinh',nd:'Cờ tướng'},
     {n:'Đặng Huy',cv:'Phó Giám đốc',cty:'Công ty dược phẩm Phương An Pharma.',nd:'Cờ tướng úp'},
-    {n:'Lê Tấn Thủy',cv:'Phó Giám đốc',cty:'Công ty TNHH Thương Mai Baby Love',nd:'Cờ tướng úp'},
-    {n:'Nguyễn An Thái',cv:'Phó Giám đốc',cty:'Công ty TNHH Đại Lý Vận Tải ELITE',nd:'Cờ tướng úp'},
+    {n:'Lê Tấn Thủy',cv:'P.Giám Đốc',cty:'Công ty TNHH Thương Mai Baby Love',nd:'Cờ tướng úp'},
+    {n:'Nguyễn An Thái',cv:'Phó Giám Đốc',cty:'Công ty TNHH Đại Lý Vận Tải ELITE',nd:'Cờ tướng úp'},
     {n:'Đỗ Hữu Trường',cv:'Trưởng phòng Nhân sự',cty:'Trường THPT Chi Lăng',nd:'Cờ tướng úp'},
-    {n:'Diệp Chấn Vương',cv:'Giám đốc',cty:'Công ty Cổ phần Hai Lúa',nd:'Cờ tướng'},
     {n:'Đặng Quốc Huy',cv:'Giám đốc',cty:'Công ty Đinh Lăng Tây Nguyên',nd:'Cờ tướng'},
-    {n:'Nguyễn Ngọc Cường',cv:'Phó Giám đốc',cty:'Công ty TNHH Vật Tư Điện Lạnh Gia Lai',nd:'Cờ tướng'},
+    {n:'Nguyễn Ngọc Cường',cv:'Phó Giám Đốc',cty:'Công ty TNHH Vật Tư Điện Lạnh Gia Lai',nd:'Cờ tướng'},
     {n:'Nguyễn Hữu Bình',cv:'Giám đốc',cty:'CÔNG TY TNHH HBPLUS',nd:'Cờ tướng'},
     {n:'Trương Quang Hải',cv:'Phó Giám đốc',cty:'Công ty TNHH TM, Dịch Vụ và Xây Dựng Đại Hưng',nd:'Cờ tướng úp'},
     {n:'Nguyễn Phúc Tài',cv:'Phó Giám đốc',cty:'Phòng khám Nha khoa Hoàng Yến',nd:'Cờ tướng úp'},
-    {n:'Lê Cảnh Định',cv:'Tiến sĩ - Giảng viên Hóa học',cty:'Đại học Quy Nhơn',nd:'Cờ tướng úp'},
-    {n:'Nguyễn Gia Khánh',cv:'Giám đốc',cty:'Công ty TNHH Thương mại Khánh Linh',nd:'Cờ tướng úp'},
-    {n:'Nguyễn Văn Khoa',cv:'Phó Giám đốc',cty:'Công ty TNHH Tư vấn K.A.N',nd:'Cờ tướng'},
     {n:'Nguyễn Hoàng Minh',cv:'Trưởng phòng Nghiệp vụ 1',cty:'Thanh tra tỉnh Gia Lai',nd:'Cờ tướng úp'},
     {n:'Nguyễn Thứ Trưởng',cv:'',cty:'UBND tỉnh Gia Lai',nd:'Cờ tướng úp'},
     {n:'Nguyễn Đào Hoài An',cv:'Quản lý',cty:'Trường Mầm non Minh Đức',nd:'Cờ tướng úp'},
@@ -1495,20 +1502,18 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     {n:'Nguyễn Vũ Bảo',cv:'Quản lý Sales khu vực Gia Lai',cty:'Công ty Cổ phần LCFOODS',nd:'Cờ tướng úp'},
     {n:'Nguyễn Thanh Việt',cv:'Phó Giám đốc',cty:'Công ty TNHH Xây dựng Thương mại Thanh Việt',nd:'Cờ tướng'},
     {n:'Nguyễn Thanh Huy',cv:'Giám đốc',cty:'Cơ sở kinh doanh nông sản, mua bán vật tư điện, nước dân dụng',nd:'Cờ tướng úp'},
-    // Đăng ký mới qua Form tối 9/11
     {n:'Võ Đình Thượng',cv:'Giám đốc',cty:'Công ty Cổ phần Tư vấn Xây dựng Thăng Long',nd:'Cờ tướng'},
     {n:'Châu Viết Hải',cv:'Phó Giám đốc',cty:'Công ty Cổ phần Tư vấn Xây dựng Thăng Long',nd:'Cờ tướng úp'},
-    {n:'Đoàn Đức Hiển',cv:'Phó Giám đốc',cty:'Công ty Cổ phần Tư vấn Xây dựng Thăng Long',nd:'Cờ tướng'},
-    {n:'Trần Xuân An',cv:'Trưởng phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
-    {n:'Lê Đăng Vũ',cv:'Phó phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
+    {n:'Nguyễn Tấn Linh',cv:'Trưởng phòng Kế hoạch Vật tư',cty:'Công ty Cổ phần Tư vấn Xây dựng Thăng Long',nd:'Cờ tướng úp'},
     {n:'Châu Trần Quang Đạt',cv:'Phó Giám đốc',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
     {n:'Trịnh Hồ Quang Vũ',cv:'Trưởng phòng Kỹ thuật',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng úp'},
-    // Đăng ký qua Form 10–11/11
-    {n:'Mai Xuân Thường',cv:'Giám đốc',cty:'Công ty Xây dựng Di Linh',nd:'Cờ tướng'},
+    {n:'Trần Xuân An',cv:'Trưởng phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
+    {n:'Lê Đăng Vũ',cv:'Phó phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
+    {n:'Mai Xuân Thường',cv:'Giám đốc',cty:'Công ty TNHH MTV Nguyễn Gia',nd:'Cờ tướng'},
     {n:'Hán Văn San',cv:'Giám đốc',cty:'Công ty An Phước Thịnh',nd:'Cờ tướng'},
-    {n:'Nguyễn Đức Thịnh',cv:'Trưởng phòng Hành chính – Nhân sự',cty:'Công ty TNHH Ngọc An STEEL',nd:'Cờ tướng'},
-    {n:'Nguyễn Thanh Mạnh',cv:'Quản lý kế hoạch',cty:'Công ty Cổ phần Phân bón và Hóa chất Dầu khí Miền Trung',nd:'Cờ tướng'},
-    {n:'Văn Tiến Sự',cv:'Quản lý Kinh doanh',cty:'Cafe Cờ tướng',nd:'Cờ tướng úp'}
+    {n:'Hoàng Anh Minh',cv:'Giám đốc Điều hành',cty:'Khách sạn Đông Nghi',nd:'Cờ tướng úp'},
+    {n:'Trần Mai Anh Khoa',cv:'Giám đốc',cty:'Công ty TNHH ITV AK Anh Khoa',nd:'Cờ tướng'},
+    {n:'Nguyễn Thanh Mạnh',cv:'Quản lý Kế hoạch',cty:'Công ty Cổ phần Phân bón và Hóa chất Dầu khí Miền Trung',nd:'Cờ tướng'}
   ]};
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
   function nrm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
@@ -1525,6 +1530,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   var FORM_LATEST=Date.parse('2026-11-11T08:33:03+07:00');
   function trusted(L,srvUpd){var t=Date.parse(srvUpd||'');return !!L&&L.length>=30&&!isNaN(t)&&t>=FORM_LATEST-60000;}
   function merge(L,isOff,srvUpd){var seen={},out=[];
+    if(FINAL)return DEF.list.slice();
     if(!isOff&&trusted(L,srvUpd)){
       // Máy chủ đọc đúng file Form: Form là chuẩn → ai bị xóa dòng / đánh dấu "Ẩn" trên Sheet sẽ tự mất khỏi app
       var inSrv={};L.forEach(function(x){inSrv[nkey(x.n)]=1;});
@@ -1543,7 +1549,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     var box=document.getElementById('reg-list'),cnt=document.getElementById('reg-count'),upd=document.getElementById('reg-upd');if(!box)return;
     var L=cur.list||[],u=fmtUpd(cur.updated),ud=DEF.updated;
     function dm(x){var m=/^(\d{1,2})\/(\d{1,2})$/.exec(x||'');return m?(+m[2])*100+(+m[1]):0}
-    if(dm(ud)>dm(u))u=ud; // lấy ngày mới hơn giữa máy chủ và danh sách trong app
+    if(FINAL||dm(ud)>dm(u))u=ud; // lấy ngày mới hơn giữa máy chủ và danh sách trong app
     var adm=false;try{adm=sessionStorage.getItem('dpg-adm')==='1'}catch(e){}
     if(cnt)cnt.textContent=L.length;
     if(upd&&!adm)upd.textContent='doanh nhân đã ghi danh'+(u?' · cập nhật '+u:''); // khách: chỉ hiện tổng số
@@ -1569,12 +1575,13 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     var adm=false;try{adm=sessionStorage.getItem('dpg-adm')==='1'}catch(e){}
     el.hidden=!adm;if(!adm)return;
     el.className='regsync'+(sync.ok===false?' bad':'');
-    var t=busy?'⏳ Đang lấy dữ liệu mới từ Google Form…'
+    var t=FINAL?('📋 Đang dùng danh sách chính thức Ban tổ chức chốt '+DEF.updated+' ('+DEF.list.length+' VĐV). Đăng ký qua Google Form không còn tự ghép vào app.')
+      :busy?'⏳ Đang lấy dữ liệu mới từ Google Form…'
       :sync.ok?('🔄 Tự cập nhật từ Google Form: nhận lúc '+hm(sync.at)+' · '+(sync.rows||0)+' người trên Form · lượt đăng ký mới nhất '+(hm(sync.srv)||'?')+(sync.src?' · đọc từ: '+sync.src:''))
       :sync.ok===false?('⚠ Chưa lấy được dữ liệu từ Google Form ('+hm(sync.at)+'): '+sync.err+'. App đang dùng danh sách đã lưu.')
       :'Chưa kết nối Google Form.';
     el.innerHTML='';el.appendChild(document.createTextNode(t));
-    var b=document.createElement('button');b.type='button';b.textContent='↻ Cập nhật ngay';b.onclick=function(){refresh();};el.appendChild(b);
+    if(FINAL)return;var b=document.createElement('button');b.type='button';b.textContent='↻ Cập nhật ngay';b.onclick=function(){refresh();};el.appendChild(b);
   }
   function setSync(o){sync=o;try{localStorage.setItem('dpg-reg-sync',JSON.stringify(o))}catch(e){};renderSync();}
   function refresh(){
@@ -1594,6 +1601,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     .then(function(){busy=false;last=Date.now();renderSync();});
   }
   window.DPGREG={list:function(){return cur.list||[]},on:function(f){subs.push(f)},refresh:refresh};
+  if(window.__kqRefresh)window.__kqRefresh(); // tab Kết quả → Danh sách cần danh sách VĐV
   window.__onlineRender=function(){var o=window.DPG_ONLINE,n=document.getElementById('adm-on-n'),sub=document.getElementById('adm-on-sub');if(!n)return;
     if(!o){n.textContent='—';sub.textContent='Bộ đếm sẽ hiện khi máy chủ có bản mới.';return;}
     var d=new Date(o.at);function p2(x){return(x<10?'0':'')+x}
