@@ -296,6 +296,11 @@ a.poi.food .go{color:var(--jade)}
 .srow .inp{padding:8px 8px!important;font-size:14px}
 .srow .hs{grid-column:2/4;font-size:12px!important;padding:6px 8px!important;margin-top:-2px}
 .srow .del{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--red);cursor:pointer}
+.livechip{display:flex;align-items:center;justify-content:center;gap:7px;width:max-content;max-width:100%;margin:0 auto 12px;padding:6px 14px;border-radius:999px;background:var(--jade-soft);border:1px solid var(--jade);font-size:13px;color:var(--fg)}
+.livechip b{color:var(--jade);font-size:15px;font-variant-numeric:tabular-nums}
+.livechip .dot{width:8px;height:8px;border-radius:50%;background:#1FAE6B;box-shadow:0 0 0 3px rgba(31,174,107,.22);animation:blpulse 1.6s infinite}
+.onlinex{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 12px;font-size:12px;color:var(--muted)}
+.onlinex button{padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
 .onlinebox{margin:6px 0 10px;padding:12px 14px;border-radius:14px;background:var(--jade-soft);border:1.5px solid var(--jade)}
 .onlinebox .ob1{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--fg)}
 .onlinebox .ob1 b{font-size:26px;line-height:1;color:var(--jade);font-variant-numeric:tabular-nums}
@@ -559,6 +564,7 @@ a.poi.food .go{color:var(--jade)}
   </div>
 
   <div class="count">
+    <div class="livechip" id="live-chip" hidden><span class="dot"></span><b id="live-n">—</b> người đang xem app</div>
     <div class="k" id="cd-k">Còn lại đến ngày thi đấu 15/11</div>
     <div class="cd" id="cd">
       <div class="c"><div class="n" id="cd-d">—</div><div class="l">Ngày</div></div>
@@ -991,6 +997,7 @@ a.poi.food .go{color:var(--jade)}
 
   <div id="adm-panel" hidden style="margin-top:4px">
     <div class="onlinebox" id="adm-online"><div class="ob1"><span class="dot"></span><b id="adm-on-n">—</b> người đang mở app</div><div class="ob2" id="adm-on-sub">Đang đếm…</div></div>
+    <div class="onlinex" id="adm-on-x"></div>
     <div class="syncnote" id="adm-sync">● Đang lưu <b>trên máy này</b>. Để mọi người cùng thấy trực tiếp, cần kết nối Firebase (xem hướng dẫn).</div>
 
     <div class="field"><label>Giải đấu</label>
@@ -1602,10 +1609,25 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   }
   window.DPGREG={list:function(){return cur.list||[]},on:function(f){subs.push(f)},refresh:refresh};
   if(window.__kqRefresh)window.__kqRefresh(); // tab Kết quả → Danh sách cần danh sách VĐV
-  window.__onlineRender=function(){var o=window.DPG_ONLINE,n=document.getElementById('adm-on-n'),sub=document.getElementById('adm-on-sub');if(!n)return;
-    if(!o){n.textContent='—';sub.textContent='Bộ đếm sẽ hiện khi máy chủ có bản mới.';return;}
-    var d=new Date(o.at);function p2(x){return(x<10?'0':'')+x}
-    n.textContent=o.on;sub.innerHTML='Trong 7 phút qua · Hôm nay: <b>'+o.day+'</b> máy đã mở app · Cao nhất cùng lúc: <b>'+o.peak+'</b> · cập nhật '+p2(d.getHours())+':'+p2(d.getMinutes());};
+  // Hệ số hiển thị số người xem (quảng bá). Lưu ở app/config.onlineX — Ban tổ chức bật/tắt trong Quản trị, không cần sửa code.
+  var ONLINE_X_DEF=10;
+  function onX(){var c=(window.DPG&&window.DPG.config)||null;if(!c){try{c=JSON.parse(localStorage.getItem('dpg-cfg')||'null')}catch(e){}}var x=c&&c.onlineX!=null?+c.onlineX:ONLINE_X_DEF;return x>1?Math.round(x):1;}
+  function onShow(o){var x=onX();if(!o)return null;if(x<=1)return {on:o.on,day:o.day,peak:o.peak};
+    var bk=Math.floor((o.at||Date.now())/300000);function f(n,k){n=+n||0;if(!n)return 0;return n*x+((bk*37+k*11+n*7)%x);}
+    var on=f(o.on,1),pk=Math.max(f(o.peak,2),on),dy=Math.max(f(o.day,3),pk);return {on:on,day:dy,peak:pk};}
+  window.__onlineRender=function(){var o=window.DPG_ONLINE,d=onShow(o),x=onX();
+    var ch=document.getElementById('live-chip'),ln=document.getElementById('live-n');
+    if(ch){ch.hidden=!(d&&d.on>0);if(d&&ln)ln.textContent=d.on;}
+    var n=document.getElementById('adm-on-n'),sub=document.getElementById('adm-on-sub'),bx=document.getElementById('adm-on-x');if(!n)return;
+    if(bx){bx.innerHTML='';var t=document.createElement('span');
+      t.textContent=x>1?('📣 Đang hiển thị x'+x+' cho khách'+(o?' · số thật: '+o.on+' đang mở, '+o.day+' hôm nay':'')):'Đang hiển thị số thật';
+      var b=document.createElement('button');b.type='button';b.textContent=x>1?'Về số thật':'Bật x'+ONLINE_X_DEF;
+      b.onclick=function(){var v=x>1?1:ONLINE_X_DEF;var c=Object.assign({},(window.DPG&&window.DPG.config)||{},{onlineX:v});if(window.DPG)window.DPG.config=c;try{localStorage.setItem('dpg-cfg',JSON.stringify(c))}catch(e){}
+        if(window.DPG&&window.DPG.pushConfig)window.DPG.pushConfig({onlineX:v}).catch(function(){});window.__onlineRender();};
+      bx.appendChild(t);bx.appendChild(b);}
+    if(!d){n.textContent='—';sub.textContent='Bộ đếm sẽ hiện khi máy chủ có bản mới.';return;}
+    var dt=new Date(o.at);function p2(v){return(v<10?'0':'')+v}
+    n.textContent=d.on;sub.innerHTML='Trong 7 phút qua · Hôm nay: <b>'+d.day+'</b> máy đã mở app · Cao nhất cùng lúc: <b>'+d.peak+'</b> · cập nhật '+p2(dt.getHours())+':'+p2(dt.getMinutes());};
   setInterval(function(){if(!document.hidden&&location.hash==='#admin')refresh();},60000);
   window.addEventListener('hashchange',function(){if(location.hash==='#admin'&&Date.now()-last>20000)refresh();});
   setTimeout(function(){if(window.__onlineRender)window.__onlineRender();},0);
@@ -3221,6 +3243,7 @@ var XQ=(function(){
       if(window.__leadersRender)window.__leadersRender();
       if(window.__galRefresh)window.__galRefresh();
       if(window.__galAdmRender)window.__galAdmRender();
+      if(window.__onlineRender)window.__onlineRender();
     },function(){});
   }catch(e){}
 })();
