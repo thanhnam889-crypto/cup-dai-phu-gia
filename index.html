@@ -997,7 +997,7 @@ a.poi.food .go{color:var(--jade)}
 
   <div id="adm-panel" hidden style="margin-top:4px">
     <div class="onlinebox" id="adm-online"><div class="ob1"><span class="dot"></span><b id="adm-on-n">—</b> người đang mở app</div><div class="ob2" id="adm-on-sub">Đang đếm…</div></div>
-    <div class="onlinex" id="adm-on-x"></div>
+    <div class="onlinex" id="adm-on-x" hidden></div>
     <div class="syncnote" id="adm-sync">● Đang lưu <b>trên máy này</b>. Để mọi người cùng thấy trực tiếp, cần kết nối Firebase (xem hướng dẫn).</div>
 
     <div class="field"><label>Giải đấu</label>
@@ -1615,11 +1615,23 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   function onShow(o){var x=onX();if(!o)return null;if(x<=1)return {on:o.on,day:o.day,peak:o.peak};
     var bk=Math.floor((o.at||Date.now())/300000);function f(n,k){n=+n||0;if(!n)return 0;return n*x+((bk*37+k*11+n*7)%x);}
     var on=f(o.on,1),pk=Math.max(f(o.peak,2),on),dy=Math.max(f(o.day,3),pk);return {on:on,day:dy,peak:pk};}
+  // Quyền tác giả (chỉ máy đã nhập đúng mã): mới thấy số thật + nút bật/tắt hệ số. Admin thường không thấy gì.
+  var AUTH_H='556be6a55f3cf5b3d41deb5eb60f2ab0a51f5a50f4d5df1bedc9797b1ab2ecde';
+  function isAuthor(){try{return localStorage.getItem('dpg-author')===AUTH_H.slice(0,24)}catch(e){return false}}
+  function tryAuthor(code,done){code=String(code||'').trim().toLowerCase();if(!code||!(window.crypto&&crypto.subtle)){if(done)done(false);return;}
+    crypto.subtle.digest('SHA-256',new TextEncoder().encode(code)).then(function(b){var h=Array.prototype.map.call(new Uint8Array(b),function(x){return(x<16?'0':'')+x.toString(16)}).join('');
+      var ok=h===AUTH_H;if(ok){try{localStorage.setItem('dpg-author',AUTH_H.slice(0,24))}catch(e){}}if(window.__onlineRender)window.__onlineRender();if(done)done(ok);});}
+  // Mở bằng link riêng: …/#tg=<mã> (1 lần trên mỗi máy), hoặc chạm 5 lần liên tiếp vào ô đếm trong Quản trị rồi nhập mã
+  function tgHash(){var m=/^#tg=(.+)$/.exec(location.hash||'');if(!m)return;var c=decodeURIComponent(m[1]);try{history.replaceState(null,'',location.pathname+location.search+'#admin')}catch(e){}if(window.show)show('admin');tryAuthor(c);}
+  tgHash();window.addEventListener('hashchange',tgHash);
+  (function(){var ob=document.getElementById('adm-online');if(!ob)return;var n=0,t0=0;ob.addEventListener('click',function(){var t=Date.now();n=(t-t0<1500)?n+1:1;t0=t;
+    if(n>=5){n=0;if(isAuthor())return;var c=window.prompt('Mã tác giả:');if(c)tryAuthor(c);}});})();
   window.__onlineRender=function(){var o=window.DPG_ONLINE,d=onShow(o),x=onX();
     var ch=document.getElementById('live-chip'),ln=document.getElementById('live-n');
     if(ch){ch.hidden=!(d&&d.on>0);if(d&&ln)ln.textContent=d.on;}
     var n=document.getElementById('adm-on-n'),sub=document.getElementById('adm-on-sub'),bx=document.getElementById('adm-on-x');if(!n)return;
-    if(bx){bx.innerHTML='';var t=document.createElement('span');
+    if(bx){bx.innerHTML='';bx.hidden=!isAuthor();}
+    if(bx&&isAuthor()){var t=document.createElement('span');
       t.textContent=x>1?('📣 Đang hiển thị x'+x+' cho khách'+(o?' · số thật: '+o.on+' đang mở, '+o.day+' hôm nay':'')):'Đang hiển thị số thật';
       var b=document.createElement('button');b.type='button';b.textContent=x>1?'Về số thật':'Bật x'+ONLINE_X_DEF;
       b.onclick=function(){var v=x>1?1:ONLINE_X_DEF;var c=Object.assign({},(window.DPG&&window.DPG.config)||{},{onlineX:v});if(window.DPG)window.DPG.config=c;try{localStorage.setItem('dpg-cfg',JSON.stringify(c))}catch(e){}
