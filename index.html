@@ -1616,7 +1616,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     var bk=Math.floor((o.at||Date.now())/300000);function f(n,k){n=+n||0;if(!n)return 0;return n*x+((bk*37+k*11+n*7)%x);}
     var on=f(o.on,1),pk=Math.max(f(o.peak,2),on),dy=Math.max(f(o.day,3),pk);return {on:on,day:dy,peak:pk};}
   // Quyền tác giả (chỉ máy đã nhập đúng mã): mới thấy số thật + nút bật/tắt hệ số. Admin thường không thấy gì.
-  var AUTH_H='556be6a55f3cf5b3d41deb5eb60f2ab0a51f5a50f4d5df1bedc9797b1ab2ecde';
+  var AUTH_H='044bc94e7136f21a7f8e42c6026cc5fd77a269b51234bfd596f4c6dc7970cfc4';
   function isAuthor(){try{return localStorage.getItem('dpg-author')===AUTH_H.slice(0,24)}catch(e){return false}}
   function tryAuthor(code,done){code=String(code||'').trim().toLowerCase();if(!code||!(window.crypto&&crypto.subtle)){if(done)done(false);return;}
     crypto.subtle.digest('SHA-256',new TextEncoder().encode(code)).then(function(b){var h=Array.prototype.map.call(new Uint8Array(b),function(x){return(x<16?'0':'')+x.toString(16)}).join('');
