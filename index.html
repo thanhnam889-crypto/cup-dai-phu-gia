@@ -400,6 +400,7 @@ a.poi.food .go{color:var(--jade)}
 .kqcap{font-size:11.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:16px 2px 9px}
 .games .g{display:flex;align-items:center;gap:8px;padding:11px 10px;border-bottom:1px solid var(--line);font-size:13px}
 .games .g:last-child{border-bottom:0}
+.games .bno{flex:none;width:24px;height:24px;border-radius:7px;background:var(--surface-2);color:var(--muted);display:grid;place-items:center;font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
 .games .pl{flex:1;min-width:0}.games .pl.r{text-align:right}
 .games .pl .nm{font-weight:600}.games .pl .un{font-size:11px;color:var(--muted)}
 .games .sc{flex:none;font-family:var(--disp);font-weight:800;color:var(--red);padding:0 6px;font-variant-numeric:tabular-nums}
@@ -1369,6 +1370,29 @@ var KQ={
 };
 /* Giải đấu -> Nội dung: s.giai=[{id,ten,nd:[{id,ten,vong}]}]. Kết quả lưu theo id nội dung: s[ndId]={numRounds,rounds,final}.
    vong = số vòng đã chốt cho nội dung. Chưa tạo -> 1 giải gồm Cờ tướng (a) + Cờ tướng úp (b). Tự đọc được định dạng cũ (danh sách phẳng). */
+/* KQ_SEED: dữ liệu BTC gửi trực tiếp (bốc thăm từ Chess-Results) — hiện cho mọi người ngay cả khi máy chủ chưa có.
+   Chỉ điền vào ô còn trống: khi Ban tổ chức nhập/ghi đè trên app thì dữ liệu trên máy chủ được ưu tiên. */
+var KQ_SEED={
+  a:{ // Cờ tướng
+    1:{draw:[ // Vòng 1 — bốc thăm 15/11 (theo thứ tự bàn 1→15)
+      ['Trần Xuân An','Công ty TNHH Thiết bị Máy văn phòng Phát Lộc','Nguyễn Thành Nam','Công ty TNHH Tư vấn K.A.N'],
+      ['Châu Anh Phong','Công ty TNHH Một thành viên Xây dựng Thiên Bằng','Nguyễn Hữu Bình','CÔNG TY TNHH HBPLUS'],
+      ['Nguyễn Ngọc Cường','Công ty TNHH Vật Tư Điện Lạnh Gia Lai','Bùi Thanh Phụng','Sở Công thương tỉnh Gia Lai'],
+      ['Hán Văn San','Công ty An Phước Thịnh','Châu Trần Quang Đạt','Công ty TNHH Thiết bị Máy văn phòng Phát Lộc'],
+      ['Trần Minh Đức','Công ty TNHH XD, Thương mại và Dịch vụ Trình Minh','Nguyễn Văn Thắng','Công Ty TNHH Viễn Thông và Xây Dựng Khang Vinh'],
+      ['Nguyễn Văn Thanh','Công ty TNHH Nông nghiệp AGreen Cao Nguyên','Nguyễn Văn Hà','Viettel Construction Đăk Lăk'],
+      ['Nguyễn Hợp','Công ty TNHH Hợp Thảo','Mai Đức Thiện','Công ty Nhôm đúc Lý Thiện Phát'],
+      ['Nguyễn Thành Thu','Công ty TNHH Xuất nhập khẩu Quốc tế Kim Long','Đỗ Ngọc Hùng','Cty TNHH MTV Thời Gian Vàng'],
+      ['Phạm Văn Hùng','Công ty TNHH Du lịch - LOGISTICS Tấn Phong','Nguyễn Hữu Bảo Thuần','Nhà máy CTy Dây cáp điện Vĩnh Thịnh. · Hội Doanh nghiệp Thái Mỹ TP. HCM'],
+      ['Mai Xuân Thường','Công ty TNHH MTV Nguyễn Gia','Nguyễn Anh Huy','Công ty TNHH MTV Gỗ Phú Tài Bình Định'],
+      ['Dương Phi Huy','Công ty TNHH MTV Thời Gian Vàng','Võ Đình Thượng','Công ty Cổ phần Tư vấn Xây dựng Thăng Long'],
+      ['Lê Quang Tri','Công ty TNHH Quang Tri','Trần Mai Anh Khoa','Công ty TNHH ITV AK Anh Khoa'],
+      ['Lâm Mộng Ký','Công ty TNHH MTC DV Bảo vệ Đại An P…','Nguyễn Thanh Việt','Công ty TNHH Xây dựng Thương mại Thanh Việt'],
+      ['Lê Đăng Vũ','Công ty TNHH Thiết bị Máy văn phòng Phát Lộc','Phạm Quang Minh','Công ty Thang máy ROYAL Việt Nam'],
+      ['Diệp Chấn Vương','Công ty Cổ phần Hai Lúa Gia Lai','Miễn đấu','']
+    ]}
+  }
+};
 function ndHas(o){return !!(o&&o.rounds&&Object.keys(o.rounds).some(function(k){var r=o.rounds[k];return r&&((r.draw&&r.draw.length)||(r.games&&r.games.length)||(r.standings&&r.standings.length));}));}
 function giaiList(s){s=s||{};
   var G=Array.isArray(s.giai)?s.giai.filter(function(g){return g&&g.id;}):[];
@@ -1409,12 +1433,14 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   function giaiCur(){return giaiList(srcObj());}
   function gV(c){var f=ndFind(srcObj(),c);return f?f.n.vong:9;}
   function norm(o,c){o.numRounds=gV(c)||o.numRounds||9;o.rounds=o.rounds||{};o.final=o.final||[];return o}
+  function seedIn(o,c){var S=KQ_SEED[c];if(!S)return o;o=JSON.parse(JSON.stringify(o));o.rounds=o.rounds||{};
+    Object.keys(S).forEach(function(r){var x=o.rounds[r]||{};['draw','games','standings'].forEach(function(f){if(S[r][f]&&S[r][f].length&&!(x[f]&&x[f].length))x[f]=S[r][f];});o.rounds[r]=x;});return o;}
   function getData(c){
-    try{if(window.DPG&&window.DPG.cloud&&hasData(window.DPG.cloud[c]))return norm(window.DPG.cloud[c],c);}catch(e){}
+    try{if(window.DPG&&window.DPG.cloud&&hasData(window.DPG.cloud[c]))return seedIn(norm(window.DPG.cloud[c],c),c);}catch(e){}
     try{var s=JSON.parse(localStorage.getItem('dpg-kq')||'{}');
-      if(hasData(s[c]))return norm(s[c],c);
+      if(hasData(s[c]))return seedIn(norm(s[c],c),c);
     }catch(e){}
-    return {demo:false,numRounds:gV(c),rounds:{},final:[]};
+    return seedIn({demo:false,numRounds:gV(c),rounds:{},final:[]},c);
   }
   function renderToggle(){
     var L=giaiCur(),f=ndFind(srcObj(),cur.c);
@@ -1446,9 +1472,9 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   }
   function pairList(rows,withScore){
     var h='<div class="card games">';
-    rows.filter(function(g){return g&&(String(g[0]||'').trim()||!/^(none|a|b|draw)?$/.test(String(g[2]||'').trim()));}).forEach(function(g){
+    rows.filter(function(g){return g&&(String(g[0]||'').trim()||!/^(none|a|b|draw)?$/.test(String(g[2]||'').trim()));}).forEach(function(g,i){
       var mid=withScore?('<div class="sc">'+esc(g[4])+'</div>'):'<div class="sc" style="color:var(--muted);font-weight:600">vs</div>';
-      h+='<div class="g"><div class="pl"><div class="nm">'+esc(g[0])+'</div><div class="un">'+esc(g[1])+'</div></div>'+mid
+      h+='<div class="g"><span class="bno" title="Bàn '+(i+1)+'">'+(i+1)+'</span><div class="pl"><div class="nm">'+esc(g[0])+'</div><div class="un">'+esc(g[1])+'</div></div>'+mid
         +'<div class="pl r"><div class="nm">'+esc(g[2])+'</div><div class="un">'+esc(g[3])+'</div></div></div>';
     });
     return h+'</div>';
