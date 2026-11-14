@@ -1565,7 +1565,8 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   };
   // FINAL=true: danh sách chính thức do Ban tổ chức chốt là chuẩn duy nhất (không ghép thêm từ Google Form nữa)
   var FINAL=true;
-  var DEF={updated:'13/11',list:[
+  var DEF={updated:'15/11',list:[
+    // 15/11: Cờ tướng chốt theo bốc thăm Vòng 1 = 29 VĐV (bỏ 4 người vắng, thêm Lâm Mộng Ký, Diệp Chấn Vương)
     // File "Tổng hợp DS đăng ký 2" của Ban tổ chức (13/11) — 55 VĐV: 31 Cờ tướng + 24 Cờ tướng úp (STT theo file)
     {n:'Tôn Thất Lương Chính',cv:'Phó Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
     {n:'Lục Văn Dũng',cv:'Giám đốc',cty:'Trung tâm Huấn luyện và Thi đấu thể thao tỉnh Gia Lai',nd:'Cờ tướng úp'},
@@ -1576,13 +1577,11 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     {n:'Nguyễn Văn Khánh',cv:'Phó Giám đốc',cty:'Công ty Xây dựng Tân Phương',nd:'Cờ tướng úp'},
     {n:'Nguyễn Thành Nam',cv:'Giám đốc',cty:'Công ty TNHH Tư vấn K.A.N',nd:'Cờ tướng'},
     {n:'Bùi Thanh Phụng',cv:'Phó Trưởng phòng P.Kỹ thuật an toàn - Môi trường',cty:'Sở Công thương tỉnh Gia Lai',nd:'Cờ tướng'},
-    {n:'Nguyễn Văn Thảo',cv:'Giám đốc',cty:'Công ty TNHH Thương mại Vận tải Trường Thịnh',nd:'Cờ tướng'},
     {n:'Nguyễn Văn Hà',cv:'Nguyên Giám đốc Kinh doanh',cty:'Viettel Construction Đăk Lăk',nd:'Cờ tướng'},
     {n:'Nguyễn Văn Thanh',cv:'Phó Giám đốc',cty:'Công ty TNHH Nông nghiệp AGreen Cao Nguyên',nd:'Cờ tướng'},
     {n:'Trần Minh Đức',cv:'Giám đốc',cty:'Công ty TNHH XD, Thương mại và Dịch vụ Trình Minh',nd:'Cờ tướng'},
     {n:'Lê Quang Tri',cv:'Giám đốc',cty:'Công ty TNHH Quang Tri',nd:'Cờ tướng'},
     {n:'Châu Anh Phong',cv:'Giám đốc',cty:'Công ty TNHH Một thành viên Xây dựng Thiên Bằng',nd:'Cờ tướng'},
-    {n:'Nguyễn Xuân Độ',cv:'Tổng Giám đốc',cty:'Công ty TNHH Thương mại, Đầu tư và Phát triển Thiện Tâm',nd:'Cờ tướng'},
     {n:'Đỗ Ngọc Hùng',cv:'Phó Giám đốc',cty:'Cty TNHH MTV Thời Gian Vàng',nd:'Cờ tướng'},
     {n:'Dương Phi Huy',cv:'Phó phòng Kinh doanh',cty:'Công ty TNHH MTV Thời Gian Vàng',nd:'Cờ tướng'},
     {n:'Nguyễn Hữu Bảo Thuần',cv:'Giám đốc · Phó Chủ tịch',cty:'Nhà máy CTy Dây cáp điện Vĩnh Thịnh. · Hội Doanh nghiệp Thái Mỹ TP. HCM',nd:'Cờ tướng'},
@@ -1594,7 +1593,6 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     {n:'Lê Tấn Thủy',cv:'P.Giám Đốc',cty:'Công ty TNHH Thương Mai Baby Love',nd:'Cờ tướng úp'},
     {n:'Nguyễn An Thái',cv:'Phó Giám Đốc',cty:'Công ty TNHH Đại Lý Vận Tải ELITE',nd:'Cờ tướng úp'},
     {n:'Đỗ Hữu Trường',cv:'Trưởng phòng Nhân sự',cty:'Trường THPT Chi Lăng',nd:'Cờ tướng úp'},
-    {n:'Đặng Quốc Huy',cv:'Giám đốc',cty:'Công ty Đinh Lăng Tây Nguyên',nd:'Cờ tướng'},
     {n:'Nguyễn Ngọc Cường',cv:'Phó Giám Đốc',cty:'Công ty TNHH Vật Tư Điện Lạnh Gia Lai',nd:'Cờ tướng'},
     {n:'Nguyễn Hữu Bình',cv:'Giám đốc',cty:'CÔNG TY TNHH HBPLUS',nd:'Cờ tướng'},
     {n:'Trương Quang Hải',cv:'Phó Giám đốc',cty:'Công ty TNHH TM, Dịch Vụ và Xây Dựng Đại Hưng',nd:'Cờ tướng úp'},
@@ -1621,7 +1619,9 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     {n:'Hán Văn San',cv:'Giám đốc',cty:'Công ty An Phước Thịnh',nd:'Cờ tướng'},
     {n:'Hoàng Anh Minh',cv:'Giám đốc Điều hành',cty:'Khách sạn Đông Nghi',nd:'Cờ tướng úp'},
     {n:'Trần Mai Anh Khoa',cv:'Giám đốc',cty:'Công ty TNHH ITV AK Anh Khoa',nd:'Cờ tướng'},
-    {n:'Nguyễn Thanh Mạnh',cv:'Quản lý Kế hoạch',cty:'Công ty Cổ phần Phân bón và Hóa chất Dầu khí Miền Trung',nd:'Cờ tướng'}
+    // Có trong bốc thăm Vòng 1 Cờ tướng (Chess-Results 15/11)
+    {n:'Lâm Mộng Ký',cv:'',cty:'Công ty TNHH MTC DV Bảo vệ Đại An P…',nd:'Cờ tướng'},
+    {n:'Diệp Chấn Vương',cv:'Giám đốc',cty:'Công ty Cổ phần Hai Lúa Gia Lai',nd:'Cờ tướng'}
   ]};
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
   function nrm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
