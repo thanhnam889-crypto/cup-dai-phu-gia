@@ -1391,6 +1391,21 @@ var KQ_SEED={
       ['Lê Đăng Vũ','Công ty TNHH Thiết bị Máy văn phòng Phát Lộc','Phạm Quang Minh','Công ty Thang máy ROYAL Việt Nam'],
       ['Diệp Chấn Vương','Công ty Cổ phần Hai Lúa Gia Lai','Miễn đấu','']
     ]}
+  },
+  b:{ // Cờ tướng úp
+    1:{draw:[ // Vòng 1 — bốc thăm 15/11 (theo thứ tự bàn 1→11)
+      ['Nguyễn Đào Hoài An','Trường Mầm non Minh Đức','Nguyễn Hoàng Minh','Thanh tra tỉnh Gia Lai'],
+      ['Hoàng Anh Minh','Khách sạn Đông Nghi','Nguyễn Vũ Bảo','Công ty Cổ phần LCFOODS'],
+      ['Lục Văn Dũng','Trung tâm Huấn luyện và Thi đấu thể thao tỉnh Gia Lai','Mai Công Nghĩa','Tập đoàn tài chính Homecredit Việt Nam'],
+      ['Lê Gia Nguyễn','Công ty TNHH Hưng Trường Thịnh','Trần Bá Duy','Cơ sở Kinh doanh Ăn uống Duy Béo'],
+      ['Trương Quang Hải','Công ty TNHH TM, Dịch Vụ và Xây Dựng Đại Hưng','Trương Hòa Nhân','Công ty Cổ phần Đá Hoa Cương cao cấp Hải Dương'],
+      ['Nguyễn Phúc Tài','Phòng khám Nha khoa Hoàng Yến','Châu Viết Hải','Công ty Cổ phần Tư vấn Xây dựng Thăng Long'],
+      ['Đặng Huy','Công ty dược phẩm Phương An Pharma.','Nguyễn An Thái','Công ty TNHH Đại Lý Vận Tải ELITE'],
+      ['Lê Tấn Thủy','Công ty TNHH Thương Mai Baby Love','Nguyễn Thanh Huy','Cơ sở kinh doanh nông sản, mua bán vật tư điện, nước dân dụng'],
+      ['Nguyễn Văn Khánh','Công ty Xây dựng Tân Phương','Đỗ Hữu Trường','Trường THPT Chi Lăng'],
+      ['Văn Quốc Vinh','Công ty TNHH CAF Việt Nam (Kiểm toán CAF)','Nguyễn Tấn Linh','Công ty Cổ phần Tư vấn Xây dựng Thăng Long'],
+      ['Trần Văn Lộc','Cơ sở Kinh doanh Bia Tấn Phát','Trịnh Hồ Quang Vũ','Công ty TNHH Thiết bị Máy văn phòng Phát Lộc']
+    ]}
   }
 };
 function ndHas(o){return !!(o&&o.rounds&&Object.keys(o.rounds).some(function(k){var r=o.rounds[k];return r&&((r.draw&&r.draw.length)||(r.games&&r.games.length)||(r.standings&&r.standings.length));}));}
@@ -1567,8 +1582,8 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   var FINAL=true;
   var DEF={updated:'15/11',list:[
     // 15/11: Cờ tướng chốt theo bốc thăm Vòng 1 = 29 VĐV (bỏ 4 người vắng, thêm Lâm Mộng Ký, Diệp Chấn Vương)
+    // 15/11: Cờ tướng úp chốt theo bốc thăm Vòng 1 = 22 VĐV (vắng: Tôn Thất Lương Chính, Nguyễn Thứ Trưởng)
     // File "Tổng hợp DS đăng ký 2" của Ban tổ chức (13/11) — 55 VĐV: 31 Cờ tướng + 24 Cờ tướng úp (STT theo file)
-    {n:'Tôn Thất Lương Chính',cv:'Phó Chủ tịch',cty:'Liên đoàn Cờ tướng Việt Nam',nd:'Cờ tướng úp'},
     {n:'Lục Văn Dũng',cv:'Giám đốc',cty:'Trung tâm Huấn luyện và Thi đấu thể thao tỉnh Gia Lai',nd:'Cờ tướng úp'},
     {n:'Mai Đức Thiện',cv:'Giám đốc',cty:'Công ty Nhôm đúc Lý Thiện Phát',nd:'Cờ tướng'},
     {n:'Trương Hòa Nhân',cv:'Chủ tịch',cty:'Công ty Cổ phần Đá Hoa Cương cao cấp Hải Dương',nd:'Cờ tướng úp'},
@@ -1598,7 +1613,6 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     {n:'Trương Quang Hải',cv:'Phó Giám đốc',cty:'Công ty TNHH TM, Dịch Vụ và Xây Dựng Đại Hưng',nd:'Cờ tướng úp'},
     {n:'Nguyễn Phúc Tài',cv:'Phó Giám đốc',cty:'Phòng khám Nha khoa Hoàng Yến',nd:'Cờ tướng úp'},
     {n:'Nguyễn Hoàng Minh',cv:'Trưởng phòng Nghiệp vụ 1',cty:'Thanh tra tỉnh Gia Lai',nd:'Cờ tướng úp'},
-    {n:'Nguyễn Thứ Trưởng',cv:'',cty:'UBND tỉnh Gia Lai',nd:'Cờ tướng úp'},
     {n:'Nguyễn Đào Hoài An',cv:'Quản lý',cty:'Trường Mầm non Minh Đức',nd:'Cờ tướng úp'},
     {n:'Lê Gia Nguyễn',cv:'Phó Giám đốc',cty:'Công ty TNHH Hưng Trường Thịnh',nd:'Cờ tướng úp'},
     {n:'Nguyễn Thành Thu',cv:'Giám đốc',cty:'Công ty TNHH Xuất nhập khẩu Quốc tế Kim Long',nd:'Cờ tướng'},
