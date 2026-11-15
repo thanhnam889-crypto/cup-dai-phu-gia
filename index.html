@@ -1506,7 +1506,7 @@ var KQ_SEED={
       ['Trương Quang Hải','Công ty TNHH TM, Dịch Vụ và Xây Dựng Đại Hưng','Trương Hòa Nhân','Công ty Cổ phần Đá Hoa Cương cao cấp Hải Dương'],
       ['Nguyễn Phúc Tài','Phòng khám Nha khoa Hoàng Yến','Châu Viết Hải','Công ty Cổ phần Tư vấn Xây dựng Thăng Long'],
       ['Đặng Huy','Công ty dược phẩm Phương An Pharma.','Nguyễn An Thái','Công ty TNHH Đại Lý Vận Tải ELITE'],
-      ['Lê Tấn Thủy','Công ty TNHH Thương Mai Baby Love','Nguyễn Thanh Huy','Cơ sở kinh doanh nông sản, mua bán vật tư điện, nước dân dụng'],
+      ['Lê Tấn Thủy','Công ty TNHH Thương mại Baby Love','Nguyễn Thanh Huy','Cơ sở kinh doanh nông sản, mua bán vật tư điện, nước dân dụng'],
       ['Nguyễn Văn Khánh','Công ty Xây dựng Tân Phương','Đỗ Hữu Trường','Trường THPT Chi Lăng'],
       ['Văn Quốc Vinh','Công ty TNHH CAF Việt Nam (Kiểm toán CAF)','Nguyễn Tấn Linh','Công ty Cổ phần Tư vấn Xây dựng Thăng Long'],
       ['Trần Văn Lộc','Cơ sở Kinh doanh Bia Tấn Phát','Trịnh Hồ Quang Vũ','Công ty TNHH Thiết bị Máy văn phòng Phát Lộc']
@@ -1794,7 +1794,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     {n:'Nguyễn Anh Huy',cv:'Phó Giám đốc Sản xuất',cty:'Công ty TNHH MTV Gỗ Phú Tài Bình Định',nd:'Cờ tướng'},
     {n:'Nguyễn Văn Thắng',cv:'Giám đốc',cty:'Công Ty TNHH Viễn Thông và Xây Dựng Khang Vinh',nd:'Cờ tướng'},
     {n:'Đặng Huy',cv:'Phó Giám đốc',cty:'Công ty dược phẩm Phương An Pharma.',nd:'Cờ tướng úp'},
-    {n:'Lê Tấn Thủy',cv:'P.Giám Đốc',cty:'Công ty TNHH Thương Mai Baby Love',nd:'Cờ tướng úp'},
+    {n:'Lê Tấn Thủy',cv:'P.Giám Đốc',cty:'Công ty TNHH Thương mại Baby Love',nd:'Cờ tướng úp'},
     {n:'Nguyễn An Thái',cv:'Phó Giám Đốc',cty:'Công ty TNHH Đại Lý Vận Tải ELITE',nd:'Cờ tướng úp'},
     {n:'Đỗ Hữu Trường',cv:'Trưởng phòng Nhân sự',cty:'Trường THPT Chi Lăng',nd:'Cờ tướng úp'},
     {n:'Nguyễn Ngọc Cường',cv:'Phó Giám Đốc',cty:'Công ty TNHH Vật Tư Điện Lạnh Gia Lai',nd:'Cờ tướng'},
@@ -1922,6 +1922,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   // Quyền tác giả (chỉ máy đã nhập đúng mã): mới thấy số thật + nút bật/tắt hệ số. Admin thường không thấy gì.
   var AUTH_H='044bc94e7136f21a7f8e42c6026cc5fd77a269b51234bfd596f4c6dc7970cfc4';
   function isAuthor(){try{return localStorage.getItem('dpg-author')===AUTH_H.slice(0,24)}catch(e){return false}}
+  window.DPG_isAuthor=isAuthor;
   function tryAuthor(code,done){code=String(code||'').trim().toLowerCase();if(!code||!(window.crypto&&crypto.subtle)){if(done)done(false);return;}
     crypto.subtle.digest('SHA-256',new TextEncoder().encode(code)).then(function(b){var h=Array.prototype.map.call(new Uint8Array(b),function(x){return(x<16?'0':'')+x.toString(16)}).join('');
       var ok=h===AUTH_H;if(ok){try{localStorage.setItem('dpg-author',AUTH_H.slice(0,24))}catch(e){}}if(window.__onlineRender)window.__onlineRender();if(done)done(ok);});}
@@ -1930,7 +1931,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   tgHash();window.addEventListener('hashchange',tgHash);
   (function(){var ob=document.getElementById('adm-online');if(!ob)return;var n=0,t0=0;ob.addEventListener('click',function(){var t=Date.now();n=(t-t0<1500)?n+1:1;t0=t;
     if(n>=5){n=0;if(isAuthor())return;var c=window.prompt('Mã tác giả:');if(c)tryAuthor(c);}});})();
-  window.__onlineRender=function(){var o=window.DPG_ONLINE,d=onShow(o),x=onX();
+  window.__onlineRender=function(){if(window.__authGate)window.__authGate();var o=window.DPG_ONLINE,d=onShow(o),x=onX();
     var ch=document.getElementById('live-chip'),ln=document.getElementById('live-n');
     if(ch){ch.hidden=!(d&&d.on>0);if(d&&ln)ln.textContent=d.on;}
     var n=document.getElementById('adm-on-n'),sub=document.getElementById('adm-on-sub'),bx=document.getElementById('adm-on-x');if(!n)return;
@@ -2281,7 +2282,11 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
     loadStand();
   };
   var delR=document.getElementById('adm-delround');
-  delR.onclick=function(){
+  // Chỉ TÁC GIẢ (máy đã nhập mã tác giả) mới được xóa dữ liệu; admin thường không thấy các nút xóa
+  function isAuth(){try{return !!(window.DPG_isAuthor&&window.DPG_isAuthor());}catch(e){return false;}}
+  window.__authGate=function(){var a=isAuth();delR.hidden=!a;var rs=document.getElementById('adm-reset');if(rs)rs.hidden=!a;var gd=document.getElementById('adm-gdel');if(gd&&!a)gd.hidden=true;};
+  setTimeout(window.__authGate,0);
+  delR.onclick=function(){if(!isAuth())return;
     var s=store(),c=cSel.value,r=rSel.value,x=s[c]&&s[c].rounds&&s[c].rounds[r];
     if(!x){okMsg.style.color='var(--muted)';okMsg.textContent='Vòng '+r+' chưa có dữ liệu.';return;}
     if(delR.dataset.c!=='1'){delR.dataset.c='1';delR.textContent='Bấm lần nữa để XÓA toàn bộ dữ liệu Vòng '+r+' ('+gName(c)+')';
@@ -2300,7 +2305,7 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
   function showNext(){if(!nextBtn)return;var r=+rSel.value,N=+nSel.value,s=store(),x=s[cSel.value]&&s[cSel.value].rounds&&s[cSel.value].rounds[r];
     var done=x&&x.standings&&x.standings.length;nextBtn.hidden=!(done&&r<N);nextBtn.textContent='Sang nhập Vòng '+(r+1)+' ›';}
   nextBtn.onclick=function(){goRound(+rSel.value+1);window.scrollTo({top:document.getElementById('adm-round').getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'});};
-  document.getElementById('adm-reset').onclick=function(){
+  document.getElementById('adm-reset').onclick=function(){if(!isAuth())return;
     if(confirmReset()){var z={_at:Date.now(),giai:GL()};try{localStorage.setItem('dpg-kq',JSON.stringify(z))}catch(e){}
       if(window.DPG){window.DPG.cloud=z;if(window.DPG.push)window.DPG.push(z).catch(function(){});}
       okMsg.textContent='Đã xóa toàn bộ kết quả đã nhập.';if(window.__kqRefresh)window.__kqRefresh();rSel.value=String(workRound(cSel.value));loadRows();}
@@ -2347,7 +2352,7 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
     gOk.textContent='Tạo giải & chốt số vòng';gDel.hidden=true;hint('Mỗi nội dung chọn số vòng riêng — số vòng được chốt khi tạo giải.');gForm.hidden=false;gm('');gNameI.focus();}
   function openEdit(){var g=gById(gSel.value);if(!g)return;gEdit=g.id;gTitle.textContent='Sửa giải';gNameI.value=g.ten;
     var lockTxt=[];ndRows.innerHTML=g.nd.map(function(n){var m=ndMaxR(n.id);if(m)lockTxt.push(n.ten+' đã có kết quả đến Vòng '+m);return ndRowHTML(n,m);}).join('');bindNd();
-    gOk.textContent='Lưu thay đổi';gDel.hidden=GL().length<2;gDel.dataset.c='';gDel.textContent='Xóa giải này';
+    gOk.textContent='Lưu thay đổi';gDel.hidden=GL().length<2||!(window.DPG_isAuthor&&window.DPG_isAuthor());gDel.dataset.c='';gDel.textContent='Xóa giải này';
     hint(lockTxt.length?('Đổi được số vòng, nhưng không ít hơn vòng đã thi: '+lockTxt.join('; ')+'.'):'Chưa có kết quả — đổi số vòng thoải mái.');gForm.hidden=false;gm('');}
   gNew.onclick=function(){if(!gForm.hidden&&!gEdit){gForm.hidden=true;return;}openNew();};
   gCancel.onclick=function(){gForm.hidden=true;gm('');};
@@ -2371,7 +2376,7 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
     fillGiai(gid,keep);refreshRoundSel();rSel.value=String(workRound(cSel.value));loadRows();
     pushStore(s,gMsg,(gEdit?'thay đổi giải “':'giải mới “')+ten+'” · '+nd.map(function(n){return n.ten+' '+n.vong+' vòng'}).join(', '));
   };
-  gDel.onclick=function(){
+  gDel.onclick=function(){if(!(window.DPG_isAuthor&&window.DPG_isAuthor()))return;
     var g=gById(gEdit);if(!g)return;var has=g.nd.some(function(n){return ndHas(store()[n.id])});
     if(gDel.dataset.c!=='1'){gDel.dataset.c='1';gDel.textContent=has?'Bấm lần nữa để XÓA giải và toàn bộ kết quả của giải':'Bấm lần nữa để xóa giải';
       setTimeout(function(){gDel.dataset.c='';gDel.textContent='Xóa giải này';},4000);return;}
