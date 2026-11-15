@@ -437,6 +437,10 @@ a.poi.food .go{color:var(--jade)}
 .gt img{width:100%;height:100%;object-fit:cover;display:block}
 .gt .vb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;background:rgba(0,0,0,.42)}
 .gt .gc{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;color:#fff;background:rgba(0,0,0,.5);padding:3px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.galsub{display:flex;align-items:center;gap:8px;margin:14px 2px 2px;font-size:13.5px;font-weight:800;color:var(--fg)}
+.galsub:first-child{margin-top:4px}
+.galsub .n{font-size:11.5px;font-weight:600;color:var(--muted)}
+.galsub::after{content:"";flex:1;height:1px;background:var(--line)}
 .galempty{color:var(--muted);font-size:13px;padding:10px 2px}
 .glb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px}
 .glb img{max-width:95vw;max-height:88vh;border-radius:10px}
@@ -844,7 +848,7 @@ a.poi.food .go{color:var(--jade)}
 
   <div class="sec">
     <div class="lbl">Trong giải đấu · 14 – 16/11</div>
-    <div class="gthumbs" id="gal-trong"></div>
+    <div id="gal-trong"></div>
     <div class="galempty" id="gal-trong-e">Đang cập nhật…</div>
   </div>
 
@@ -1174,6 +1178,9 @@ a.poi.food .go{color:var(--jade)}
       <p class="note" style="padding:0 2px 6px">Tải ảnh thẳng từ điện thoại, hoặc dán link video (YouTube / Facebook / Google Drive). Ảnh/video hiện ngay ở tab <b>Thư viện</b> cho mọi người.</p>
       <div class="field"><label>Thuộc nhóm</label>
         <select class="inp" id="gal-grp"><option value="truoc">Trước giải đấu</option><option value="trong">Trong giải đấu · 14–16/11</option></select>
+      </div>
+      <div class="field" id="gal-al-f" hidden><label>Album</label>
+        <select class="inp" id="gal-al"><option value="khai-mac">Khai mạc</option><option value="v1">Vòng 1</option><option value="v2">Vòng 2</option><option value="v3">Vòng 3</option><option value="v4">Vòng 4</option><option value="v5">Vòng 5</option><option value="v6">Vòng 6</option><option value="v7">Vòng 7</option><option value="be-mac">Bế mạc &amp; trao giải</option></select>
       </div>
       <input class="inp" id="gal-cap" placeholder="Chú thích (không bắt buộc)" style="margin-bottom:8px">
       <button class="btn" id="gal-upbtn">📷 Tải ảnh lên (chọn nhiều ảnh)</button>
@@ -2702,6 +2709,9 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
   var CLD_CLOUD='yjsnmpiw', CLD_PRESET='cup_gallery';
   var GRPS={truoc:'Trước giải đấu', trong:'Trong giải đấu'};
   // Ảnh cố định có sẵn trong app (luôn hiện đầu nhóm)
+  // Album trong giải: id → tên (thứ tự thời gian)
+  var GAL_AL=[['khai-mac','Khai mạc'],['v1','Vòng 1'],['v2','Vòng 2'],['v3','Vòng 3'],['v4','Vòng 4'],['v5','Vòng 5'],['v6','Vòng 6'],['v7','Vòng 7'],['be-mac','Bế mạc & trao giải']],GAL_AL_NAME={};
+  GAL_AL.forEach(function(a){GAL_AL_NAME[a[0]]=a[1];});
   var FIXED=[{id:'fx-video',t:'vid',url:'thu-vien/gioi-thieu-giai-v2.mp4',th:'thu-vien/gioi-thieu-giai-v2-nho.jpg',poster:'thu-vien/gioi-thieu-giai-v2.jpg',
     cap:'🎬 Video giới thiệu Giải – Cúp Đại Phú Gia 2026',grp:'truoc'},
     {id:'fx-hoitruong-6',t:'img',url:'thu-vien/hoi-truong-6.jpg',th:'thu-vien/hoi-truong-6-nho.jpg',cap:'🎉 Backdrop sân khấu chính của giải đã dựng xong',grp:'truoc'},
@@ -2722,16 +2732,23 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
     {id:'fx-pano-7',t:'img',url:'thu-vien/pano-7.jpg',th:'thu-vien/pano-7-nho.jpg',cap:'🚩 Pano chào mừng giải tại Khu Biệt thự Đại Phú Gia',grp:'truoc'},
     {id:'fx-pano-8',t:'img',url:'thu-vien/pano-8.jpg',th:'thu-vien/pano-8-nho.jpg',cap:'🚩 Pano chào mừng giải tại Khu Biệt thự Đại Phú Gia',grp:'truoc'},
     {id:'fx-pano-9',t:'img',url:'thu-vien/pano-9.jpg',th:'thu-vien/pano-9-nho.jpg',cap:'🚩 Pano chào mừng giải tại Khu Biệt thự Đại Phú Gia',grp:'truoc'},
-    {id:'fx-khaimac-1',t:'img',url:'thu-vien/khai-mac-1.jpg',th:'thu-vien/khai-mac-1-nho.jpg',cap:'🎤 Lễ khai mạc giải sáng 15/11',grp:'trong'},
-    {id:'fx-khaimac-2',t:'img',url:'thu-vien/khai-mac-2.jpg',th:'thu-vien/khai-mac-2-nho.jpg',cap:'🎤 Phát biểu khai mạc trước các kỳ thủ',grp:'trong'},
-    {id:'fx-khaimac-3',t:'img',url:'thu-vien/khai-mac-3.jpg',th:'thu-vien/khai-mac-3-nho.jpg',cap:'💐 Tặng hoa & tranh lưu niệm tại lễ khai mạc',grp:'trong'},
-    {id:'fx-khaimac-4',t:'img',url:'thu-vien/khai-mac-4.jpg',th:'thu-vien/khai-mac-4-nho.jpg',cap:'💐 Tặng hoa & tranh lưu niệm tại lễ khai mạc',grp:'trong'},
-    {id:'fx-khaimac-5',t:'img',url:'thu-vien/khai-mac-5.jpg',th:'thu-vien/khai-mac-5-nho.jpg',cap:'🤝 Trao quà lưu niệm tại lễ khai mạc',grp:'trong'},
-    {id:'fx-khaimac-6',t:'img',url:'thu-vien/khai-mac-6.jpg',th:'thu-vien/khai-mac-6-nho.jpg',cap:'♟ Những nước cờ đầu tiên của giải trên sân khấu chính',grp:'trong'},
-    {id:'fx-khaimac-7',t:'img',url:'thu-vien/khai-mac-7.jpg',th:'thu-vien/khai-mac-7-nho.jpg',cap:'♟ Những nước cờ đầu tiên của giải trên sân khấu chính',grp:'trong'},
-    {id:'fx-khaimac-8',t:'img',url:'thu-vien/khai-mac-8.jpg',th:'thu-vien/khai-mac-8-nho.jpg',cap:'📸 Các kỳ thủ chụp ảnh lưu niệm bên ván cờ khai cuộc',grp:'trong'},
-    {id:'fx-khaimac-9',t:'img',url:'thu-vien/khai-mac-9.jpg',th:'thu-vien/khai-mac-9-nho.jpg',cap:'📸 Các kỳ thủ chụp ảnh lưu niệm bên ván cờ khai cuộc',grp:'trong'},
-    {id:'fx-luat',t:'img',url:'thu-vien/luat-co-tuong.jpg',th:'thu-vien/luat-co-tuong-nho.jpg',cap:'📋 Luật Cờ tướng áp dụng tại giải – Ban tổ chức ban hành',grp:'trong'}];
+    {id:'fx-v1-1',t:'img',url:'thu-vien/v1-1.jpg',th:'thu-vien/v1-1-nho.jpg',cap:'♟ Cờ tướng · Bàn 2: Châu Anh Phong – Nguyễn Hữu Bình',grp:'trong',al:'v1'},
+    {id:'fx-v1-2',t:'img',url:'thu-vien/v1-2.jpg',th:'thu-vien/v1-2-nho.jpg',cap:'♟ Cờ tướng · Bàn 4: Hán Văn San – Châu Trần Quang Đạt',grp:'trong',al:'v1'},
+    {id:'fx-v1-3',t:'img',url:'thu-vien/v1-3.jpg',th:'thu-vien/v1-3-nho.jpg',cap:'♟ Cờ tướng · Bàn 6: Nguyễn Văn Thanh – Nguyễn Văn Hà',grp:'trong',al:'v1'},
+    {id:'fx-v1-4',t:'img',url:'thu-vien/v1-4.jpg',th:'thu-vien/v1-4-nho.jpg',cap:'♟ Cờ tướng · Bàn 8: Nguyễn Thành Thu – Đỗ Ngọc Hùng',grp:'trong',al:'v1'},
+    {id:'fx-v1-5',t:'img',url:'thu-vien/v1-5.jpg',th:'thu-vien/v1-5-nho.jpg',cap:'♟ Cờ tướng · Bàn 11: Dương Phi Huy – Võ Đình Thượng',grp:'trong',al:'v1'},
+    {id:'fx-v1-6',t:'img',url:'thu-vien/v1-6.jpg',th:'thu-vien/v1-6-nho.jpg',cap:'♟ Cờ tướng · Bàn 14: Lê Đăng Vũ – Phạm Quang Minh',grp:'trong',al:'v1'},
+    {id:'fx-v1-7',t:'img',url:'thu-vien/v1-7.jpg',th:'thu-vien/v1-7-nho.jpg',cap:'♟ Cờ tướng · Bàn 14: Lê Đăng Vũ – Phạm Quang Minh',grp:'trong',al:'v1'},
+    {id:'fx-khaimac-1',t:'img',url:'thu-vien/khai-mac-1.jpg',th:'thu-vien/khai-mac-1-nho.jpg',cap:'🎤 Lễ khai mạc giải sáng 15/11',grp:'trong',al:'khai-mac'},
+    {id:'fx-khaimac-2',t:'img',url:'thu-vien/khai-mac-2.jpg',th:'thu-vien/khai-mac-2-nho.jpg',cap:'🎤 Phát biểu khai mạc trước các kỳ thủ',grp:'trong',al:'khai-mac'},
+    {id:'fx-khaimac-3',t:'img',url:'thu-vien/khai-mac-3.jpg',th:'thu-vien/khai-mac-3-nho.jpg',cap:'💐 Tặng hoa & tranh lưu niệm tại lễ khai mạc',grp:'trong',al:'khai-mac'},
+    {id:'fx-khaimac-4',t:'img',url:'thu-vien/khai-mac-4.jpg',th:'thu-vien/khai-mac-4-nho.jpg',cap:'💐 Tặng hoa & tranh lưu niệm tại lễ khai mạc',grp:'trong',al:'khai-mac'},
+    {id:'fx-khaimac-5',t:'img',url:'thu-vien/khai-mac-5.jpg',th:'thu-vien/khai-mac-5-nho.jpg',cap:'🤝 Trao quà lưu niệm tại lễ khai mạc',grp:'trong',al:'khai-mac'},
+    {id:'fx-khaimac-6',t:'img',url:'thu-vien/khai-mac-6.jpg',th:'thu-vien/khai-mac-6-nho.jpg',cap:'♟ Những nước cờ đầu tiên của giải trên sân khấu chính',grp:'trong',al:'khai-mac'},
+    {id:'fx-khaimac-7',t:'img',url:'thu-vien/khai-mac-7.jpg',th:'thu-vien/khai-mac-7-nho.jpg',cap:'♟ Những nước cờ đầu tiên của giải trên sân khấu chính',grp:'trong',al:'khai-mac'},
+    {id:'fx-khaimac-8',t:'img',url:'thu-vien/khai-mac-8.jpg',th:'thu-vien/khai-mac-8-nho.jpg',cap:'📸 Các kỳ thủ chụp ảnh lưu niệm bên ván cờ khai cuộc',grp:'trong',al:'khai-mac'},
+    {id:'fx-khaimac-9',t:'img',url:'thu-vien/khai-mac-9.jpg',th:'thu-vien/khai-mac-9-nho.jpg',cap:'📸 Các kỳ thủ chụp ảnh lưu niệm bên ván cờ khai cuộc',grp:'trong',al:'khai-mac'},
+    {id:'fx-luat',t:'img',url:'thu-vien/luat-co-tuong.jpg',th:'thu-vien/luat-co-tuong-nho.jpg',cap:'📋 Luật Cờ tướng áp dụng tại giải – Ban tổ chức ban hành',grp:'trong',al:'khai-mac'}];
   function galArr(){
     var a=(window.DPG&&window.DPG.config&&window.DPG.config.gallery);
     if(!a){try{a=JSON.parse(localStorage.getItem('dpg-cfg')||'{}').gallery;}catch(e){a=null;}}
@@ -2778,11 +2795,17 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
     ['truoc','trong'].forEach(function(g){
       var box=document.getElementById('gal-'+g),em=document.getElementById('gal-'+g+'-e');if(!box)return;
       box.innerHTML='';var items=FIXED.concat(arr).filter(function(x){return (x.grp||'truoc')===g;});
-      items.forEach(function(it){box.appendChild(card(it));});
+      if(g==='trong'){ // chia album: mới nhất ở trên (Bế mạc → Vòng 7 … Vòng 1 → Khai mạc → Khác)
+        var by={};items.forEach(function(it){var a=GAL_AL_NAME[it.al]?it.al:'khac';(by[a]=by[a]||[]).push(it);});
+        GAL_AL.slice().reverse().concat([['khac','Ảnh khác']]).forEach(function(a){var L=by[a[0]];if(!L||!L.length)return;
+          var h=document.createElement('div');h.className='galsub';h.innerHTML=esc(a[1])+' <span class="n">'+L.length+' ảnh</span>';box.appendChild(h);
+          var gr=document.createElement('div');gr.className='gthumbs';L.forEach(function(it){gr.appendChild(card(it));});box.appendChild(gr);});
+      }else items.forEach(function(it){box.appendChild(card(it));});
       if(em)em.style.display=items.length?'none':'';
     });
   }
   window.__galRefresh=renderGallery;
+  window.GAL_AL_LIST=GAL_AL;
   function resizeBlob(file,max){return new Promise(function(res,rej){
     var img=new Image();img.onload=function(){
       var w=img.width,h=img.height;if(w>max||h>max){var s=Math.min(max/w,max/h);w=Math.round(w*s);h=Math.round(h*s);}
@@ -2819,18 +2842,22 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
     });
   }
   window.__galAdmRender=renderAdm;
+  (function(){var g=document.getElementById('gal-grp'),f=document.getElementById('gal-al-f'),a=document.getElementById('gal-al');if(!g||!f)return;
+    function sync(){f.hidden=g.value!=='trong';}g.addEventListener('change',sync);
+    // mặc định chọn trong giải + album vòng mới nhất đang có ảnh
+    try{if(Date.now()>=Date.parse('2026-11-15T00:00:00+07:00')){g.value='trong';a.value='v1';}}catch(e){}sync();})();
   var upbtn=document.getElementById('gal-upbtn'),file=document.getElementById('gal-file');
   if(upbtn&&file){
     upbtn.onclick=function(){file.click();};
     file.onchange=function(e){
       var fs=Array.prototype.slice.call(e.target.files||[]);if(!fs.length)return;
-      var grp=(document.getElementById('gal-grp')||{}).value||'truoc';
+      var grp=(document.getElementById('gal-grp')||{}).value||'truoc',al=grp==='trong'?((document.getElementById('gal-al')||{}).value||''):'';
       var cap=((document.getElementById('gal-cap')||{}).value||'').trim();
       var items=[],i=0;
       (function next(){
         if(i>=fs.length){if(items.length)addItems(items);else gmsg('Không tải được ảnh nào.','var(--red)');return;}
         var f=fs[i++];gmsg('Đang tải ảnh '+i+'/'+fs.length+'…');
-        resizeBlob(f,1600).then(cloudUp).then(function(url){items.push({id:uid(),t:'img',url:url,cap:cap,grp:grp,ts:Date.now()+i});}).catch(function(err){gmsg('Lỗi ảnh '+i+': '+err.message,'var(--red)');}).then(next);
+        resizeBlob(f,1600).then(cloudUp).then(function(url){items.push({id:uid(),t:'img',url:url,cap:cap,grp:grp,al:al,ts:Date.now()+i});}).catch(function(err){gmsg('Lỗi ảnh '+i+': '+err.message,'var(--red)');}).then(next);
       })();
       e.target.value='';
     };
@@ -2839,9 +2866,9 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
   if(vb)vb.onclick=function(){
     var inp=document.getElementById('gal-vidurl'),u=(inp.value||'').trim();
     if(!/^https?:\/\//i.test(u)){gmsg('Dán link video hợp lệ (bắt đầu bằng http).','var(--red)');return;}
-    var grp=(document.getElementById('gal-grp')||{}).value||'truoc';
+    var grp=(document.getElementById('gal-grp')||{}).value||'truoc',al=grp==='trong'?((document.getElementById('gal-al')||{}).value||''):'';
     var cap=((document.getElementById('gal-cap')||{}).value||'').trim();
-    addItems([{id:uid(),t:'vid',url:u,cap:cap,grp:grp,ts:Date.now()}]);inp.value='';
+    addItems([{id:uid(),t:'vid',url:u,cap:cap,grp:grp,al:al,ts:Date.now()}]);inp.value='';
   };
   renderGallery();renderAdm();
 })();
