@@ -260,6 +260,8 @@ a.poi.food .go{color:var(--jade)}
 .subtabs button{flex:1;padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--surface);
   color:var(--muted);font-weight:700;font-size:12px;cursor:pointer}
 .subtabs button.on{background:var(--red);color:#fff;border-color:var(--red)}
+.kqsrc{font-size:11.5px;color:var(--muted);margin:-4px 2px 9px}
+.kqsrc a{color:var(--red-ink);font-weight:700;text-decoration:none}
 .kqsearch{width:100%;box-sizing:border-box;padding:10px 12px;margin:0 0 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-size:14px}
 .kqnone{padding:18px 4px;text-align:center;color:var(--muted);font-size:13px}
 .dkhead{display:flex;align-items:center;gap:10px;margin:0 2px 10px}
@@ -1424,8 +1426,41 @@ var KQ_SEED={
       ['Dương Phi Huy','Công ty TNHH MTV Thời Gian Vàng','Võ Đình Thượng','Công ty Cổ phần Tư vấn Xây dựng Thăng Long'],
       ['Lê Quang Tri','Công ty TNHH Quang Tri','Trần Mai Anh Khoa','Công ty TNHH ITV AK Anh Khoa'],
       ['Lâm Mộng Ký','Công ty TNHH MTC DV Bảo vệ Đại An','Nguyễn Thanh Việt','Công ty TNHH Xây dựng Thương mại Thanh Việt'],
-      ['Lê Đăng Vũ','Công ty TNHH Thiết bị Máy văn phòng Phát Lộc','Phạm Quang Minh','Công ty Thang máy ROYAL Việt Nam'],
+      ['Lê Đăng Vũ','Hội Nông dân phường Điện Bàn, TP. Đà Nẵng','Phạm Quang Minh','Công ty Thang máy ROYAL Việt Nam'],
       ['Diệp Chấn Vương','Công ty Cổ phần Hai Lúa Gia Lai','Miễn đấu','']
+    ],games:[ // Vòng 1 — kết quả (biên bản trọng tài 15/11)
+      ['Trần Xuân An','','Nguyễn Thành Nam','','1 - 0'],
+      ['Châu Anh Phong','','Nguyễn Hữu Bình','','½ - ½'],
+      ['Nguyễn Ngọc Cường','','Bùi Thanh Phụng','','1 - 0'],
+      ['Hán Văn San','','Châu Trần Quang Đạt','','0 - 1'],
+      ['Trần Minh Đức','','Nguyễn Văn Thắng','','0 - 1'],
+      ['Nguyễn Văn Thanh','','Nguyễn Văn Hà','','½ - ½'],
+      ['Nguyễn Hợp','','Mai Đức Thiện','','1 - 0'],
+      ['Nguyễn Thành Thu','','Đỗ Ngọc Hùng','','0 - 1'],
+      ['Phạm Văn Hùng','','Nguyễn Hữu Bảo Thuần','','½ - ½'],
+      ['Mai Xuân Thường','','Nguyễn Anh Huy','','1 - 0'],
+      ['Dương Phi Huy','','Võ Đình Thượng','','1 - 0'],
+      ['Lê Quang Tri','','Trần Mai Anh Khoa','','0 - 1'],
+      ['Lâm Mộng Ký','','Nguyễn Thanh Việt','','1 - 0'],
+      ['Lê Đăng Vũ','','Phạm Quang Minh','','0 - 1'],
+      ['Diệp Chấn Vương','','Miễn đấu','','+1']
+    ]},
+    2:{draw:[ // Vòng 2 — bốc thăm (Chess-Results)
+      ['Trần Mai Anh Khoa','','Trần Xuân An',''],
+      ['Phạm Quang Minh','','Nguyễn Ngọc Cường',''],
+      ['Châu Trần Quang Đạt','','Lâm Mộng Ký',''],
+      ['Nguyễn Văn Thắng','','Nguyễn Hợp',''],
+      ['Đỗ Ngọc Hùng','','Mai Xuân Thường',''],
+      ['Diệp Chấn Vương','','Dương Phi Huy',''],
+      ['Nguyễn Hữu Bình','','Nguyễn Văn Thanh',''],
+      ['Nguyễn Văn Hà','','Phạm Văn Hùng',''],
+      ['Nguyễn Hữu Bảo Thuần','','Châu Anh Phong',''],
+      ['Mai Đức Thiện','','Trần Minh Đức',''],
+      ['Nguyễn Anh Huy','','Nguyễn Thành Thu',''],
+      ['Nguyễn Thành Nam','','Lê Quang Tri',''],
+      ['Bùi Thanh Phụng','','Lê Đăng Vũ',''],
+      ['Võ Đình Thượng','','Hán Văn San',''],
+      ['Nguyễn Thanh Việt','','Miễn đấu','']
     ]}
   },
   b:{ // Cờ tướng úp
@@ -1441,6 +1476,18 @@ var KQ_SEED={
       ['Nguyễn Văn Khánh','Công ty Xây dựng Tân Phương','Đỗ Hữu Trường','Trường THPT Chi Lăng'],
       ['Văn Quốc Vinh','Công ty TNHH CAF Việt Nam (Kiểm toán CAF)','Nguyễn Tấn Linh','Công ty Cổ phần Tư vấn Xây dựng Thăng Long'],
       ['Trần Văn Lộc','Cơ sở Kinh doanh Bia Tấn Phát','Trịnh Hồ Quang Vũ','Công ty TNHH Thiết bị Máy văn phòng Phát Lộc']
+    ],games:[ // Vòng 1 — kết quả (biên bản trọng tài 15/11)
+      ['Nguyễn Đào Hoài An','','Nguyễn Hoàng Minh','','1 - 0'],
+      ['Hoàng Anh Minh','','Nguyễn Vũ Bảo','','1 - 0'],
+      ['Lục Văn Dũng','','Mai Công Nghĩa','','0 - 1'],
+      ['Lê Gia Nguyễn','','Trần Bá Duy','','1 - 0'],
+      ['Trương Quang Hải','','Trương Hòa Nhân','','0 - 1'],
+      ['Nguyễn Phúc Tài','','Châu Viết Hải','','1 - 0'],
+      ['Đặng Huy','','Nguyễn An Thái','','1 - 0'],
+      ['Lê Tấn Thủy','','Nguyễn Thanh Huy','','½ - ½'],
+      ['Nguyễn Văn Khánh','','Đỗ Hữu Trường','','1 - 0'],
+      ['Văn Quốc Vinh','','Nguyễn Tấn Linh','','0 - 1'],
+      ['Trần Văn Lộc','','Trịnh Hồ Quang Vũ','','0 - 1']
     ]}
   }
 };
@@ -1489,13 +1536,51 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   function norm(o,c){o.numRounds=gV(c)||o.numRounds||9;o.rounds=o.rounds||{};o.final=o.final||[];return o}
   function seedIn(o,c){var S=KQ_SEED[c];if(!S)return o;o=JSON.parse(JSON.stringify(o));o.rounds=o.rounds||{};
     Object.keys(S).forEach(function(r){var x=o.rounds[r]||{};['draw','games','standings'].forEach(function(f){if(S[r][f]&&S[r][f].length&&!(x[f]&&x[f].length))x[f]=S[r][f];});o.rounds[r]=x;});return o;}
-  function getData(c){
+  function getData(c){return fillU(crIn(getData0(c),c));}
+  function getData0(c){
     try{if(window.DPG&&window.DPG.cloud&&hasData(window.DPG.cloud[c]))return seedIn(norm(window.DPG.cloud[c],c),c);}catch(e){}
     try{var s=JSON.parse(localStorage.getItem('dpg-kq')||'{}');
       if(hasData(s[c]))return seedIn(norm(s[c],c),c);
     }catch(e){}
     return seedIn({demo:false,numRounds:gV(c),rounds:{},final:[]},c);
   }
+  /* ---- TỰ CẬP NHẬT TỪ CHESS-RESULTS (qua /api/cr của app, lưu đệm 60s) ----
+     a = Cờ tướng (tnr1541784), b = Cờ tướng úp (tnr1541790). Admin có thể đổi trong cấu hình: app/config.cr={a:'…',b:'…'} */
+  var CR_T={a:'1541784',b:'1541790'},CR={},crAt=0,crBusy=false;
+  try{CR=JSON.parse(localStorage.getItem('dpg-cr')||'{}')||{};}catch(e){CR={};}
+  function crIds(){var c={};try{c=(window.DPG&&window.DPG.config&&window.DPG.config.cr)||{};}catch(e){}return {a:c.a||CR_T.a,b:c.b||CR_T.b};}
+  var CR_API=(/pages\.dev$|localhost|127\.0\.0\.1/.test(location.hostname)?'':'https://cup-dai-phu-gia.pages.dev')+'/api/cr';
+  function uMap(){var m={};try{((window.DPGREG&&window.DPGREG.list())||[]).forEach(function(r){m[nk(r.n).replace(/\s+/g,' ').trim()]=r.cty||'';});}catch(e){}return m;}
+  function fillU(o){var m=uMap();function U(n){return m[nk(n).replace(/\s+/g,' ').trim()]||'';}
+    Object.keys(o.rounds||{}).forEach(function(r){var x=o.rounds[r];if(!x)return;
+      ['draw','games'].forEach(function(f){(x[f]||[]).forEach(function(g){if(!g)return;if(!g[1]&&g[0])g[1]=U(g[0]);if(!g[3]&&g[2]&&g[2]!=='Miễn đấu')g[3]=U(g[2]);});});
+      (x.standings||[]).forEach(function(g){if(g&&!g[2]&&g[1])g[2]=U(g[1]);});});
+    return o;}
+  function crIn(o,c){var d=CR[c];if(!d||!d.rounds||d.t!==crIds()[c])return o;var m=uMap();
+    function U(n,fb){return m[nk(n).replace(/\s+/g,' ').trim()]||fb||'';}
+    o=JSON.parse(JSON.stringify(o));o.rounds=o.rounds||{};
+    Object.keys(d.rounds).forEach(function(r){var P=d.rounds[r].pairs||[];if(!P.length)return;var x=o.rounds[r]||{};
+      x.draw=P.map(function(p){return [p.w,U(p.w,p.wc),p.bye?'Miễn đấu':p.b,p.bye?'':U(p.b,p.bc)];});
+      if(P.some(function(p){return p.res;}))x.games=P.map(function(p){return [p.w,U(p.w,p.wc),p.bye?'Miễn đấu':p.b,p.bye?'':U(p.b,p.bc),p.res||(p.bye?'+1':'…')];});
+      o.rounds[r]=x;x._cr=1;});
+    Object.keys(d.rank||{}).forEach(function(r){var L=d.rank[r];if(!L||!L.length)return;var x=o.rounds[r]||{};
+      x.standings=L.map(function(g){return [g[0],g[1],U(g[1],g[2]),g[3]];});o.rounds[r]=x;x._cr=1;});
+    return o;}
+  function crLoad(){if(crBusy)return;crBusy=true;var ids=crIds(),ks=['a','b'],left=ks.length,changed=false;
+    ks.forEach(function(c){fetch(CR_API+'?t='+ids[c],{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+        if(d&&d.rounds&&Object.keys(d.rounds).length){var old=JSON.stringify(CR[c]&&CR[c].rounds)+JSON.stringify(CR[c]&&CR[c].rank);
+          CR[c]=d;if(old!==JSON.stringify(d.rounds)+JSON.stringify(d.rank))changed=true;}
+      }).catch(function(){}).then(function(){if(--left)return;crBusy=false;crAt=Date.now();
+        try{localStorage.setItem('dpg-cr',JSON.stringify(CR));}catch(e){}
+        if(changed&&window.__kqRefresh)window.__kqRefresh();else if(location.hash==='#ket-qua')render();});});}
+  window.__crLoad=crLoad;
+  function crLink(c,tab,r){var t=crIds()[c];return 'https://chess-results.com/tnr'+t+'.aspx?lan=29&art='+(tab==='standings'?'1':'2')+(r?'&rd='+r:'');}
+  function hm2(t){var d=new Date(t);function p(x){return(x<10?'0':'')+x}return p(d.getHours())+':'+p(d.getMinutes());}
+  function crNote(c,tab,r){var d=CR[c];return '<div class="kqsrc">'+(d&&d.at?'⚡ Tự cập nhật từ Chess-Results · '+hm2(crAt||d.at):'Nguồn: Chess-Results')+' · <a href="'+crLink(c,tab,r)+'" target="_blank" rel="noopener">Xem bản gốc ↗</a></div>';}
+  setTimeout(crLoad,1200);
+  setInterval(function(){if(!document.hidden&&(location.hash==='#ket-qua'||location.hash===''||location.hash==='#home'))crLoad();},60000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-crAt>30000)crLoad();});
+  window.addEventListener('hashchange',function(){if(location.hash==='#ket-qua'&&Date.now()-crAt>20000)crLoad();});
   function renderToggle(){
     var L=giaiCur(),f=ndFind(srcObj(),cur.c);
     if(!cPicked||!f){ // chưa chọn: mở nội dung đang có kết quả (theo thứ tự giải/nội dung)
@@ -1559,13 +1644,13 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       box.innerHTML=h;bind();return;
     }
     if(cur.tab==='draw'){
-      h+='<div class="kqcap">Kết quả bốc thăm · Vòng '+cur.r+'</div>';
+      h+='<div class="kqcap">Kết quả bốc thăm · Vòng '+cur.r+'</div>'+crNote(cur.c,'draw',cur.r);
       h+=(rd.draw&&rd.draw.length)?pairList(rd.draw,false):empty('Chưa có bốc thăm','Danh sách cặp đấu vòng '+cur.r+' sẽ cập nhật tại đây.');
     }else if(cur.tab==='games'){
-      h+='<div class="kqcap">Kết quả thi đấu · Vòng '+cur.r+'</div>';
+      h+='<div class="kqcap">Kết quả thi đấu · Vòng '+cur.r+'</div>'+crNote(cur.c,'games',cur.r);
       h+=(rd.games&&rd.games.length)?pairList(rd.games,true):empty('Chưa có kết quả','Kết quả các ván vòng '+cur.r+' sẽ cập nhật tại đây.');
     }else{
-      h+='<div class="kqcap">Xếp hạng sau Vòng '+cur.r+'</div>';
+      h+='<div class="kqcap">Xếp hạng sau Vòng '+cur.r+'</div>'+crNote(cur.c,'standings',cur.r);
       h+=(rd.standings&&rd.standings.length)?standTable(rd.standings):empty('Chưa có xếp hạng','Bảng xếp hạng sau vòng '+cur.r+' sẽ cập nhật tại đây.');
     }
     box.innerHTML=h;bind();
@@ -1667,7 +1752,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     {n:'Châu Trần Quang Đạt',cv:'Phó Giám đốc',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
     {n:'Trịnh Hồ Quang Vũ',cv:'Trưởng phòng Kỹ thuật',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng úp'},
     {n:'Trần Xuân An',cv:'Trưởng phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
-    {n:'Lê Đăng Vũ',cv:'Phó phòng Nhân sự',cty:'Công ty TNHH Thiết bị Máy văn phòng Phát Lộc',nd:'Cờ tướng'},
+    {n:'Lê Đăng Vũ',cv:'',cty:'Hội Nông dân phường Điện Bàn, TP. Đà Nẵng',nd:'Cờ tướng'},
     {n:'Mai Xuân Thường',cv:'Giám đốc',cty:'Công ty TNHH MTV Nguyễn Gia',nd:'Cờ tướng'},
     {n:'Hán Văn San',cv:'Giám đốc',cty:'Công ty An Phước Thịnh',nd:'Cờ tướng'},
     {n:'Hoàng Anh Minh',cv:'Giám đốc Điều hành',cty:'Khách sạn Đông Nghi',nd:'Cờ tướng úp'},
