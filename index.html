@@ -2887,6 +2887,7 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
     {id:'fx-pano-7',t:'img',url:'thu-vien/pano-7.jpg',th:'thu-vien/pano-7-nho.jpg',cap:'🚩 Pano chào mừng giải tại Khu Biệt thự Đại Phú Gia',grp:'truoc'},
     {id:'fx-pano-8',t:'img',url:'thu-vien/pano-8.jpg',th:'thu-vien/pano-8-nho.jpg',cap:'🚩 Pano chào mừng giải tại Khu Biệt thự Đại Phú Gia',grp:'truoc'},
     {id:'fx-pano-9',t:'img',url:'thu-vien/pano-9.jpg',th:'thu-vien/pano-9-nho.jpg',cap:'🚩 Pano chào mừng giải tại Khu Biệt thự Đại Phú Gia',grp:'truoc'},
+    {id:'fx-video-bemac',t:'vid',url:'thu-vien/video-be-mac.mp4',th:'thu-vien/video-be-mac-nho.jpg',poster:'thu-vien/video-be-mac.jpg',cap:'🎬 Video tổng kết giải – phát tại Lễ bế mạc 15/11',grp:'trong',al:'be-mac'},
     {id:'fx-v1-1',t:'img',url:'thu-vien/v1-1.jpg',th:'thu-vien/v1-1-nho.jpg',cap:'♟ Cờ tướng · Bàn 2: Châu Anh Phong – Nguyễn Hữu Bình',grp:'trong',al:'v1'},
     {id:'fx-v1-2',t:'img',url:'thu-vien/v1-2.jpg',th:'thu-vien/v1-2-nho.jpg',cap:'♟ Cờ tướng · Bàn 4: Hán Văn San – Châu Trần Quang Đạt',grp:'trong',al:'v1'},
     {id:'fx-v1-3',t:'img',url:'thu-vien/v1-3.jpg',th:'thu-vien/v1-3-nho.jpg',cap:'♟ Cờ tướng · Bàn 6: Nguyễn Văn Thanh – Nguyễn Văn Hà',grp:'trong',al:'v1'},
@@ -2958,7 +2959,7 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
       if(g==='trong'){ // chia album: mới nhất ở trên (Bế mạc → Vòng 7 … Vòng 1 → Khai mạc → Khác)
         var by={};items.forEach(function(it){var a=GAL_AL_NAME[it.al]?it.al:'khac';(by[a]=by[a]||[]).push(it);});
         GAL_AL.slice().reverse().concat([['khac','Ảnh khác']]).forEach(function(a){var L=by[a[0]];if(!L||!L.length)return;
-          var h=document.createElement('div');h.className='galsub';h.innerHTML=esc(a[1])+' <span class="n">'+L.length+' ảnh</span>';box.appendChild(h);
+          var h=document.createElement('div');h.className='galsub';var nv=L.filter(function(x){return x.t==='vid';}).length,ni=L.length-nv;h.innerHTML=esc(a[1])+' <span class="n">'+[ni?ni+' ảnh':'',nv?nv+' video':''].filter(Boolean).join(' · ')+'</span>';box.appendChild(h);
           var gr=document.createElement('div');gr.className='gthumbs';L.forEach(function(it){gr.appendChild(card(it));});box.appendChild(gr);});
       }else items.forEach(function(it){box.appendChild(card(it));});
       if(em)em.style.display=items.length?'none':'';
