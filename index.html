@@ -263,6 +263,13 @@ a.poi.food .go{color:var(--jade)}
 .ktab tr.kqtop td{background:rgba(212,160,23,.10)}
 .ktab .med{display:block;font-size:20px;line-height:1.1}
 .ktab .kqprize{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--red-ink)}
+.qrclosed{position:relative}
+.qrclosed #qr{filter:grayscale(1) blur(3px);opacity:.35}
+.qrstamp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-12deg);padding:8px 14px;border:3px solid var(--red);border-radius:10px;color:var(--red);font-weight:900;font-size:18px;line-height:1.15;letter-spacing:1px;text-align:center;background:rgba(255,255,255,.85);white-space:nowrap}
+.btn.regoff{opacity:.5;cursor:not-allowed}
+.regoffmsg{margin-top:10px;padding:10px 12px;border-radius:10px;background:rgba(193,39,45,.08);color:var(--red-ink);font-size:13px;line-height:1.45;text-align:center}
+.regoffmsg.shake{animation:regshake .35s}
+@keyframes regshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .kqsrc{font-size:11.5px;color:var(--muted);margin:-4px 2px 9px}
 .kqsrc a{color:var(--red-ink);font-weight:700;text-decoration:none}
 .kqsearch{width:100%;box-sizing:border-box;padding:10px 12px;margin:0 0 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-size:14px}
@@ -962,9 +969,10 @@ a.poi.food .go{color:var(--jade)}
   <div class="card qrwrap">
     <div class="qt">Quét mã QR để đăng ký</div>
     <div class="qs">Mở form đăng ký trực tuyến trên điện thoại</div>
-    <div class="qrbox"><div id="qr"></div></div>
+    <div class="qrbox qrclosed"><div id="qr"></div><div class="qrstamp">ĐÃ ĐÓNG<br>ĐĂNG KÝ</div></div>
     <div class="qrcap">Google Form · <b>Đăng ký thi đấu Cúp Đại Phú Gia 2026</b></div>
-    <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSeBM7vulEUK3vH-kyx1EEi8wNZZEQ042NXoK2LDJPkywub1lA/viewform" target="_blank" rel="noopener">✎ Mở form đăng ký</a>
+    <button class="btn regoff" id="reg-form-btn" type="button">✎ Mở form đăng ký</button>
+    <div class="regoffmsg" id="reg-form-msg" hidden>🏁 Giải đã kết thúc ngày 15/11/2026 — form đăng ký đã đóng. Hẹn gặp quý doanh nhân tại mùa giải tiếp theo!</div>
   </div>
 
   <div class="sec">
@@ -2806,7 +2814,10 @@ window.DPG_LIVE_DEF='Cờ tướng | https://www.youtube.com/watch?v=UFoochiCSJ0
 
 /* ---- QR form đăng ký ---- */
 (function(){
-  var FORM='https://docs.google.com/forms/d/e/1FAIpQLSeBM7vulEUK3vH-kyx1EEi8wNZZEQ042NXoK2LDJPkywub1lA/viewform';
+  // Giải đã kết thúc: QR chỉ còn để trang trí (mã hoá link app, không còn dẫn tới form) và bị che bởi dấu ĐÃ ĐÓNG
+  var FORM='https://cup-dai-phu-gia.pages.dev/';
+  var fb=document.getElementById('reg-form-btn'),fm=document.getElementById('reg-form-msg');
+  if(fb)fb.addEventListener('click',function(){if(fm){fm.hidden=false;fm.classList.remove('shake');void fm.offsetWidth;fm.classList.add('shake');}});
   var el=document.getElementById('qr');if(!el||typeof QRCode==='undefined')return;
   try{new QRCode(el,{text:FORM,width:176,height:176,colorDark:'#1C1813',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});}catch(e){}
 })();
