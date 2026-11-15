@@ -1546,7 +1546,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   }
   /* ---- TỰ CẬP NHẬT TỪ CHESS-RESULTS (qua /api/cr của app, lưu đệm 60s) ----
      a = Cờ tướng (tnr1541784), b = Cờ tướng úp (tnr1541790). Admin có thể đổi trong cấu hình: app/config.cr={a:'…',b:'…'} */
-  var CR_T={a:'1541784',b:'1541790'},CR={},crAt=0,crBusy=false;
+  var CR_T={a:'1541784',b:'1541790'},CR={},crAt=0,crBusy=false,CRERR={};
   try{CR=JSON.parse(localStorage.getItem('dpg-cr')||'{}')||{};}catch(e){CR={};}
   function crIds(){var c={};try{c=(window.DPG&&window.DPG.config&&window.DPG.config.cr)||{};}catch(e){}return {a:c.a||CR_T.a,b:c.b||CR_T.b};}
   var CR_API=(/pages\.dev$|localhost|127\.0\.0\.1/.test(location.hostname)?'':'https://cup-dai-phu-gia.pages.dev')+'/api/cr';
@@ -1567,16 +1567,20 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       x.standings=L.map(function(g){return [g[0],g[1],U(g[1],g[2]),g[3]];});o.rounds[r]=x;x._cr=1;});
     return o;}
   function crLoad(){if(crBusy)return;crBusy=true;var ids=crIds(),ks=['a','b'],left=ks.length,changed=false;
-    ks.forEach(function(c){fetch(CR_API+'?t='+ids[c],{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+    ks.forEach(function(c){fetch(CR_API+'?t='+ids[c],{cache:'no-store'}).then(function(r){return r.text().then(function(t){try{return JSON.parse(t);}catch(e){throw new Error('HTTP '+r.status+' – máy chủ chưa có hàm /api/cr');}});}).then(function(d){
+        CRERR[c]=d&&d.error?d.error:(d&&d.rounds&&!Object.keys(d.rounds).length?'Chess-Results chưa có bốc thăm':'');
         if(d&&d.rounds&&Object.keys(d.rounds).length){var old=JSON.stringify(CR[c]&&CR[c].rounds)+JSON.stringify(CR[c]&&CR[c].rank);
           CR[c]=d;if(old!==JSON.stringify(d.rounds)+JSON.stringify(d.rank))changed=true;}
-      }).catch(function(){}).then(function(){if(--left)return;crBusy=false;crAt=Date.now();
+      }).catch(function(e){CRERR[c]=(e&&e.message)||'không kết nối được';}).then(function(){if(--left)return;crBusy=false;crAt=Date.now();
         try{localStorage.setItem('dpg-cr',JSON.stringify(CR));}catch(e){}
         if(changed&&window.__kqRefresh)window.__kqRefresh();else if(location.hash==='#ket-qua')render();});});}
   window.__crLoad=crLoad;
   function crLink(c,tab,r){var t=crIds()[c];return 'https://chess-results.com/tnr'+t+'.aspx?lan=29&art='+(tab==='standings'?'1':'2')+(r?'&rd='+r:'');}
   function hm2(t){var d=new Date(t);function p(x){return(x<10?'0':'')+x}return p(d.getHours())+':'+p(d.getMinutes());}
-  function crNote(c,tab,r){var d=CR[c];return '<div class="kqsrc">'+(d&&d.at?'⚡ Tự cập nhật từ Chess-Results · '+hm2(crAt||d.at):'Nguồn: Chess-Results')+' · <a href="'+crLink(c,tab,r)+'" target="_blank" rel="noopener">Xem bản gốc ↗</a></div>';}
+  function crNote(c,tab,r){var d=CR[c],ok=d&&d.at&&!CRERR[c];
+    var t=ok?'⚡ Tự cập nhật từ Chess-Results · '+hm2(crAt||d.at):(d&&d.at?'⚡ Chess-Results (bản lưu '+hm2(d.at)+')':'Nguồn: Chess-Results');
+    if(CRERR[c]&&isAdm())t+=' · ⚠ '+esc(CRERR[c]);
+    return '<div class="kqsrc">'+t+' · <a href="'+crLink(c,tab,r)+'" target="_blank" rel="noopener">Xem bản gốc ↗</a></div>';}
   setTimeout(crLoad,1200);
   setInterval(function(){if(!document.hidden&&(location.hash==='#ket-qua'||location.hash===''||location.hash==='#home'))crLoad();},60000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-crAt>30000)crLoad();});

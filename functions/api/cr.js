@@ -11,7 +11,7 @@ export async function onRequestGet(context) {
   const t = (u.searchParams.get('t') || '').trim();
   if (!/^\d{5,9}$/.test(t)) return j({ error: 'Thiếu mã giải (t)' }, 400);
   const cache = caches.default;
-  const key = new Request('https://cr-cache.local/v2/' + t);
+  const key = new Request('https://cr-cache.local/v3/' + t);
   if (!u.searchParams.has('fresh')) {
     const hit = await cache.match(key);
     if (hit) return hit;
@@ -26,9 +26,17 @@ export async function onRequestGet(context) {
     const list = []; for (let r = 1; r <= maxR; r++) list.push(r);
     const pairPages = await Promise.all(list.map(r => get(t, 'art=2&rd=' + r).catch(() => '')));
     const rounds = {};
+    let prevSig = '';
     list.forEach((r, i) => {
-      const pairs = parsePairs(pairPages[i]);
-      if (pairs.length) rounds[r] = { pairs, res: pairs.filter(p => p.res).length };
+      const html = pairPages[i];
+      // Chess-Results có thể trả về trang của vòng khác khi vòng r chưa xếp cặp -> kiểm tra nhãn "r. Ván"/"Round r"
+      const lab = html.match(/(\d+)\.\s*(?:Ván|Round|Runde)\b/i);
+      if (lab && +lab[1] !== r) return;
+      const pairs = parsePairs(html);
+      const sig = pairs.map(p => p.w + '|' + p.b).join(';');
+      if (!pairs.length || sig === prevSig) return; // trùng hệt vòng trước = chưa có vòng này
+      prevSig = sig;
+      rounds[r] = { pairs, res: pairs.filter(p => p.res).length };
     });
     const rankR = list.filter(r => rounds[r] && rounds[r].res > 0);
     const rankPages = await Promise.all(rankR.map(r => get(t, 'art=1&rd=' + r).catch(() => '')));
