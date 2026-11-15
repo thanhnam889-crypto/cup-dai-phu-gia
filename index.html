@@ -713,6 +713,7 @@ a.poi.food .go{color:var(--jade)}
         <div class="r"><div class="k">Hình thức</div><div class="v">Thi đấu cá nhân</div></div>
         <div class="r"><div class="k">Nội dung</div><div class="v">Cờ tướng · Cờ tướng úp</div></div>
         <div class="r"><div class="k">Thể loại</div><div class="v">Cờ nhanh — mỗi bên 15 phút, cộng 5 giây mỗi nước đi</div></div>
+        <div class="r"><div class="k">Số ván</div><div class="v">7 ván mỗi nội dung — bốc thăm xếp cặp bằng phần mềm Swiss-Manager</div></div>
         <div class="r"><div class="k">Đối tượng</div><div class="v">Lãnh đạo doanh nghiệp, tập đoàn, viện nghiên cứu &amp; khách mời của Liên đoàn Cờ tướng Việt Nam</div></div>
         <div class="r"><div class="k">Lệ phí</div><div class="v">2.000.000đ / kỳ thủ</div></div>
         <div class="r"><div class="k">Hạn đăng ký</div><div class="v">Trước 17:00 · 08/11/2026</div></div>
@@ -1409,7 +1410,10 @@ var KQ_SEED={
   }
 };
 function ndHas(o){return !!(o&&o.rounds&&Object.keys(o.rounds).some(function(k){var r=o.rounds[k];return r&&((r.draw&&r.draw.length)||(r.games&&r.games.length)||(r.standings&&r.standings.length));}));}
-function giaiList(s){s=s||{};
+/* Số vòng chốt của giải chính (Chess-Results: V1/7). Ô còn để mặc định 9 vòng -> hiểu là 7; admin đặt số khác 9 thì theo admin. */
+var VONG_CHOT=7;
+function giaiList(s){var L=giaiList0(s);L.forEach(function(g){if(g.id!=='dpg')return;g.nd.forEach(function(n){if((n.id==='a'||n.id==='b')&&(+n.vong||9)===9)n.vong=VONG_CHOT;});});return L;}
+function giaiList0(s){s=s||{};
   var G=Array.isArray(s.giai)?s.giai.filter(function(g){return g&&g.id;}):[];
   function nv(x,d){return +x||+d||9;}
   var hier=G.filter(function(g){return Array.isArray(g.nd);});
