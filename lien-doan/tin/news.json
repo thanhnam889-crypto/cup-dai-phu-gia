@@ -1,7 +1,39 @@
 {
- "updated": "2026-11-16T09:45:00+07:00",
+ "updated": "2026-11-17T06:42:00+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261115-cup-dai-phu-gia-doanh-nhan-toan-quoc",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-15",
+   "title": "Lê Đăng Vũ, Mai Công Nghĩa vô địch Giải cờ tướng, cờ tướng úp doanh nhân toàn quốc Cúp Đại Phú Gia",
+   "body": "Ngày 15/11/2026, Giải vô địch cờ tướng, cờ tướng úp doanh nhân toàn quốc – Cúp Đại Phú Gia năm 2026 đã diễn ra tại khu biệt thự Đại Phú Gia, phường Quy Nhơn Đông, tỉnh Gia Lai. Giải do Liên đoàn Cờ tướng Việt Nam phối hợp với Liên đoàn Cờ tỉnh Gia Lai tổ chức, thu hút 62 kỳ thủ đến từ 12 tỉnh, thành phố.\n\nNgười dự giải là doanh nhân, nhà quản lý doanh nghiệp và lãnh đạo các đơn vị nghiên cứu, công nghệ. Các ván đấu theo thể thức cờ nhanh 15 phút, cộng 5 giây mỗi nước, thi đấu hệ Thụy Sĩ 7 vòng ở hai nội dung cờ tướng và cờ tướng úp.\n\nChung cuộc, HCV nội dung cờ tướng thuộc về kỳ thủ Lê Đăng Vũ (Hội Nông dân phường Điện Bàn, TP Đà Nẵng); HCV cờ tướng úp thuộc về Mai Công Nghĩa (Home Credit Việt Nam). Dự giải có ông Tôn Thất Lương Chính, Phó Chủ tịch Liên đoàn Cờ tướng Việt Nam, Ủy viên Ban Chấp hành Liên đoàn Cờ tướng thế giới.\n\nGiải nhằm tôn vinh giá trị văn hóa truyền thống hướng tới Ngày Văn hóa Việt Nam 24/11, đồng thời tạo sân chơi trí tuệ, giao lưu, kết nối cộng đồng doanh nhân.",
+   "src": [
+    {
+     "n": "Báo Gia Lai",
+     "u": "https://baogialai.com.vn/62-ky-thu-tham-gia-giai-vo-dich-co-tuong-co-tuong-up-doanh-nhan-toan-quoc-nam-2026-post605026.html"
+    }
+   ]
+  },
+  {
+   "id": "n-20261116-le-quang-liem-elo-cao-nhat-su-nghiep",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-16",
+   "title": "Lê Quang Liêm đạt Elo 2.742,4 – cao nhất sự nghiệp, lên thứ 12 thế giới",
+   "body": "Sau vòng bảng giải cờ vua toàn năng Total Chess 2026 tại Budapest (Hungary), Đại kiện tướng Lê Quang Liêm đã đạt hệ số Elo tạm tính 2.742,4, vượt mốc 2.741 mà anh lập hồi tháng 8/2024. Đây là mức Elo cao nhất trong sự nghiệp của kỳ thủ số 1 Việt Nam, đưa anh lên vị trí thứ 12 thế giới.\n\nTheo Bongdaplus, Quang Liêm được cộng khoảng 10,4 điểm Elo nhờ thành tích bất bại ở vòng bảng với 2 trận thắng, 8 trận hòa, xếp thứ hai bảng B sau Fabiano Caruana. Ở lượt cuối, anh hòa cả hai ván trước Rameshbabu Praggnanandhaa. Đây là hệ số tạm thời và có thể thay đổi trong những ngày tới.\n\nTotal Chess 2026 diễn ra từ 10 đến 20/11 với 24 kỳ thủ, tổng giải thưởng 650.000 USD. Chỉ 4 người nhất bảng tranh ngôi vô địch; Quang Liêm thi đấu ở nhánh xếp hạng dành cho các kỳ thủ nhì bảng, với bán kết nhánh dự kiến ngày 17 và 18/11.",
+   "src": [
+    {
+     "n": "Bongdaplus",
+     "u": "https://bongdaplus.vn/the-thao/le-quang-liem-len-thu-12-the-gioi-thanh-tich-tot-nhat-su-nghiep-5291502611.html"
+    },
+    {
+     "n": "Hà Nội Online",
+     "u": "https://hanoionline.vn/le-quang-liem-co-he-so-cao-nhat-su-nghiep-246261116232331787.htm"
+    }
+   ]
+  },
   {
    "id": "n-20261116-le-quang-liem-total-chess",
    "t": "news",
