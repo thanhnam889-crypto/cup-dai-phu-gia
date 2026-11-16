@@ -224,6 +224,11 @@ textarea.inp{resize:vertical;min-height:90px}
 .dots{position:absolute;bottom:11px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:2}
 .dots button{width:7px;height:7px;border-radius:999px;border:0;padding:0;background:rgba(255,255,255,.55);cursor:pointer;transition:width .25s}
 .dots button.on{width:20px;background:#E8C77A}
+.slide.txt{background:radial-gradient(120% 90% at 85% 10%,#2A7F6B 0,#163F36 55%,#0C2A23 100%)}
+.slide.txt::before{content:"棋";position:absolute;right:-10px;top:-30px;font-size:230px;line-height:1;color:rgba(232,199,122,.13);font-family:serif;font-weight:700}
+.srcs{margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--surface-2);font-size:13px}
+.srcs b{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:4px}
+.srcs a{display:block;padding:3px 0;font-weight:600;text-decoration:none}
 /* khối tin theo chuyên mục */
 .blocks{display:grid;gap:26px;margin-top:24px}
 .blk{min-width:0}
@@ -242,6 +247,7 @@ textarea.inp{resize:vertical;min-height:90px}
 .blk>.brow:first-of-type{border-top:0}
 .bt{flex:none;width:96px;height:66px;border-radius:10px;background:var(--surface-2) center/cover no-repeat}
 .bt.bi{display:grid;place-items:center;font-size:24px;background:var(--pri-soft)}
+.bt.bn{background:radial-gradient(120% 90% at 80% 10%,#2A7F6B,#123F35);color:#E8C77A;font-family:serif;font-size:30px;font-weight:700}
 .btt{font-weight:700;font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* kỳ thủ xuất sắc */
 .tps{display:grid;gap:8px}
@@ -542,6 +548,7 @@ textarea.inp{resize:vertical;min-height:90px}
         <div class="field"><label>Nội dung</label><textarea class="inp" id="p-body" rows="6"></textarea></div>
         <div class="field"><label>Ảnh bìa</label><div class="row2"><input class="inp" id="p-img" placeholder="Link ảnh hoặc bấm Tải ảnh"><button class="btn ghost sm" type="button" data-up="p-img">📷 Tải ảnh</button></div></div>
         <div class="field"><label>Link tài liệu (PDF, Google Drive…)</label><input class="inp" id="p-file" placeholder="https://…"></div>
+        <div class="field"><label>Nguồn tin (mỗi dòng: tên báo | link bài)</label><textarea class="inp" id="p-src" rows="2" placeholder="Báo Thể thao &amp; Văn hóa | https://…"></textarea></div>
         <div class="row2"><button class="btn" type="button" id="p-save">Lưu bài</button><button class="btn ghost" type="button" id="p-new">Bài mới</button></div>
         <div class="ok" id="p-msg" hidden></div>
       </div>
@@ -678,8 +685,11 @@ var LIVE={cfg:null},fs=null,root=null;
 COLS.forEach(function(c){LIVE[c]={}});
 try{var cache=JSON.parse(localStorage.getItem('ld-cache')||'null');if(cache)COLS.concat(['cfg']).forEach(function(c){if(cache[c])LIVE[c]=cache[c]});}catch(e){}
 function saveCache(){try{localStorage.setItem('ld-cache',JSON.stringify(LIVE))}catch(e){}}
-function all(c){ // gộp dữ liệu mẫu + máy chủ (máy chủ ghi đè theo id; del=true để ẩn)
-  var m={};(SEED[c]||[]).forEach(function(x){m[x.id]=x});
+var NEWS=[];try{NEWS=JSON.parse(localStorage.getItem('ld-news')||'[]')||[]}catch(e){NEWS=[]}
+function loadNews(){fetch('tin/news.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var L=(d&&Array.isArray(d.items))?d.items.filter(function(x){return x&&x.id&&x.title}):[];NEWS=L;try{localStorage.setItem('ld-news',JSON.stringify(L))}catch(e){}renderAll();}).catch(function(){});}
+loadNews();setInterval(function(){if(!document.hidden)loadNews()},15*60*1000);
+function all(c){ // gộp dữ liệu mẫu + tin tự động + máy chủ (máy chủ ghi đè theo id; del=true để ẩn)
+  var m={};(SEED[c]||[]).concat(c==='posts'?NEWS:[]).forEach(function(x){m[x.id]=x});
   Object.keys(LIVE[c]||{}).forEach(function(k){m[k]=Object.assign({},m[k]||{},LIVE[c][k],{id:k})});
   return Object.keys(m).map(function(k){return m[k]}).filter(function(x){return !x.del});
 }
@@ -734,7 +744,7 @@ $('lb-p').onclick=function(){lbi=(lbi-1+LB.length)%LB.length;lbShow()};$('lb-n')
 function posts(t){return all('posts').filter(function(p){return !t||p.t===t}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||((b.ts||0)-(a.ts||0))})}
 function tours(){return all('tours').sort(function(a,b){return (b.from||'').localeCompare(a.from||'')})}
 function members(st){return all('members').filter(function(m){return !st||(m.st||'cho')===st})}
-var NCAT={giai:'Tin giải đấu',hd:'Hoạt động Liên đoàn',clb:'CLB & kỳ đài',bao:'Điểm báo'};
+var NCAT={bao:'Cờ Việt Nam & thế giới',giai:'Giải Liên đoàn',hd:'Hoạt động Liên đoàn',clb:'CLB & kỳ đài'};
 var CCAT={luat:'Luật thi đấu',hoc:'Học tập & kinh nghiệm'};
 var VCAT={dl:'Điều lệ, quy chế',qd:'Quyết định, công văn',mau:'Biểu mẫu'};
 var TYPE={news:'Tin tức',event:'Sự kiện',cm:'Chuyên môn',vb:'Văn bản'};
@@ -755,10 +765,11 @@ function renderHome(){var c=cfg(),T=tours(),M=members('duyet');
   $('st-vdv').textContent=T.reduce(function(s,t){return s+(+t.players||0)},0);
   renderSlider();
   var up=posts('event').filter(function(p){return (p.date||'')>=today()}).reverse().slice(0,3),N=posts('news');
-  $('blocks').innerHTML=block('Tin giải đấu','tin/giai',N.filter(function(p){return p.cat==='giai'||!p.cat}))
+  $('blocks').innerHTML=block('Tin cờ Việt Nam &amp; thế giới','tin/bao',N.filter(function(p){return p.cat==='bao'}),5)
+    +block('Tin giải Liên đoàn','tin/giai',N.filter(function(p){return p.cat==='giai'||!p.cat}))
     +(up.length?'<section class="blk"><div class="bh"><h2>Sự kiện sắp tới</h2><button type="button" data-go="tin/su-kien">Xem thêm ›</button></div><div class="card list">'+up.map(postRow).join('')+'</div></section>':'')
     +topBlock()
-    +block('Tin hoạt động','tin',N.filter(function(p){return p.cat&&p.cat!=='giai'}))
+    +block('Tin hoạt động','tin/hd',N.filter(function(p){return p.cat==='hd'||p.cat==='clb'}))
     +block('Luật &amp; văn bản','thu-vien/tai-lieu',posts().filter(function(p){return p.t==='cm'||p.t==='vb'}).sort(function(a,b){return (b.img?1:0)-(a.img?1:0)||(b.date||'').localeCompare(a.date||'')}));
   $('about').textContent=c.about||'';
   var B=Array.isArray(c.bch)?c.bch:[];$('bch-sec').hidden=!B.length;$('bch').innerHTML=B.map(function(r){return '<div><b>'+esc(r.n)+'</b><span>'+esc(r.cv)+'</span></div>'}).join('');
@@ -773,10 +784,11 @@ var slSig='',slI=0,slHold=0;
 function slides(){var A=[],ST={sap:'Sắp diễn ra',dang:'Đang diễn ra',xong:'Đã kết thúc'};
   tours().forEach(function(t){if(t.img)A.push({d:t.to||t.from||'',k:'Giải đấu · '+ST[t.st||'xong'],ti:t.short||t.name,x:[fd(t.from)+(t.to&&t.to!==t.from?' – '+fd(t.to):''),t.place].filter(Boolean).join(' · '),img:t.img,a:'data-tour="'+esc(t.id)+'"'})});
   posts().forEach(function(p){if(p.img&&(p.t==='news'||p.t==='event'))A.push({d:p.date||'',k:p.t==='event'?'Sự kiện':(catOf(p)||'Tin tức'),ti:p.title,x:excerpt(p.body,120),img:p.img,a:'data-post="'+esc(p.id)+'"'})});
-  A.sort(function(a,b){return b.d.localeCompare(a.d)});return A.slice(0,6);}
+  posts('news').filter(function(p){return p.cat==='bao'&&!p.img}).slice(0,3).forEach(function(p){A.push({d:p.date||'',k:'Tin cờ · '+fd(p.date),ti:p.title,x:excerpt(p.body,120),img:'',a:'data-post="'+esc(p.id)+'"'})});
+  A.sort(function(a,b){return b.d.localeCompare(a.d)});return A.slice(0,7);}
 function renderSlider(){var S=slides(),sig=S.map(function(x){return x.img+'|'+x.ti+'|'+x.k}).join('#');if(sig===slSig&&$('slides').children.length)return;slSig=sig;
   if(!S.length)S=[{k:'Liên đoàn Cờ tỉnh Gia Lai',ti:'Kết nối cộng đồng yêu cờ',x:'Cờ tướng · Cờ tướng úp · Giải đấu · Hội viên',img:'',a:''}];
-  $('slides').innerHTML=S.map(function(x){return '<div class="slide" '+x.a+(x.img?' style="background-image:url(\''+esc(x.img)+'\')"':'')+'><div class="in"><span class="sk">'+esc(x.k)+'</span><h2>'+esc(x.ti)+'</h2>'+(x.x?'<p>'+esc(x.x)+'</p>':'')+'</div></div>'}).join('');
+  $('slides').innerHTML=S.map(function(x){return '<div class="slide'+(x.img?'':' txt')+'" '+x.a+(x.img?' style="background-image:url(\''+esc(x.img)+'\')"':'')+'><div class="in"><span class="sk">'+esc(x.k)+'</span><h2>'+esc(x.ti)+'</h2>'+(x.x?'<p>'+esc(x.x)+'</p>':'')+'</div></div>'}).join('');
   $('dots').innerHTML=S.length>1?S.map(function(x,i){return '<button type="button" data-sl="'+i+'" aria-label="Tin '+(i+1)+'"'+(i===0?' class="on"':'')+'></button>'}).join(''):'';
   slI=0;$('slides').scrollLeft=0;}
 function slGo(i){var el=$('slides'),n=el.children.length;if(n<2)return;slI=(i+n)%n;el.scrollTo({left:slI*el.clientWidth,behavior:'smooth'});}
@@ -784,10 +796,10 @@ $('slides').addEventListener('scroll',function(){var el=this,i=Math.round(el.scr
 $('slides').addEventListener('touchstart',function(){slHold=Date.now()},{passive:true});
 $('dots').addEventListener('click',function(e){var b=e.target.closest('[data-sl]');if(b){slHold=Date.now();slGo(+b.dataset.sl);}});
 setInterval(function(){if(document.hidden||$('v-home').hidden||!$('sheet').hidden||Date.now()-slHold<9000)return;slGo(slI+1)},5500);
-function bThumb(p){return p.img?'<div class="bt" style="background-image:url(\''+esc(p.img)+'\')"></div>':'<div class="bt bi">'+(p.t==='vb'?'📄':p.t==='cm'?'📘':p.t==='event'?'📅':'♟')+'</div>'}
+function bThumb(p){if(!p.img&&p.t==='news')return '<div class="bt bi bn">棋</div>';return p.img?'<div class="bt" style="background-image:url(\''+esc(p.img)+'\')"></div>':'<div class="bt bi">'+(p.t==='vb'?'📄':p.t==='cm'?'📘':p.t==='event'?'📅':'♟')+'</div>'}
 function bRow(p){var lab=catOf(p)||TYPE[p.t]||'',direct=p.t==='vb'&&p.file&&!p.body&&!p.img,tag=direct?'a':'div';
   return '<'+tag+' class="brow" '+(direct?'href="'+esc(p.file)+'" target="_blank" rel="noopener"':'data-post="'+esc(p.id)+'"')+'>'+bThumb(p)+'<div style="flex:1;min-width:0"><span class="kat">'+esc(lab)+'</span><div class="btt">'+esc(p.title)+'</div><div class="bd">'+fd(p.date)+(p.file?' · 📄 Có tài liệu':'')+'</div></div></'+tag+'>'}
-function bFeat(p){if(!p.img)return bRow(p);return '<div class="feat" data-post="'+esc(p.id)+'"><div class="fi" style="background-image:url(\''+esc(p.img)+'\')'+(p.t==='cm'||p.t==='vb'?';background-position:center top':'')+'"></div><span class="kat">'+esc(catOf(p)||TYPE[p.t]||'')+'</span><div class="ftt">'+esc(p.title)+'</div>'+(p.body?'<p class="fx">'+esc(excerpt(p.body,160))+'</p>':'')+'<div class="bd">'+fd(p.date)+'</div></div>'}
+function bFeat(p){if(!p.img&&(p.t==='cm'||p.t==='vb'))return bRow(p);return '<div class="feat" data-post="'+esc(p.id)+'">'+(p.img?'<div class="fi" style="background-image:url(\''+esc(p.img)+'\')'+(p.t==='cm'||p.t==='vb'?';background-position:center top':'')+'"></div>':'')+'<span class="kat">'+esc(catOf(p)||TYPE[p.t]||'')+'</span><div class="ftt">'+esc(p.title)+'</div>'+(p.body?'<p class="fx">'+esc(excerpt(p.body,160))+'</p>':'')+'<div class="bd">'+fd(p.date)+'</div></div>'}
 function block(t,go,L,n){if(!L.length)return '';return '<section class="blk"><div class="bh"><h2>'+t+'</h2><button type="button" data-go="'+go+'">Xem thêm ›</button></div>'+bFeat(L[0])+L.slice(1,n||4).map(bRow).join('')+'</section>'}
 function topBlock(){var T=tours().filter(function(t){return tRes(t).some(function(n){return (n.rows||[]).length})})[0];if(!T)return '';
   var R=tRes(T).filter(function(n){return (n.rows||[]).length}).slice(0,2),h='';
@@ -856,6 +868,7 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-pos
   openSheet((p.img&&!doc?'<div class="cov" style="background-image:url(\''+esc(p.img)+'\')"></div>':'<div style="height:8px"></div>')+'<div class="sc"><span class="tag '+(ev?'ev':doc?'red':'')+'">'+esc(TYPE[p.t]||'Tin tức')+'</span><span class="note">'+[cat,fd(p.date)].filter(Boolean).map(esc).join(' · ')+'</span><h2 class="h1" style="font-size:23px;margin-top:8px">'+esc(p.title)+'</h2>'+(ev&&(p.time||p.place)?'<p class="note">🕘 '+esc(p.time||'')+(p.place?' · 📍 '+esc(p.place):'')+'</p>':'')+'<div class="body">'+esc(p.body||'')+'</div>'
     +(doc&&p.img?'<a href="'+esc(p.img)+'" target="_blank" rel="noopener"><img src="'+esc(p.img)+'" alt="'+esc(p.title)+'" style="width:100%;border-radius:12px;margin-top:14px;border:1px solid var(--line)"></a>':'')
     +(p.file?'<a class="btn" href="'+esc(p.file)+'" target="_blank" rel="noopener" style="margin-top:16px">📄 Mở tài liệu gốc ↗</a>':'')
+    +(Array.isArray(p.src)&&p.src.length?'<div class="srcs"><b>Nguồn tham khảo</b>'+p.src.map(function(x){return Array.isArray(x)?{n:x[0],u:x[1]}:(x||{})}).filter(function(x){return /^https?:\/\//.test(x.u||'')}).map(function(x){return '<a href="'+esc(x.u)+'" target="_blank" rel="noopener">'+esc(x.n||x.u)+' ↗</a>'}).join('')+'</div>':'')
     +(p.tour?'<button class="btn ghost" type="button" data-tour="'+esc(p.tour)+'" style="margin-top:12px">🏆 Xem kết quả giải</button>':'')+'</div>');});
 
 /* ---------- giải đấu ---------- */
@@ -1068,11 +1081,11 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-rst]
 /* bài viết */
 function pCats(){var M=catMap($('p-t').value),cur=$('p-cat').value;$('p-catf').hidden=!M;if(!M)return;$('p-cat').innerHTML=Object.keys(M).map(function(k){return '<option value="'+k+'">'+esc(M[k])+'</option>'}).join('');if(M[cur])$('p-cat').value=cur;}
 $('p-t').addEventListener('change',pCats);
-function pFill(p){p=p||{};$('p-id').value=p.id||'';$('p-t').value=p.t||'news';pCats();if(p.cat)$('p-cat').value=p.cat;$('p-file').value=p.file||'';$('p-d').value=p.date||today();$('p-title').value=p.title||'';$('p-time').value=p.time||'';$('p-place').value=p.place||'';$('p-body').value=p.body||'';$('p-img').value=p.img||'';}
+function pFill(p){p=p||{};$('p-id').value=p.id||'';$('p-t').value=p.t||'news';pCats();if(p.cat)$('p-cat').value=p.cat;$('p-file').value=p.file||'';$('p-src').value=(Array.isArray(p.src)?p.src:[]).map(function(x){x=Array.isArray(x)?{n:x[0],u:x[1]}:(x||{});return (x.n||'')+' | '+(x.u||'')}).join('\n');$('p-d').value=p.date||today();$('p-title').value=p.title||'';$('p-time').value=p.time||'';$('p-place').value=p.place||'';$('p-body').value=p.body||'';$('p-img').value=p.img||'';}
 $('p-new').onclick=function(){pFill();say('p-msg','')};
 document.addEventListener('click',function(e){var b=e.target.closest('[data-pedit]');if(b){pFill(all('posts').filter(function(x){return x.id===b.dataset.pedit})[0]);window.scrollTo(0,0);}});
 $('p-save').onclick=function(){var t=$('p-title').value.trim();if(!t){say('p-msg','Nhập tiêu đề.',true);return;}var id=$('p-id').value||('p-'+uid());
-  put('posts',id,{t:$('p-t').value,date:$('p-d').value||today(),title:t,time:$('p-time').value.trim(),place:$('p-place').value.trim(),body:$('p-body').value,img:$('p-img').value.trim(),cat:$('p-catf').hidden?'':$('p-cat').value,file:$('p-file').value.trim(),ts:Date.now(),del:false})
+  put('posts',id,{t:$('p-t').value,date:$('p-d').value||today(),title:t,time:$('p-time').value.trim(),place:$('p-place').value.trim(),body:$('p-body').value,img:$('p-img').value.trim(),cat:$('p-catf').hidden?'':$('p-cat').value,file:$('p-file').value.trim(),src:$('p-src').value.split(/\n+/).map(function(l){var q=l.split('|');return {n:(q[0]||'').trim(),u:(q.slice(1).join('|')||'').trim()}}).filter(function(x){return /^https?:\/\//.test(x.u)}),ts:Date.now(),del:false})
   .then(function(){say('p-msg','✓ Đã lưu & đồng bộ.');pFill();},function(){say('p-msg','Đã lưu trên máy này, chưa đồng bộ (kiểm tra mạng).',true)});};
 pFill();
 /* giải */

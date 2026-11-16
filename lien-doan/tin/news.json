@@ -1,0 +1,128 @@
+{
+ "updated": "2026-11-16T09:45:00+07:00",
+ "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
+ "items": [
+  {
+   "id": "n-20261116-le-quang-liem-total-chess",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-16",
+   "title": "Lê Quang Liêm bất bại ở giải cờ vua toàn năng thế giới, lỡ vé bán kết",
+   "body": "Tại Total Chess World Championship ở Budapest (Hungary, 10–20/11), giải đấu thể thức mới được FIDE công nhận, kết hợp cờ tiêu chuẩn rút gọn, cờ nhanh và cờ chớp, Đại kiện tướng Lê Quang Liêm đã thi đấu 10 ván vòng bảng với 2 thắng, 8 hòa và không thua ván nào.\n\nAnh có 14 điểm, xếp nhì bảng B sau Fabiano Caruana (Mỹ, 17 điểm), nên không vào bán kết. Đáng tiếc nhất là ván cuối gặp Praggnanandhaa (Ấn Độ): Quang Liêm có lợi thế nhưng không chuyển hóa được thành chiến thắng. Trước đó, anh cầm hòa Caruana ở lượt thứ 4.\n\nKỳ thủ số 1 Việt Nam (hạng 16 thế giới, 2.732 Elo) chuyển sang nhánh tranh hạng 5–8, gặp Hans Niemann (Mỹ) ở bán kết phân hạng.",
+   "src": [
+    {
+     "n": "Báo Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/ky-thu-le-quang-liem-bat-bai-o-budapest-va-lo-tam-ve-ban-ket-20261116075044772.htm"
+    },
+    {
+     "n": "VnExpress",
+     "u": "https://vnexpress.net/quang-liem-bay-cao-tai-giai-co-vua-toan-nang-the-gioi-5144154.html"
+    }
+   ]
+  },
+  {
+   "id": "n-20261115-lai-ly-huynh-a-quan-co-nhanh-the-gioi",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-15",
+   "title": "Lại Lý Huynh giành ngôi á quân Giải vô địch cờ tướng nhanh thế giới 2026",
+   "body": "Trưa 15/11 tại Singapore, kỳ thủ Lại Lý Huynh khép lại Giải vô địch cờ tướng nhanh thế giới lần thứ 4 (14–15/11, thể thức 10 phút + 5 giây mỗi nước) với tấm huy chương bạc.\n\nỞ vòng bảng 7 ván, anh thắng 4, hòa 3 và là kỳ thủ Việt Nam duy nhất đi tiếp. Vào vòng loại trực tiếp, Lại Lý Huynh lần lượt vượt qua hai kỳ thủ mạnh của Trung Quốc là Lưu Bách Hoành (tứ kết) và Như Nhất Thuần (bán kết).\n\nTrận chung kết gặp Mạnh Phồn Duệ, kỳ thủ số 1 Trung Quốc mới 18 tuổi. Hai bên hòa ván cờ nhanh, phải phân định bằng ván cờ chớp (5 phút + 3 giây mỗi nước), và Lại Lý Huynh để thua do áp lực thời gian.\n\nSau giải, anh sẽ thi đấu cho đoàn TP.HCM tại Đại hội Thể thao toàn quốc 2026.",
+   "src": [
+    {
+     "n": "Báo Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/ky-thu-co-tuong-viet-nam-gianh-vi-tri-a-quan-giai-the-gioi-20261115145526856.htm"
+    },
+    {
+     "n": "Báo Thanh Niên",
+     "u": "https://thanhnien.vn/thua-ky-thu-so-1-trung-quoc-lai-ly-huynh-gianh-ngoi-a-quan-co-chop-the-gioi-185261115103509742.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261113-phan-huy-hoang-hcv-the-gioi",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-13",
+   "title": "Kỳ thủ 18 tuổi Phan Huy Hoàng giành HCV cá nhân tại giải cờ tướng thế giới",
+   "body": "Tại Giải cờ tướng mở rộng thế giới ở Singapore (10–13/11), kỳ thủ Phan Huy Hoàng (sinh năm 2008, TP.HCM) giành huy chương vàng thành tích cá nhân nội dung đồng đội nam với 13 điểm sau 7 ván: thắng 6, hòa 1, không thua ván nào. Ván hòa duy nhất là trước Lưu Bách Hoành (Trung Quốc).\n\nĐồng đội Nguyễn Minh Nhật Quang có 12 điểm, giành huy chương đồng cá nhân (xếp sau Như Nhất Thuần của Trung Quốc theo hệ số phụ).\n\nỞ nội dung đồng đội, tuyển nam Việt Nam giành HCB với 11 điểm, sau Trung Quốc (13 điểm). Tuyển nữ cũng giành HCB với 12 điểm (Trung Quốc 14 điểm); Đàm Thị Thùy Dung đoạt HCĐ cá nhân, Nguyễn Hoàng Yến xếp thứ 5.",
+   "src": [
+    {
+     "n": "VnExpress",
+     "u": "https://vnexpress.net/ky-thu-viet-nam-doat-hc-vang-o-giai-co-tuong-dong-doi-the-gioi-5144502.html"
+    },
+    {
+     "n": "Báo Tuổi Trẻ",
+     "u": "https://tuoitre.vn/dia-chan-mon-co-tuong-ky-thu-viet-nam-18-tuoi-gianh-hcv-ca-nhan-o-giai-the-gioi-100261113172143369.htm"
+    },
+    {
+     "n": "Báo Gia Lai",
+     "u": "https://baogialai.com.vn/ky-thu-18-tuoi-phan-huy-hoang-gianh-hcv-the-gioi-co-tuong-viet-nam-thang-lon-post604866.html"
+    }
+   ]
+  },
+  {
+   "id": "n-20261113-co-tuong-tre-the-gioi-7-huy-chuong",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-13",
+   "title": "Kỳ thủ nhí Việt Nam mang về 7 huy chương từ Giải cờ tướng trẻ thế giới",
+   "body": "Giải cờ tướng trẻ thế giới lần thứ 6 diễn ra tại Singapore từ 10 đến 13/11, dành cho lứa U12 và U16. Đội tuyển trẻ Việt Nam giành 3 huy chương bạc và 4 huy chương đồng:\n\n• HCB đồng đội U16 nam (Hoàng Nhật Minh Huy, Đỗ Phạm Nhật Minh, Đỗ Mạnh Thắng).\n• HCB đồng đội hỗn hợp U16 (Đỗ Nguyễn Minh Hằng, Hoàng Nhật Minh Huy, Đỗ Phạm Nhật Minh).\n• HCB đồng đội U12 nữ (Thái Thanh Trúc, Phạm Ngọc Minh Ánh, Lê Ngọc Kim).\n• HCĐ đồng đội U16 nữ (Đỗ Nguyễn Minh Hằng, Vũ Nhã Uyên, Đỗ Nguyễn Lan Anh).\n• HCĐ cá nhân U12 nam: Lê Pha (10 điểm).\n• HCĐ đồng đội U12 nam (Lê Pha, Hồ Nhật Nam, Nguyễn Phước Thành).\n• HCĐ đồng đội hỗn hợp U12 (Thái Thanh Trúc, Lê Pha, Hồ Nhật Nam).\n\nĐây là lực lượng kế cận đầy hứa hẹn của cờ tướng Việt Nam.",
+   "src": [
+    {
+     "n": "Bóng Đá+",
+     "u": "https://bongdaplus.vn/the-thao/phan-huy-hoang-gianh-hcv-the-gioi-co-tuong-viet-nam-boi-thu-tai-singapore-5289502611.html"
+    },
+    {
+     "n": "Báo Tuổi Trẻ",
+     "u": "https://tuoitre.vn/cac-nu-ky-thu-viet-nam-danh-dau-thang-do-o-giai-vo-dich-co-tuong-the-gioi-100261111205234814.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261111-bao-tram-cu-dup-hcv-dong-nam-a",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-11",
+   "title": "Hoàng Thị Bảo Trâm giành cú đúp HCV tại Giải vô địch cờ vua Đông Nam Á 2026",
+   "body": "Giải vô địch cờ vua Đông Nam Á 2026 tại Philippines khép lại ngày 10/11. Nữ đại kiện tướng Hoàng Thị Bảo Trâm giành 2 huy chương vàng: cờ nhanh với 6,5/7 điểm (6 thắng, 1 hòa, bất bại) và cờ chớp với 8/9 điểm.\n\nĐoàn Việt Nam có thêm HCB cờ tiêu chuẩn nội dung mở rộng của Nguyễn Đức Hòa và HCĐ cờ tiêu chuẩn nữ của Nguyễn Thị Mai Hưng.",
+   "src": [
+    {
+     "n": "Báo Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/nu-dai-kien-tuong-viet-nam-gianh-cu-dup-hcv-tai-giai-vo-dich-co-vua-dong-nam-a-2026-20261111143229611.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261103-co-vua-viet-nam-top-30",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-03",
+   "title": "Cờ vua Việt Nam vào top 30 thế giới trên bảng xếp hạng FIDE tháng 11",
+   "body": "Theo bảng xếp hạng quốc gia của FIDE tháng 11/2026 (bảng hỗn hợp nam – nữ), Việt Nam đứng hạng 29, tăng 3 bậc so với tháng trước, là thứ hạng cao nhất trong 5 năm gần đây. Trước Olympiad 2026 (tháng 9), Việt Nam đứng hạng 36.\n\nĐóng góp vào bước tiến là nhiều kỳ thủ tăng điểm: Bành Gia Huy (2.484 Elo), Nguyễn Quốc Hy (2.474, tăng 46 điểm), Nguyễn Thị Mai Hưng (2.306). Tại Olympiad 2026, đội nam Việt Nam giành HCV nhóm B, đội nữ xếp hạng 9.",
+   "src": [
+    {
+     "n": "Báo Tuổi Trẻ",
+     "u": "https://tuoitre.vn/viet-nam-chinh-thuc-gia-nhap-top-30-nen-co-vua-manh-nhat-vuot-nhieu-cuong-quoc-100261102213705981.htm"
+    },
+    {
+     "n": "Báo Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/co-vua-viet-nam-lot-top-30-quoc-gia-hang-dau-the-gioi-20261103093400811.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261101-ky-vuong-yen-tu",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-01",
+   "title": "Khai mạc Giải cờ tướng “Kỳ vương Yên Tử” lần thứ nhất",
+   "body": "Tối 31/10, Giải cờ tướng “Kỳ vương Yên Tử” lần thứ nhất năm 2026 khai mạc tại Khu di tích và danh thắng Yên Tử (Quảng Ninh), với chủ đề “Kỳ hội Yên Tử – Tinh hoa trí tuệ Việt”. Giải do UBND phường Yên Tử phối hợp Liên đoàn Cờ tướng Việt Nam và các đơn vị liên quan tổ chức.\n\nGiải diễn ra 2 ngày (31/10–1/11) với 16 kỳ thủ: 8 kỳ thủ hàng đầu Việt Nam tranh tài ở nội dung “Kỳ vương Yên Tử – Bát kiệt” và 8 kỳ thủ nhí 8–12 tuổi. Bên lề giải có giao lưu cờ tướng Việt Nam – Trung Quốc, biểu diễn cờ người và trình diễn văn hóa cờ truyền thống.",
+   "src": [
+    {
+     "n": "Báo Nhân Dân",
+     "u": "https://nhandan.vn/khai-mac-giai-co-tuong-ky-vuong-yen-tu-lan-thu-nhat-nam-2026-post999477.html"
+    }
+   ]
+  }
+ ]
+}
