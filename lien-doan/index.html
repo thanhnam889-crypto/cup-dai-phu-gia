@@ -225,7 +225,7 @@ textarea.inp{resize:vertical;min-height:90px}
 .dots button{width:7px;height:7px;border-radius:999px;border:0;padding:0;background:rgba(255,255,255,.55);cursor:pointer;transition:width .25s}
 .dots button.on{width:20px;background:#E8C77A}
 .slide.txt{background:radial-gradient(120% 90% at 85% 10%,#2A7F6B 0,#163F36 55%,#0C2A23 100%)}
-.slide.txt::before{content:"棋";position:absolute;right:-10px;top:-30px;font-size:230px;line-height:1;color:rgba(232,199,122,.13);font-family:serif;font-weight:700}
+.slide.txt::before{content:"";position:absolute;right:-40px;top:-40px;width:300px;height:300px;background:url(logo-ldc-256.png) center/contain no-repeat;opacity:.13}
 .srcs{margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--surface-2);font-size:13px}
 .srcs b{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:4px}
 .srcs a{display:block;padding:3px 0;font-weight:600;text-decoration:none}
@@ -247,7 +247,9 @@ textarea.inp{resize:vertical;min-height:90px}
 .blk>.brow:first-of-type{border-top:0}
 .bt{flex:none;width:96px;height:66px;border-radius:10px;background:var(--surface-2) center/cover no-repeat}
 .bt.bi{display:grid;place-items:center;font-size:24px;background:var(--pri-soft)}
-.bt.bn{background:radial-gradient(120% 90% at 80% 10%,#2A7F6B,#123F35);color:#E8C77A;font-family:serif;font-size:30px;font-weight:700}
+.bt.bn{background:url(logo-ldc-256.png) center/58px no-repeat,radial-gradient(120% 90% at 80% 10%,#2A7F6B,#123F35)}
+.post .th.thl{background:url(logo-ldc-256.png) center/56px no-repeat,radial-gradient(120% 90% at 80% 10%,#2A7F6B,#123F35)}
+.top img,.whd img,.ft img{border-radius:50%!important;box-shadow:0 0 0 2px rgba(255,255,255,.18)}
 .btt{font-weight:700;font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* kỳ thủ xuất sắc */
 .tps{display:grid;gap:8px}
@@ -370,7 +372,7 @@ textarea.inp{resize:vertical;min-height:90px}
 <body>
 <div class="web wtop"><div class="win"><span id="wdate"></span><span class="gap"></span><a id="whot" href="#"></a><a href="https://www.facebook.com/binhdinhco" target="_blank" rel="noopener">Facebook</a><a href="#" data-go="hoi-vien/dang-ky">Đăng ký hội viên</a><button type="button" id="wtheme">◐ Sáng/tối</button><a href="#" data-go="admin">⚙ Quản trị</a></div></div>
 <header class="web whd"><div class="win">
-  <img src="icons/icon-192.png" alt="Logo Liên đoàn Cờ tỉnh Gia Lai" data-go="home">
+  <img src="logo-ldc-256.png" alt="Logo Liên đoàn Cờ tỉnh Gia Lai" data-go="home">
   <div><div class="wn1" data-go="home">Liên đoàn Cờ tỉnh Gia Lai</div><div class="wn2">Gia Lai Chess Federation · Cờ tướng · Cờ tướng úp</div></div>
   <form class="wsearch" id="wsearch"><input id="wq" type="search" placeholder="Tìm kỳ thủ, giải đấu, tin, văn bản…" aria-label="Tìm kiếm"><button type="submit" aria-label="Tìm">🔎</button></form>
 </div></header>
@@ -379,7 +381,7 @@ textarea.inp{resize:vertical;min-height:90px}
 </div></nav>
 <div class="web wtick"><div class="win"><b>TIN NHANH</b><div class="tk"><div class="tkin" id="tick"></div></div></div></div>
 <header class="top">
-  <img src="icons/icon-192.png" alt="">
+  <img src="logo-ldc-256.png" alt="Logo Liên đoàn Cờ tỉnh Gia Lai">
   <div class="tt"><div class="t1">Liên đoàn Cờ Gia Lai</div><div class="t2">Gia Lai Chess Federation</div></div>
   <button class="ib" id="srch" type="button" aria-label="Tìm kiếm" title="Tìm kiếm (/)">🔎</button>
   <button class="ib" id="theme" type="button" aria-label="Đổi giao diện sáng/tối">◐</button>
@@ -755,7 +757,7 @@ function postRow(p){var ev=p.t==='event';
     var inner='<div class="di">'+(p.t==='vb'?'📄':'📘')+'</div><div style="flex:1;min-width:0"><div class="pt">'+esc(p.title)+'</div><div class="pm">'+[catOf(p),fd(p.date)].filter(Boolean).map(esc).join(' · ')+'</div></div>'+(p.file?'<span class="dx">'+(/\.pdf($|[?#])/i.test(p.file)?'PDF':'Mở')+' ↗</span>':'');
     return direct?'<a class="doc" href="'+esc(p.file)+'" target="_blank" rel="noopener">'+inner+'</a>':'<div class="doc" data-post="'+esc(p.id)+'">'+inner+'</div>';}
   if(ev){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(p.date||'')||[];return '<div class="ev" data-post="'+esc(p.id)+'"><div class="dt"><b>'+(m[3]||'?')+'</b><span>Th '+(+m[2]||'')+'</span></div><div style="flex:1;min-width:0"><div class="pt" style="font-weight:700">'+esc(p.title)+'</div><div class="pm" style="font-size:12px;color:var(--muted)">'+[p.time,p.place].filter(Boolean).map(esc).join(' · ')+'</div></div></div>';}
-  return '<div class="post" data-post="'+esc(p.id)+'"><div class="th" style="background-image:url(\''+esc(p.img||'icons/icon-512.png')+'\')"></div><div style="flex:1;min-width:0"><div class="pt">'+esc(p.title)+'</div><div class="pm">'+fd(p.date)+'</div></div></div>';}
+  return '<div class="post" data-post="'+esc(p.id)+'">'+(p.img?'<div class="th" style="background-image:url(\''+esc(p.img)+'\')"></div>':'<div class="th thl"></div>')+'<div style="flex:1;min-width:0"><div class="pt">'+esc(p.title)+'</div><div class="pm">'+fd(p.date)+'</div></div></div>';}
 function tourCard(t){var R=tRes(t),ch=R.map(function(n){var w=(n.rows||[])[0];return w?'<span>🏆 '+esc(n.ten)+': '+esc(w[1])+'</span>':''}).join('');
   var st={sap:['Sắp diễn ra','ev'],dang:['Đang diễn ra','red'],xong:['Đã kết thúc','']}[t.st||'xong'];
   return '<div class="card tour" data-tour="'+esc(t.id)+'">'+(t.img?'<div class="im" style="background-image:url(\''+esc(t.img)+'\')"></div>':'')+'<div class="tb"><span class="tag '+st[1]+'">'+st[0]+'</span><div class="tn" style="margin-top:6px">'+esc(t.short||t.name)+'</div><div class="tm">'+[fd(t.from)+(t.to&&t.to!==t.from?' – '+fd(t.to):''),t.place].filter(Boolean).map(esc).join(' · ')+'</div>'+(ch?'<div class="champ">'+ch+'</div>':'')+'</div></div>';}
@@ -796,7 +798,7 @@ $('slides').addEventListener('scroll',function(){var el=this,i=Math.round(el.scr
 $('slides').addEventListener('touchstart',function(){slHold=Date.now()},{passive:true});
 $('dots').addEventListener('click',function(e){var b=e.target.closest('[data-sl]');if(b){slHold=Date.now();slGo(+b.dataset.sl);}});
 setInterval(function(){if(document.hidden||$('v-home').hidden||!$('sheet').hidden||Date.now()-slHold<9000)return;slGo(slI+1)},5500);
-function bThumb(p){if(!p.img&&p.t==='news')return '<div class="bt bi bn">棋</div>';return p.img?'<div class="bt" style="background-image:url(\''+esc(p.img)+'\')"></div>':'<div class="bt bi">'+(p.t==='vb'?'📄':p.t==='cm'?'📘':p.t==='event'?'📅':'♟')+'</div>'}
+function bThumb(p){if(!p.img&&p.t==='news')return '<div class="bt bn"></div>';return p.img?'<div class="bt" style="background-image:url(\''+esc(p.img)+'\')"></div>':'<div class="bt bi">'+(p.t==='vb'?'📄':p.t==='cm'?'📘':p.t==='event'?'📅':'♟')+'</div>'}
 function bRow(p){var lab=catOf(p)||TYPE[p.t]||'',direct=p.t==='vb'&&p.file&&!p.body&&!p.img,tag=direct?'a':'div';
   return '<'+tag+' class="brow" '+(direct?'href="'+esc(p.file)+'" target="_blank" rel="noopener"':'data-post="'+esc(p.id)+'"')+'>'+bThumb(p)+'<div style="flex:1;min-width:0"><span class="kat">'+esc(lab)+'</span><div class="btt">'+esc(p.title)+'</div><div class="bd">'+fd(p.date)+(p.file?' · 📄 Có tài liệu':'')+'</div></div></'+tag+'>'}
 function bFeat(p){if(!p.img&&(p.t==='cm'||p.t==='vb'))return bRow(p);return '<div class="feat" data-post="'+esc(p.id)+'">'+(p.img?'<div class="fi" style="background-image:url(\''+esc(p.img)+'\')'+(p.t==='cm'||p.t==='vb'?';background-position:center top':'')+'"></div>':'')+'<span class="kat">'+esc(catOf(p)||TYPE[p.t]||'')+'</span><div class="ftt">'+esc(p.title)+'</div>'+(p.body?'<p class="fx">'+esc(excerpt(p.body,160))+'</p>':'')+'<div class="bd">'+fd(p.date)+'</div></div>'}
@@ -823,7 +825,7 @@ setInterval(renderCD,30000);
 /* ---------- web: chân trang, cột phải, tin nhanh, giới thiệu ---------- */
 function telA(c,pre){return c.tel?'<a href="tel:'+esc(String(c.tel).replace(/[^\d+]/g,''))+'">'+(pre||'')+esc(c.tel)+'</a>':''}
 function renderFoot(){var c=cfg();
-  $('foot').innerHTML='<div class="win fg"><div><div class="fl"><img src="icons/icon-192.png" alt=""><div><div class="fn">Liên đoàn Cờ tỉnh Gia Lai</div><div class="fs">Gia Lai Chess Federation</div></div></div>'
+  $('foot').innerHTML='<div class="win fg"><div><div class="fl"><img src="logo-ldc-256.png" alt="Logo Liên đoàn Cờ tỉnh Gia Lai"><div><div class="fn">Liên đoàn Cờ tỉnh Gia Lai</div><div class="fs">Gia Lai Chess Federation</div></div></div>'
     +'<p class="fab">'+esc(excerpt(c.about,170))+'</p><div class="fci">'+(c.addr?'<div>📍 '+esc(c.addr)+'</div>':'')+(c.tel?'<div>'+telA(c,'☎ Hotline: ')+'</div>':'')+(c.email?'<div>✉ <a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a></div>':'')
     +'<div>f <a href="https://www.facebook.com/binhdinhco" target="_blank" rel="noopener">Facebook Liên đoàn Cờ</a> · <a href="#" data-svc="lh">Liên hệ, góp ý</a></div></div></div>'
     +'<div class="fl2"><div class="fh">Liên kết</div><a href="#" data-go="gioi-thieu">Giới thiệu</a><a href="#" data-go="tin">Tin tức – sự kiện</a><a href="#" data-go="giai/lich">Lịch thi đấu</a><a href="#" data-go="giai/vang">Bảng vàng</a><a href="#" data-go="giai/ky-thu">Tra cứu kỳ thủ</a><a href="#" data-go="thu-vien/tai-lieu">Luật &amp; văn bản</a></div>'
