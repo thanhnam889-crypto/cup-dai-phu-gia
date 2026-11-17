@@ -1,7 +1,39 @@
 {
- "updated": "2026-11-17T06:42:00+07:00",
+ "updated": "2026-11-18T06:42:13+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261118-le-quang-liem-thua-niemann-luot-di",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-18",
+   "title": "Lê Quang Liêm thua ngược Hans Niemann ở lượt đi bán kết phân hạng giải cờ vua toàn năng thế giới",
+   "body": "Rạng sáng 18/11 (giờ Việt Nam), tại giải cờ vua toàn năng thế giới 2026 ở Budapest (Hungary), Đại kiện tướng Lê Quang Liêm để thua Hans Niemann (Mỹ) với tổng điểm 6,5–13,5 ở lượt đi bán kết nhánh phân hạng 5–8.\n\nTheo Thanh Niên, Quang Liêm khởi đầu tốt ở phần cờ chớp (4 ván, thắng 1 điểm, hòa 0,5 điểm) khi thắng 2, hòa 1, thua 1 để dẫn 2,5–1,5. Hai ván cờ nhanh (thắng 4 điểm, hòa 2 điểm) đều hòa, giúp anh vẫn dẫn 6,5–5,5. Bước ngoặt đến ở ván cờ tiêu chuẩn có hệ số 8 điểm: Niemann tận dụng sai lầm của kỳ thủ Việt Nam để thắng sau 46 nước, lật ngược thế trận.\n\nLượt về diễn ra tối 18/11 với thể thức tương tự (4 ván chớp, 2 ván nhanh, 1 ván tiêu chuẩn). Nếu thắng chung cuộc, Quang Liêm sẽ tranh hạng 5; nếu thua, anh đá trận tranh hạng 7. Với thành tích bất bại ở vòng bảng, anh đã chắc chắn nhận ít nhất 32.000 USD tiền thưởng.",
+   "src": [
+    {
+     "n": "Thanh Niên",
+     "u": "https://thanhnien.vn/le-quang-liem-thua-dang-tiec-ky-thu-my-tai-giai-co-vua-toan-nang-the-gioi-185261118060736963.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261117-co-tuong-dai-hoi-the-thao-toan-quoc-2026",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-17",
+   "title": "Cờ tướng Đại hội Thể thao toàn quốc 2026: Lại Lý Huynh lần đầu khoác áo TP.HCM, tranh 10 bộ huy chương",
+   "body": "Môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X năm 2026 diễn ra từ ngày 22 đến 28/11 tại khách sạn Grand Palace, phường Vũng Tàu, TP.HCM, với 10 nội dung tranh huy chương, tăng hai nội dung so với Đại hội 2022.\n\nCác nội dung gồm cá nhân cờ tiêu chuẩn nam, nữ; đồng đội nam, nữ; đôi nam, đôi nữ ở cờ tiêu chuẩn và cờ nhanh; đôi nam nữ phối hợp cờ nhanh. Nội dung cá nhân và đồng đội thi đấu hệ Thụy Sĩ 7 hoặc 9 ván; nội dung đôi đấu loại, bốn đôi dẫn đầu vào bán kết.\n\nĐáng chú ý, Lại Lý Huynh – nhà vô địch cờ tiêu chuẩn thế giới 2025, vừa giành HCB cờ nhanh thế giới 2026 tại Singapore – lần đầu thi đấu cho TP.HCM tại Đại hội. Đội hình chủ nhà còn có Nguyễn Minh Nhật Quang, Nguyễn Hoàng Yến, Đàm Thị Thùy Dung, Đinh Hữu Pháp và Phan Nguyễn Công Minh.\n\nTP.HCM từng nhất toàn đoàn tại Đại hội 2022 và Giải cờ tướng xuất sắc quốc gia tháng 9/2026. Theo SGGP, các đối thủ cạnh tranh mạnh là Đồng Nai, Quảng Ninh, Bắc Ninh và Hà Nội.",
+   "src": [
+    {
+     "n": "Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/lai-ly-huynh-lan-dau-khoac-ao-doan-tphcm-tranh-tai-tai-dai-hoi-the-thao-toan-quoc-2026-20261117164836989.htm"
+    },
+    {
+     "n": "Sài Gòn Giải Phóng",
+     "u": "https://thethao.sggp.org.vn/lai-ly-huynh-tap-trung-muc-tieu-gianh-hcv-co-tuong-dai-hoi-post882238.html"
+    }
+   ]
+  },
   {
    "id": "n-20261115-cup-dai-phu-gia-doanh-nhan-toan-quoc",
    "t": "news",
