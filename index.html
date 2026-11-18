@@ -655,6 +655,27 @@ a.poi.food .go{color:var(--jade)}
     <button data-go="dang-ky"><span class="ic">✎</span> Đăng ký tham gia</button>
   </div>
 
+  <style>
+  .ldbox{padding:16px;overflow:hidden;position:relative}
+  .ldbox::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,#1F6E5E,#C9A24A,#C1272D)}
+  .ldtop{display:flex;gap:12px;align-items:center}
+  .ldtop img{flex:none;width:64px;height:64px;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  .ldn{font-weight:800;font-size:16px;line-height:1.25}
+  .ldd{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .ldqr{display:flex;justify-content:center;margin-top:12px}
+  .ldqr img{width:200px;height:auto;border-radius:12px;background:#fff;padding:6px;border:1px solid var(--line)}
+  .ldurl{text-align:center;font-size:12px;color:var(--muted);margin-top:6px}
+  </style>
+  <div class="sec" id="ld-sec">
+    <div class="lbl">App Liên đoàn Cờ tỉnh Gia Lai</div>
+    <div class="card ldbox">
+      <div class="ldtop"><img src="lien-doan/logo-ldc-256.png" alt="Logo Liên đoàn Cờ tỉnh Gia Lai" width="64" height="64"><div><div class="ldn">Liên đoàn Cờ tỉnh Gia Lai</div><div class="ldd">Tin cờ mới mỗi ngày · Lịch thi đấu · Bảng vàng · Tra cứu kỳ thủ · Đăng ký hội viên</div></div></div>
+      <div class="ldqr"><img src="lien-doan/qr-lien-doan.png" alt="Mã QR mở app Liên đoàn Cờ tỉnh Gia Lai" width="410" height="495" loading="lazy"></div>
+      <div class="ldurl">Quét mã hoặc mở link: cup-dai-phu-gia.pages.dev/ld</div>
+      <div class="admrow2" style="margin-top:12px"><a class="btn" href="/ld" target="_blank" rel="noopener" style="flex:1;margin-top:0;text-decoration:none">Mở app Liên đoàn →</a><a class="btn ghost" href="lien-doan/qr-lien-doan.png" download="QR-app-Lien-doan-Co-Gia-Lai.png" style="flex:none;width:auto;margin-top:0;text-decoration:none">⬇ Lưu QR</a></div>
+    </div>
+  </div>
+
   <div class="view" style="padding-top:4px;padding-bottom:0">
     <div class="sec">
       <div class="lbl">Về giải đấu</div>
@@ -1288,7 +1309,7 @@ a.poi.food .go{color:var(--jade)}
   </div>
 </section>
 
-<div class="copy1">© Bản quyền thuộc Liên đoàn Cờ tỉnh Gia Lai · <a href="tel:0984201278">0984.20.12.78</a></div>
+<div class="copy1">© Bản quyền thuộc Liên đoàn Cờ tỉnh Gia Lai · <a href="/ld" target="_blank" rel="noopener">App Liên đoàn ↗</a> · <a href="tel:0984201278">0984.20.12.78</a></div>
 </main>
 
 <nav class="nav wrap" id="nav">
