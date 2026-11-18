@@ -1,7 +1,47 @@
 {
- "updated": "2026-11-18T06:42:13+07:00",
+ "updated": "2026-11-19T06:50:00+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261118-le-quang-liem-tranh-hang-7-giai-co-vua-toan-nang",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-18",
+   "title": "Lê Quang Liêm thua Hans Niemann ở lượt về, tranh hạng 7 giải cờ vua toàn năng thế giới với Nepomniachtchi",
+   "body": "Đại kiện tướng Lê Quang Liêm tiếp tục để thua Hans Moke Niemann (Mỹ) ở lượt về bán kết nhánh phân hạng 5–8 Giải cờ vua toàn năng thế giới 2026 tại Budapest (Hungary). Trận đấu ngày 18/11 (kết thúc rạng sáng 19/11 giờ Việt Nam) khép lại với tỷ số 4,5–15,5 nghiêng về kỳ thủ Mỹ.\n\nTheo Thanh Niên, Quang Liêm có những ván thắng ở phần đầu trận nhưng không duy trì được ưu thế, để thua thêm ván cờ nhanh và đặc biệt là ván cờ tiêu chuẩn có hệ số điểm cao nhất, khiến trận đấu sớm ngã ngũ. Trước đó ở lượt đi ngày 17/11, anh cũng thua 6,5–13,5 dù dẫn điểm trước ván cờ tiêu chuẩn.\n\nKỳ thủ số một Việt Nam sẽ tranh hạng 7 với Ian Nepomniachtchi, nhà vô địch cờ chớp thế giới 2024 thi đấu dưới cờ FIDE. Trận đấu kéo dài 2 ngày, mỗi ngày gồm 4 ván cờ chớp (thắng 1 điểm), 2 ván cờ nhanh (thắng 4 điểm) và 1 ván cờ tiêu chuẩn (thắng 8 điểm). Hạng 7 nhận 34.000 USD, hạng 8 nhận 32.000 USD.\n\nDù không vào nhóm tranh hạng cao, Quang Liêm vẫn là kỳ thủ duy nhất bất bại ở vòng bảng (2 thắng, 8 hòa) và đã nâng Elo trực tuyến lên mức cao. Sau giải, anh dự kiến về nước thi đấu cho TP.HCM tại Đại hội Thể thao toàn quốc 2026.",
+   "src": [
+    {
+     "n": "Thanh Niên",
+     "u": "https://thanhnien.vn/le-quang-liem-tranh-hang-7-chung-cuoc-giai-co-vua-toan-nang-the-gioi-tai-hungary-185261119062634163.htm"
+    },
+    {
+     "n": "Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/le-quang-liem-thua-tiec-nuoi-o-giai-co-vua-the-gioi-20261118070959362.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261118-lich-co-vua-dai-hoi-the-thao-toan-quoc-2026",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-18",
+   "title": "Cờ vua Đại hội Thể thao toàn quốc 2026 tranh 20 bộ huy chương, Lê Quang Liêm dự kiến khoác áo TP.HCM",
+   "body": "Môn cờ vua tại Đại hội Thể thao toàn quốc lần thứ X năm 2026 dự kiến diễn ra từ ngày 1 đến 10/12 tại TP.HCM, theo lịch Ban tổ chức công bố hồi đầu tháng 11. Đây là môn kết thúc muộn nhất của Đại hội, sau môn cờ tướng (22–28/11) cùng diễn ra tại khu vực phường Vũng Tàu.\n\nTheo điều lệ được SGGP đưa tin, cờ vua có 20 nội dung tranh huy chương: cá nhân nam, nữ ở cờ tiêu chuẩn, cờ nhanh, cờ chớp; đôi nam nữ cờ nhanh, cờ chớp, siêu chớp; đồng đội cờ ASEAN; và các nội dung đôi nam, đôi nữ ở bốn thể loại. Nội dung cá nhân, đồng đội thi đấu hệ Thụy Sĩ 7 hoặc 9 ván; nội dung đôi chọn 4 đôi dẫn đầu vào bán kết và chung kết.\n\nĐiểm nhấn lớn là khả năng Đại kiện tướng Lê Quang Liêm, hiện xếp hạng 12 thế giới trên bảng Elo trực tuyến, trở lại thi đấu cho TP.HCM sau khi kết thúc giải cờ vua toàn năng thế giới ở Hungary. Theo Thanh Niên, đã nhiều năm anh không dự một giải đấu trong nước. Các gương mặt quen thuộc như Lê Tuấn Minh, Nguyễn Ngọc Trường Sơn, Trần Tuấn Minh, Phạm Lê Thảo Nguyên, Võ Thị Kim Phụng cũng nằm trong danh sách dự kiến tham dự.\n\nLưu ý: điều lệ công bố hồi tháng 5 ghi thời gian 30/11–11/12; lịch chính thức có thể còn điều chỉnh.",
+   "src": [
+    {
+     "n": "SGGP",
+     "u": "https://thethao.sggp.org.vn/ban-to-chuc-dai-hoi-the-thao-toan-quoc-cong-bo-thoi-gian-dia-diem-48-mon-thi-dau-post880055.html"
+    },
+    {
+     "n": "SGGP",
+     "u": "https://thethao.sggp.org.vn/ky-thu-co-vua-se-thi-dau-20-noi-dung-tai-dai-hoi-the-thao-toan-quoc-2026-post852361.html"
+    },
+    {
+     "n": "Thanh Niên",
+     "u": "https://thanhnien.vn/ky-thu-le-quang-liem-ap-sat-top-10-the-gioi-185261117221508211.htm"
+    }
+   ]
+  },
   {
    "id": "n-20261118-le-quang-liem-thua-niemann-luot-di",
    "t": "news",
