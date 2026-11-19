@@ -1,7 +1,44 @@
 {
- "updated": "2026-11-19T09:30:00+07:00",
+ "updated": "2026-11-19T06:44:07+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261119-khai-mac-dai-hoi-the-thao-toan-quoc-x",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-19",
+   "title": "Đại hội Thể thao toàn quốc lần X khai mạc ngày 21/11 tại TP.HCM, môn Cờ góp mặt cùng 47 môn khác",
+   "body": "Đại hội Thể thao toàn quốc lần thứ X năm 2026 sẽ chính thức khai mạc tối 21/11 tại Công viên Bờ sông Sài Gòn, TP.HCM. Theo Báo Chính phủ, Đại hội diễn ra từ 14/11 đến 12/12/2026 với 36 đoàn, 48 môn và 973 nội dung thi đấu; lễ bế mạc dự kiến ngày 12/12 tại Rạp Xiếc và Biểu diễn đa năng Phú Thọ.\n\nQuy mô Đại hội lần này rất lớn: khoảng 12.000 cán bộ, huấn luyện viên, vận động viên cùng 2.000 trọng tài tham gia. Một số môn như bóng bàn, muay, karate và marathon đã thi đấu trước lễ khai mạc.\n\nMôn Cờ, gồm cờ vua, cờ tướng và cờ vây, nằm trong nhóm các môn SEA Games và thể thao dân tộc. Cờ tướng sẽ khởi tranh vào cuối tháng 11, tiếp đó là cờ vua và cờ vây từ đầu tháng 12, tất cả tại phường Vũng Tàu. Người hâm mộ cờ Gia Lai có thể theo dõi lịch và kết quả cập nhật trên app Liên đoàn.",
+   "src": [
+    {
+     "n": "Báo Chính phủ",
+     "u": "https://baochinhphu.vn/dai-hoi-the-thao-toan-quoc-lan-thu-x-nam-2026-quy-tu-36-doan-tranh-tai-o-48-mon-the-thao-102261119125524125.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261109-doi-co-gia-lai-dai-hoi-the-thao-toan-quoc",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-09",
+   "title": "Đội cờ Gia Lai cử 14 kỳ thủ dự Đại hội Thể thao toàn quốc 2026, đặt mục tiêu 1 HCV và 1 HCĐ",
+   "body": "Gia Lai cử 7 kỳ thủ cờ tướng và 7 kỳ thủ cờ vua tham dự Đại hội Thể thao toàn quốc lần thứ X năm 2026, thi đấu tại phường Vũng Tàu (TP.HCM). Theo Báo Gia Lai, mục tiêu của đội là giành 1 HCV và 1 HCĐ.\n\nHLV Nguyễn Hoàng Chính cho biết ở kỳ Đại hội trước, đội về tay trắng vì chỉ có nội dung cá nhân. Lần này, cờ tướng có thêm nội dung đồng đội và đôi nam, đôi nữ, mở ra nhiều cơ hội hơn. Lực lượng cờ tướng nữ có Hồ Thị Thanh Hồng (chủ lực), Trần Thị Bích Hằng, Trương Ái Tuyết Nhi, Vương Tiểu Nhi; nam có Kiện tướng Nguyễn Văn Tới và Bùi Thanh Tùng. Ở cờ vua có Nguyễn Thị Thúy Triên, Trần Thị Như Ý, Lê Lã Trà My, Ngô Thị Mỹ Duyên và Nguyễn Phương Nghi, người lần đầu dự Đại hội.\n\nTrước giờ thi đấu, đội tập huấn tại Đà Nẵng rồi vào TP.HCM. Đối thủ mạnh nhất ở cờ tướng được nhận định là TP.HCM với Lại Lý Huynh, Nguyễn Minh Nhật Quang, Đào Quốc Hưng. Cờ tướng có 10 nội dung, cờ vua tranh 20 bộ huy chương.",
+   "src": [
+    {
+     "n": "Báo Gia Lai",
+     "u": "https://baogialai.com.vn/doi-tuyen-co-gia-lai-rong-cua-tu-nhung-noi-dung-moi-post604140.html"
+    }
+   ]
+  },
+  {
+   "id": "v-20261119-do-bat-tot-qua-duong",
+   "t": "vui",
+   "cat": "do",
+   "date": "2026-11-19",
+   "title": "Đố vui cờ vua: Có nước ăn quân nào mà quân bị ăn lại KHÔNG đứng ở ô quân ăn đi tới không?",
+   "body": "Thông thường, quân ăn sẽ nhảy vào đúng ô của quân bị ăn. Nhưng trong cờ vua có một nước \"ăn hụt chỗ\" rất đặc biệt. Bạn có biết đó là nước gì, và khi nào mới được đi?",
+   "ans": "Có, đó là nước bắt tốt qua đường (en passant). Khi Tốt đối phương đi 2 ô từ vị trí xuất phát và dừng ngay cạnh Tốt của bạn, bạn được ăn nó bằng cách đi chéo vào ô mà nó vừa lướt qua. Quân bị ăn nằm ở ô bên cạnh, không phải ô đích. Lưu ý: phải bắt ngay ở nước kế tiếp, để lỡ là mất quyền."
+  },
   {
    "id": "e-20261122-co-tuong-dai-hoi-the-thao-toan-quoc",
    "t": "event",
