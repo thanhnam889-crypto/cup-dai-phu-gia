@@ -1,7 +1,49 @@
 {
- "updated": "2026-11-19T06:50:00+07:00",
+ "updated": "2026-11-19T09:30:00+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "e-20261122-co-tuong-dai-hoi-the-thao-toan-quoc",
+   "t": "event",
+   "date": "2026-11-22",
+   "time": "22–28/11",
+   "place": "KS Grand Palace, phường Vũng Tàu, TP.HCM",
+   "title": "Khởi tranh môn cờ tướng Đại hội Thể thao toàn quốc lần X – 2026",
+   "body": "Môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X diễn ra từ 22 đến 28/11/2026 tại khách sạn Grand Palace, phường Vũng Tàu, TP.HCM, tranh 10 bộ huy chương: cá nhân cờ tiêu chuẩn nam, nữ; đồng đội nam, nữ và đồng đội nam cờ nhanh; đôi nam, đôi nữ cờ tiêu chuẩn và cờ nhanh; đôi nam nữ cờ nhanh.\n\nĐoàn chủ nhà TP.HCM có Lại Lý Huynh lần đầu khoác áo đoàn, cùng Nguyễn Minh Nhật Quang, Đàm Thị Thùy Dung, Nguyễn Hoàng Yến. Các đối thủ mạnh: Đồng Nai, Quảng Ninh, Bắc Ninh, Hà Nội.",
+   "src": [
+    {
+     "n": "Báo Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/lai-ly-huynh-lan-dau-khoac-ao-doan-tphcm-tranh-tai-tai-dai-hoi-the-thao-toan-quoc-2026-20261117164836989.htm"
+    },
+    {
+     "n": "Sài Gòn Giải Phóng",
+     "u": "https://thethao.sggp.org.vn/lai-ly-huynh-tap-trung-muc-tieu-gianh-hcv-co-tuong-dai-hoi-post882238.html"
+    }
+   ]
+  },
+  {
+   "id": "e-20261201-co-vua-dai-hoi-the-thao-toan-quoc",
+   "t": "event",
+   "date": "2026-12-01",
+   "time": "1–10/12 (dự kiến)",
+   "place": "Phường Vũng Tàu, TP.HCM",
+   "title": "Khởi tranh môn cờ vua Đại hội Thể thao toàn quốc lần X – 2026",
+   "body": "Môn cờ vua Đại hội Thể thao toàn quốc lần thứ X dự kiến diễn ra từ 1 đến 10/12/2026 tại phường Vũng Tàu, TP.HCM (điều lệ tháng 5 ghi 30/11–11/12; lịch có thể còn điều chỉnh), tranh 20 bộ huy chương ở cờ tiêu chuẩn, cờ nhanh, cờ chớp, siêu chớp, gồm cá nhân, đôi và đồng đội.\n\nCuộc đua chính giữa Hà Nội (nhất toàn đoàn Đại hội 2022, chỉ tiêu 5 HCV) và TP.HCM. Đại kiện tướng Lê Quang Liêm có tên trong danh sách đăng ký sơ bộ của TP.HCM.\n\nCùng địa điểm, môn cờ vây lần đầu có mặt ở Đại hội với 4 nội dung từ 3 đến 10/12.",
+   "src": [
+    {
+     "n": "Sài Gòn Giải Phóng",
+     "u": "https://thethao.sggp.org.vn/ky-thu-co-vua-se-thi-dau-20-noi-dung-tai-dai-hoi-the-thao-toan-quoc-2026-post852361.html"
+    },
+    {
+     "n": "Báo Hà Nội Mới",
+     "u": "https://hanoimoi.vn/dai-hoi-the-thao-toan-quoc-nam-2026-co-vua-ha-noi-tim-loi-giai-cho-bai-toan-kho-1763982.html"
+    },
+    {
+     "n": "Báo Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/dai-kien-tuong-le-quang-liem-co-the-tro-lai-thi-dau-tai-dai-hoi-the-thao-toan-quoc-2026-20261016104040208.htm"
+    }
+   ]
+  },
   {
    "id": "n-20261118-le-quang-liem-tranh-hang-7-giai-co-vua-toan-nang",
    "t": "news",
