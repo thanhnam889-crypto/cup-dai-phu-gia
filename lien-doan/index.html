@@ -287,6 +287,15 @@ textarea.inp{resize:vertical;min-height:90px}
   .ft{margin-left:0;margin-right:0;border-radius:18px 18px 0 0}
 }
 @media(min-width:600px){.gal{grid-template-columns:repeat(4,1fr)}.hero h2{font-size:36px}}
+/* ===== GÓP Ý ===== */
+.gyfab{position:fixed;right:14px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;align-items:center;gap:6px;padding:11px 15px;border-radius:999px;border:0;background:linear-gradient(135deg,#D8473F,#B81E24);color:#fff;font:700 14px var(--ui);box-shadow:0 6px 18px rgba(184,30,36,.35);cursor:pointer}
+.gyfab .e{font-size:17px;line-height:1}
+body[data-v="admin"] .gyfab{display:none}
+@media(min-width:900px){.gyfab{bottom:24px;right:24px}}
+.gyc{display:flex;gap:12px;align-items:center;padding:14px 16px;margin-top:22px;cursor:pointer;background:linear-gradient(120deg,var(--surface),var(--red-soft))}
+.gyc .e{font-size:28px;flex:none}
+.rlink{display:inline-flex;gap:6px;margin-top:6px}
+.rlink a{font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--pri-soft);color:var(--pri);text-decoration:none}
 /* ===== GÓC VUI ===== */
 .hi{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:linear-gradient(120deg,#FFF4D6,#FDE7E3);color:#5B3A12;font-size:13.5px;line-height:1.4;border:1px solid #F3D9A8}
 .hi .e{font-size:24px;flex:none}
@@ -396,7 +405,7 @@ textarea.inp{resize:vertical;min-height:90px}
 </style>
 </head>
 <body>
-<div class="web wtop"><div class="win"><span id="wdate"></span><span class="gap"></span><a id="whot" href="#"></a><a href="https://www.facebook.com/binhdinhco" target="_blank" rel="noopener">Facebook</a><a href="#" data-go="hoi-vien/dang-ky">Đăng ký hội viên</a><button type="button" id="wtheme">◐ Sáng/tối</button><a href="#" data-go="admin">⚙ Quản trị</a></div></div>
+<div class="web wtop"><div class="win"><span id="wdate"></span><span class="gap"></span><a id="whot" href="#"></a><a href="https://www.facebook.com/binhdinhco" target="_blank" rel="noopener">Facebook</a><a href="#" data-go="hoi-vien/dang-ky">Đăng ký hội viên</a><a href="#" data-gy="1">💬 Góp ý</a><button type="button" id="wtheme">◐ Sáng/tối</button><a href="#" data-go="admin">⚙ Quản trị</a></div></div>
 <header class="web whd"><div class="win">
   <img src="logo-ldc-256.png" alt="Logo Liên đoàn Cờ tỉnh Gia Lai" data-go="home">
   <div><div class="wn1" data-go="home">Liên đoàn Cờ tỉnh Gia Lai</div><div class="wn2">Gia Lai Chess Federation · Cờ tướng · Cờ tướng úp</div></div>
@@ -441,6 +450,7 @@ textarea.inp{resize:vertical;min-height:90px}
   <div class="blocks" id="blocks"></div>
   <div class="sec"><div class="lbl">Giới thiệu <button type="button" data-go="gioi-thieu">Xem thêm</button></div><div class="card pad"><div id="about" style="white-space:pre-wrap"></div></div></div>
   <div class="sec" id="bch-sec" hidden><div class="lbl">Ban chấp hành</div><div class="card bch" id="bch"></div></div>
+  <div class="card gyc" data-gy="1"><span class="e">💬</span><div style="flex:1;min-width:0"><div style="font-weight:800">Góp ý cho Liên đoàn</div><div class="note">Ý kiến của anh chị giúp Liên đoàn và app ngày càng tốt hơn. Ban chấp hành sẽ liên hệ lại.</div></div><span style="color:var(--red);font-weight:800">›</span></div>
   <div class="sec" id="svc-sec"><div class="lbl">Dịch vụ của Liên đoàn</div>
     <div class="svc">
       <button type="button" data-svc="giai"><span class="i">🏟</span><b>Đăng cai, tổ chức giải</b><span>Doanh nghiệp, CLB, địa phương</span></button>
@@ -566,7 +576,7 @@ textarea.inp{resize:vertical;min-height:90px}
     <button class="btn" type="button" id="adm-login">Đăng nhập</button><div class="ok err" id="adm-gmsg" hidden></div>
   </div>
   <div id="adm-panel" hidden>
-    <div class="seg" id="adm-seg" style="flex-wrap:wrap"><button type="button" data-s="post" class="on">Bài viết</button><button type="button" data-s="tour">Giải</button><button type="button" data-s="mem">Hội viên</button><button type="button" data-s="req">Yêu cầu <span id="req-n"></span></button><button type="button" data-s="clb">CLB</button><button type="button" data-s="gal">Thư viện</button><button type="button" data-s="cfg">Giới thiệu</button></div>
+    <div class="seg" id="adm-seg" style="flex-wrap:wrap"><button type="button" data-s="post" class="on">Bài viết</button><button type="button" data-s="tour">Giải</button><button type="button" data-s="mem">Hội viên</button><button type="button" data-s="req">Góp ý <span id="req-n"></span></button><button type="button" data-s="clb">CLB</button><button type="button" data-s="gal">Thư viện</button><button type="button" data-s="cfg">Giới thiệu</button></div>
     <p class="note" id="adm-sync"></p>
       <div class="card pad" id="m-lock" style="margin-bottom:12px">
         <div style="font-weight:700">🔒 Mở khóa hồ sơ</div>
@@ -625,6 +635,7 @@ textarea.inp{resize:vertical;min-height:90px}
     </div>
 
     <div data-p="req" hidden>
+      <div class="row2" style="margin-bottom:10px"><div class="field" style="margin:0"><label>Lọc</label><select class="inp" id="r-f"><option value="all">Tất cả</option><option value="gy">Góp ý</option><option value="dv">Yêu cầu dịch vụ</option><option value="moi">Chưa xử lý</option></select></div><div class="field" style="margin:0"><label>&nbsp;</label><button class="btn ghost" type="button" id="r-csv">⬇ Xuất danh sách liên hệ</button></div></div>
       <div class="note" id="r-sum"></div>
       <div class="card list" id="r-list" style="margin-top:10px"></div>
     </div>
@@ -678,6 +689,7 @@ textarea.inp{resize:vertical;min-height:90px}
 </div>
 <footer class="ft" id="foot"></footer>
 
+<button class="gyfab" type="button" data-gy="1" aria-label="Góp ý cho Liên đoàn"><span class="e">💬</span>Góp ý</button>
 <nav class="nav" id="nav">
   <button type="button" data-go="home" class="on"><span class="ni">⌂</span>Trang chủ</button>
   <button type="button" data-go="tin"><span class="ni">✉</span>Tin tức</button>
@@ -875,7 +887,7 @@ function telA(c,pre){return c.tel?'<a href="tel:'+esc(String(c.tel).replace(/[^\
 function renderFoot(){var c=cfg();
   $('foot').innerHTML='<div class="win fg"><div><div class="fl"><img src="logo-ldc-256.png" alt="Logo Liên đoàn Cờ tỉnh Gia Lai"><div><div class="fn">Liên đoàn Cờ tỉnh Gia Lai</div><div class="fs">Gia Lai Chess Federation</div></div></div>'
     +'<p class="fab">'+esc(excerpt(c.about,170))+'</p><div class="fci">'+(c.addr?'<div>📍 '+esc(c.addr)+'</div>':'')+(c.tel?'<div>'+telA(c,'☎ Hotline: ')+'</div>':'')+(c.email?'<div>✉ <a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a></div>':'')
-    +'<div>f <a href="https://www.facebook.com/binhdinhco" target="_blank" rel="noopener">Facebook Liên đoàn Cờ</a> · <a href="#" data-svc="lh">Liên hệ, góp ý</a></div></div></div>'
+    +'<div>f <a href="https://www.facebook.com/binhdinhco" target="_blank" rel="noopener">Facebook Liên đoàn Cờ</a> · <a href="#" data-gy="1">Góp ý, ý kiến</a></div></div></div>'
     +'<div class="fl2"><div class="fh">Liên kết</div><a href="#" data-go="gioi-thieu">Giới thiệu</a><a href="#" data-go="tin">Tin tức – sự kiện</a><a href="#" data-go="giai/lich">Lịch thi đấu</a><a href="#" data-go="giai/vang">Bảng vàng</a><a href="#" data-go="giai/ky-thu">Tra cứu kỳ thủ</a><a href="#" data-go="thu-vien/tai-lieu">Luật &amp; văn bản</a><a href="#" data-go="goc-vui">Góc vui 😄</a></div>'
     +'<div class="fl2"><div class="fh">Dịch vụ</div><a href="#" data-go="hoi-vien/dang-ky">Đăng ký hội viên</a><a href="#" data-svc="giai">Đăng cai, tổ chức giải</a><a href="#" data-svc="tt">Tài trợ, đồng hành</a><a href="#" data-svc="lop">Lớp trọng tài, HLV</a><a href="#" data-svc="xn">Xác nhận thành tích</a></div>'
     +'<div class="fl2"><div class="fh">Ứng dụng di động</div><img class="fqr" src="qr-lien-doan.png" alt="QR app"><p class="fab">Quét mã để mở app trên điện thoại.</p></div></div>'
@@ -1035,7 +1047,7 @@ $('dk-send').onclick=function(){var n=$('dk-n').value.trim(),p=$('dk-p').value.t
   .catch(function(e){say('dk-msg','Chưa gửi được: '+(e&&e.message||'lỗi mạng')+'. Thử lại sau.',true);}).then(function(){btn.disabled=false});};
 
 /* ---------- dịch vụ: gửi yêu cầu (mã hóa) ---------- */
-var SVC={giai:'Đăng cai, tổ chức giải',tt:'Tài trợ, đồng hành',lop:'Lớp trọng tài, huấn luyện viên',xn:'Xác nhận thành tích thi đấu',lh:'Liên hệ, góp ý'};
+var SVC={giai:'Đăng cai, tổ chức giải',tt:'Tài trợ, đồng hành',lop:'Lớp trọng tài, huấn luyện viên',xn:'Xác nhận thành tích thi đấu',lh:'Liên hệ, góp ý',gy:'Góp ý, ý kiến'};
 var SVCH={giai:'VD: Đơn vị muốn tổ chức giải cờ tướng cho doanh nhân, cán bộ… Thời gian, địa điểm, số người dự kiến.',tt:'VD: Hình thức tài trợ, giải đấu muốn đồng hành…',lop:'VD: Muốn học lớp trọng tài cấp tỉnh, tập huấn huấn luyện viên…',xn:'VD: Họ tên kỳ thủ, giải đã thi đấu, mục đích xin xác nhận…',lh:'Nội dung cần liên hệ, góp ý…'};
 var lastReq=0;
 document.addEventListener('click',function(e){var b=e.target.closest('[data-svc]');if(!b)return;e.preventDefault();svcSheet(b.dataset.svc);});
@@ -1058,6 +1070,29 @@ function svcSheet(k){var c=cfg();
     var btn=$('sv-send');btn.disabled=true;say('sv-msg','Đang gửi…');
     seal({ten:n,sdt:p,email:$('sv-e').value.trim(),nd:ct}).then(function(sec){lastReq=Date.now();return put('reqs','rq-'+uid(),{loai:$('sv-k').value,st:'moi',ts:Date.now(),sec:sec})})
     .then(function(){say('sv-msg','✓ Đã gửi. Ban chấp hành sẽ liên hệ lại với bạn.');['sv-n','sv-p','sv-e','sv-c'].forEach(function(i){$(i).value=''});$('sv-ok').checked=false;},function(e){say('sv-msg','Chưa gửi được: '+(e&&e.message||'lỗi mạng')+'. Thử lại sau.',true)})
+    .then(function(){btn.disabled=false});};}
+
+/* ---------- góp ý của người xem (họ tên, SĐT được mã hóa) ---------- */
+var GYCD=['Góp ý về app','Hoạt động, giải đấu','Hội viên, CLB','Khác'],lastGy=0;
+document.addEventListener('click',function(e){var b=e.target.closest('[data-gy]');if(!b)return;e.preventDefault();gySheet();});
+function gySheet(){var c=cfg();
+  openSheet('<div class="sc"><div class="eb">Góp ý</div><h2 class="h1" style="font-size:24px">Góp ý cho Liên đoàn 💬</h2><p class="note" style="margin-top:2px">Mọi ý kiến đều được Ban chấp hành đọc. Họ tên, số điện thoại được mã hóa, không công khai, chỉ dùng để liên hệ lại.</p>'
+    +'<div class="row2"><div class="field"><label>Họ và tên *</label><input class="inp" id="gy-n" maxlength="60" autocomplete="name"></div><div class="field"><label>Số điện thoại *</label><input class="inp" id="gy-p" inputmode="tel" maxlength="15" autocomplete="tel"></div></div>'
+    +'<div class="field"><label>Chủ đề</label><select class="inp" id="gy-c">'+GYCD.map(function(x){return '<option>'+esc(x)+'</option>'}).join('')+'</select></div>'
+    +'<div class="field"><label>Nội dung góp ý *</label><textarea class="inp" id="gy-b" rows="5" maxlength="2000" placeholder="Anh chị muốn Liên đoàn, app cải thiện điều gì? Có ý tưởng giải đấu, hoạt động nào hay?"></textarea></div>'
+    +'<label class="chk"><input type="checkbox" id="gy-ok" checked> Tôi đồng ý để Liên đoàn lưu họ tên, số điện thoại để liên hệ lại.</label>'
+    +'<button class="btn" type="button" id="gy-send">Gửi góp ý</button><div class="ok" id="gy-msg" hidden></div>'
+    +(c.tel?'<p class="note" style="margin-top:14px;text-align:center">Cần trao đổi gấp: <a href="tel:'+esc(String(c.tel).replace(/[^\d+]/g,''))+'"><b>'+esc(c.tel)+'</b></a></p>':'')+'</div>');
+  try{var sv=JSON.parse(localStorage.getItem('ld-me')||'{}');if(sv.n)$('gy-n').value=sv.n;if(sv.p)$('gy-p').value=sv.p;}catch(e){}
+  $('gy-send').onclick=function(){var n=$('gy-n').value.trim(),p=$('gy-p').value.trim(),b=$('gy-b').value.trim();
+    if(!n||!p||!b){say('gy-msg','Vui lòng nhập họ tên, số điện thoại và nội dung.',true);return;}
+    if(!/^[0-9+ .]{8,15}$/.test(p)){say('gy-msg','Số điện thoại chưa đúng.',true);return;}
+    if(!$('gy-ok').checked){say('gy-msg','Vui lòng đánh dấu đồng ý lưu thông tin liên hệ.',true);return;}
+    if(Date.now()-lastGy<20000){say('gy-msg','Bạn vừa gửi, vui lòng chờ giây lát.',true);return;}
+    if(!subtle){say('gy-msg','Trình duyệt không hỗ trợ mã hóa, hãy mở bằng Chrome/Safari mới.',true);return;}
+    var btn=$('gy-send');btn.disabled=true;say('gy-msg','Đang gửi…');
+    seal({ten:n,sdt:p,email:'',nd:b,cd:$('gy-c').value}).then(function(sec){lastGy=Date.now();return put('reqs','gy-'+uid(),{loai:'gy',st:'moi',ts:Date.now(),sec:sec})})
+    .then(function(){try{localStorage.setItem('ld-me',JSON.stringify({n:n,p:p}))}catch(e){}say('gy-msg','✓ Cảm ơn anh chị đã góp ý! Ban chấp hành sẽ liên hệ lại khi cần.');$('gy-b').value='';},function(e){say('gy-msg','Chưa gửi được: '+(e&&e.message||'lỗi mạng')+'. Thử lại sau.',true)})
     .then(function(){btn.disabled=false});};}
 
 /* ---------- tìm kiếm toàn app ---------- */
@@ -1163,14 +1198,23 @@ function renderAdmin(){var on=isAdm();$('adm-gate').hidden=on;$('adm-panel').hid
     function lines(L,ks){return (Array.isArray(L)?L:[]).map(function(r){return ks.map(function(k){return r[k]||''}).join(' | ').replace(/( \| )+$/,'')}).join('\n')}
     $('f-tt').value=lines(c.tt,['cv','n','dv']);$('f-hlv').value=lines(c.hlv,['cv','n','dv']);$('f-sp').value=lines(c.sp,['n','logo','url']);}
   renderMem();renderReq();}
-function renderReq(){if(!isAdm())return;var R=all('reqs').sort(function(a,b){return (b.ts||0)-(a.ts||0)}),nw=R.filter(function(r){return (r.st||'moi')==='moi'}).length;
+function telOf(x){return String(x||'').replace(/[^\d+]/g,'')}
+function renderReq(){if(!isAdm())return;var f=$('r-f').value,R=all('reqs').sort(function(a,b){return (b.ts||0)-(a.ts||0)}),nw=R.filter(function(r){return (r.st||'moi')==='moi'}).length,ng=R.filter(function(r){return r.loai==='gy'}).length;
   $('req-n').textContent=nw?'('+nw+')':'';
-  $('r-sum').innerHTML='<b>'+nw+'</b> yêu cầu mới · '+R.length+' tổng'+(PRIV?'':' · mở khóa để đọc nội dung');
-  $('r-list').innerHTML=R.length?R.map(function(r){var d=DEC[r.id],st=r.st||'moi';
-    return '<div class="arow" style="flex-wrap:wrap"><div class="at"><b>'+esc(SVC[r.loai]||'Yêu cầu')+'</b><span>'+esc(new Date(r.ts||0).toLocaleString('vi-VN'))+'</span>'
-      +(d&&!d._bad?'<span style="display:block;color:var(--fg);margin-top:4px">👤 '+esc(d.ten||'')+' · 📞 '+esc(d.sdt||'')+(d.email?' · '+esc(d.email):'')+'</span><span style="display:block;white-space:pre-wrap;color:var(--fg)">'+esc(d.nd||'')+'</span>':'<span style="display:block">🔒 Nội dung đã mã hóa</span>')+'</div>'
+  $('r-sum').innerHTML='<b>'+nw+'</b> chưa xử lý · '+ng+' góp ý · '+(R.length-ng)+' yêu cầu dịch vụ'+(PRIV?'':' · mở khóa để đọc họ tên, SĐT, nội dung');
+  var L=R.filter(function(r){return f==='gy'?r.loai==='gy':f==='dv'?r.loai!=='gy':f==='moi'?(r.st||'moi')==='moi':true});
+  $('r-list').innerHTML=L.length?L.map(function(r){var d=DEC[r.id],st=r.st||'moi',ok=d&&!d._bad,t=ok?telOf(d.sdt):'';
+    return '<div class="arow" style="flex-wrap:wrap"><div class="at"><b>'+(r.loai==='gy'?'💬 ':'📋 ')+esc(SVC[r.loai]||'Yêu cầu')+(ok&&d.cd?' · '+esc(d.cd):'')+'</b><span>'+esc(new Date(r.ts||0).toLocaleString('vi-VN'))+'</span>'
+      +(ok?'<span style="display:block;color:var(--fg);margin-top:4px">👤 <strong>'+esc(d.ten||'')+'</strong> · 📞 '+esc(d.sdt||'')+(d.email?' · '+esc(d.email):'')+'</span><span style="display:block;white-space:pre-wrap;color:var(--fg);margin-top:2px">'+esc(d.nd||'')+'</span>'
+        +(t?'<span class="rlink"><a href="tel:'+esc(t)+'">📞 Gọi</a><a href="https://zalo.me/'+esc(t.replace(/^\+?84/,'0'))+'" target="_blank" rel="noopener">Zalo</a></span>':''):'<span style="display:block">🔒 Nội dung đã mã hóa</span>')+'</div>'
       +'<span class="pill '+(st==='moi'?'w':'y')+'">'+(st==='moi'?'Mới':'Đã xử lý')+'</span>'
-      +'<div style="display:flex;gap:6px;width:100%;justify-content:flex-end"><button class="btn ghost sm" type="button" data-rst="'+esc(r.id)+'">'+(st==='moi'?'✓ Đã xử lý':'Mở lại')+'</button>'+delBtn('reqs',r.id)+'</div></div>'}).join(''):'<div class="empty">Chưa có yêu cầu nào.</div>';}
+      +'<div style="display:flex;gap:6px;width:100%;justify-content:flex-end"><button class="btn ghost sm" type="button" data-rst="'+esc(r.id)+'">'+(st==='moi'?'✓ Đã xử lý':'Mở lại')+'</button>'+delBtn('reqs',r.id)+'</div></div>'}).join(''):'<div class="empty">Chưa có góp ý hay yêu cầu nào.</div>';}
+$('r-f').addEventListener('change',function(){renderReq()});
+$('r-csv').onclick=function(){if(!PRIV){toast('Mở khóa hồ sơ trước');return;}
+  var rows=[['Ngày gửi','Loại','Chủ đề','Họ tên','Điện thoại','Email','Nội dung','Trạng thái']];
+  all('reqs').sort(function(a,b){return (b.ts||0)-(a.ts||0)}).forEach(function(r){var d=DEC[r.id]||{};rows.push([new Date(r.ts||0).toLocaleString('vi-VN'),SVC[r.loai]||'',d.cd||'',d.ten||'',d.sdt||'',d.email||'',d.nd||'',(r.st||'moi')==='moi'?'Chưa xử lý':'Đã xử lý'])});
+  var csv='\ufeff'+rows.map(function(r){return r.map(function(x){x=String(x==null?'':x);return /[",\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x}).join(',')}).join('\n');
+  var a2=document.createElement('a');a2.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a2.download='gop-y-lien-he-lien-doan-co-gia-lai-'+today()+'.csv';document.body.appendChild(a2);a2.click();setTimeout(function(){a2.remove()},500);};
 document.addEventListener('click',function(e){var b=e.target.closest('[data-rst]');if(!b)return;var r=all('reqs').filter(function(x){return x.id===b.dataset.rst})[0];if(!r)return;
   put('reqs',r.id,{st:(r.st||'moi')==='moi'?'xong':'moi'}).catch(function(){toast('Chưa đồng bộ')});});
 /* bài viết */
