@@ -1,7 +1,51 @@
 {
- "updated": "2026-11-19T06:44:07+07:00",
+ "updated": "2026-11-21T06:43:32+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261121-le-quang-liem-hang-8-co-vua-toan-nang",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-21",
+   "title": "Lê Quang Liêm xếp hạng 8 giải cờ vua toàn năng thế giới 2026, nhận 32.000 USD tiền thưởng",
+   "body": "Đại kiện tướng Lê Quang Liêm khép lại Giải cờ vua toàn năng thế giới 2026 tại Budapest (Hungary) ở vị trí thứ 8 chung cuộc, sau khi thua Ian Nepomniachtchi (Nga) trong ván Armageddon của trận tranh hạng 7. Anh nhận 32.000 USD, khoảng 800 triệu đồng.\n\nNgày đầu trận tranh hạng 7 (19/11), hai kỳ thủ hòa 6-6 sau cờ chớp và cờ nhanh, rồi Liêm thua ván tiêu chuẩn nhanh, để thua 6-14. Sang ngày thứ hai, kỳ thủ Việt Nam lội ngược dòng: vẫn hòa 6-6 trước ván quyết định, rồi thắng ván tiêu chuẩn nhanh để thắng ngày 14-6, đưa trận đấu về thế cân bằng 1-1. Ở ván Armageddon, Liêm cầm quân Đen, chỉ cần hòa, nhưng Nepomniachtchi thắng sau 55 nước.\n\nGiải quy tụ 24 kỳ thủ, tổng quỹ thưởng 650.000 USD. Ở vòng bảng, Liêm bất bại với 2 thắng, 8 hòa, xếp nhì bảng B sau Fabiano Caruana, trước khi thua Hans Moke Niemann ở nhánh phân hạng 5-8. Ngôi vô địch thuộc về Alireza Firouzja (Pháp) sau khi thắng Anish Giri (Hà Lan) ở chung kết, nhận 80.000 USD.\n\nTheo Thanh Niên, sau giải Elo của Liêm là 2.731, xếp hạng 15 thế giới.",
+   "src": [
+    {
+     "n": "Thanh Niên",
+     "u": "https://thanhnien.vn/le-quang-liem-nhan-800-trieu-dong-tien-thuong-tu-giai-co-vua-toan-nang-the-gioi-185261121053950974.htm"
+    },
+    {
+     "n": "Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/le-quang-liem-that-the-truoc-cao-thu-co-nga-quyet-dau-tranh-hang-7-the-gioi-20261120075731842.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261120-carlsen-bo-hai-van-co-nhanh",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-20",
+   "title": "Carlsen bỏ hai ván cờ nhanh nhưng vẫn thắng Artemiev ở giải cờ vua toàn năng thế giới",
+   "body": "Số 1 thế giới Magnus Carlsen tiếp tục gây tranh cãi tại Giải cờ vua toàn năng thế giới 2026 ở Budapest (Hungary) khi bỏ hai ván cờ nhanh trong ngày đầu trận tranh hạng 17 gặp Vladislav Artemiev (19/11), nhưng vẫn thắng chung cuộc ngày đấu 11-9.\n\nTheo VnExpress và Tuổi Trẻ, Carlsen thắng 3 và hòa 1 trong 4 ván cờ chớp để dẫn 3-1. Sau đó anh không thi đấu hai ván cờ nhanh và bị xử thua cả hai, giúp Artemiev nhận 8 điểm, vượt lên 9-3. Ở ván tiêu chuẩn nhanh có giá trị 8 điểm, Carlsen giành chiến thắng khi Artemiev đầu hàng sau 49 nước.\n\nCách thi đấu này bị một số kỳ thủ và bình luận viên như Fabiano Caruana, Levy Rozman, Max Warmerdam lên tiếng phản đối. Giải thử nghiệm thể thức mới, mỗi ngày gồm 4 ván cờ chớp (1 điểm/ván), 2 ván cờ nhanh (4 điểm) và 1 ván tiêu chuẩn nhanh (8 điểm), hướng tới hệ thống cờ vua toàn năng dự kiến áp dụng từ năm 2027.",
+   "src": [
+    {
+     "n": "VnExpress",
+     "u": "https://vnexpress.net/carlsen-thang-tran-du-bo-hai-van-dau-5146862.html"
+    },
+    {
+     "n": "Tuổi Trẻ",
+     "u": "https://tuoitre.vn/carlsen-lai-gay-chu-y-voi-kich-ban-bo-cuoc-moi-100261120075635888.htm"
+    }
+   ]
+  },
+  {
+   "id": "v-20261121-chuyen-nuoc-di-suy-nghi-lau",
+   "t": "vui",
+   "cat": "chuyen",
+   "date": "2026-11-21",
+   "title": "Chuyện vui: Nước đi nghĩ suốt buổi chiều",
+   "body": "Ông Ba ngồi trước bàn cờ, tay chống cằm suốt nửa tiếng không đi.\n\nÔng Tư sốt ruột: \"Ông tính gì mà lâu thế? Trà nguội hết rồi!\"\n\nÔng Ba: \"Tôi đang tính mười nước tới đấy.\"\n\nÔng Tư: \"Thế tính ra chưa?\"\n\nÔng Ba thở dài: \"Tính ra rồi. Mười nước nữa là tôi thua. Giờ tôi đang tính cách xin ông cho đi lại nước vừa rồi!\""
+  },
   {
    "id": "n-20261119-khai-mac-dai-hoi-the-thao-toan-quoc-x",
    "t": "news",
