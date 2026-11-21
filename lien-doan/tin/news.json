@@ -1,7 +1,47 @@
 {
- "updated": "2026-11-21T06:43:32+07:00",
+ "updated": "2026-11-22T07:30:00+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261122-co-tuong-dai-hoi-152-ky-thu-khoi-tranh",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-22",
+   "title": "Cờ tướng Đại hội Thể thao toàn quốc lần X khởi tranh với 152 kỳ thủ từ 12 đơn vị tại phường Vũng Tàu",
+   "body": "Môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X năm 2026 bắt đầu thi đấu từ hôm nay 22/11 và kéo dài đến 28/11 tại khách sạn Grand Palace, phường Vũng Tàu, TP.HCM. Theo báo Sài Gòn Giải Phóng, giải quy tụ 152 kỳ thủ của 12 đơn vị gồm Bắc Ninh, Đắk Lắk, Đồng Nai, Đà Nẵng, Gia Lai, Hà Nội, Huế, Lâm Đồng, Quảng Ninh, Thanh Hóa, Thái Nguyên và chủ nhà TP.HCM.\n\nCác kỳ thủ tranh 10 bộ huy chương: cá nhân nam, nữ cờ tiêu chuẩn; đôi nam nữ cờ nhanh; đôi nam, đôi nữ ở cờ tiêu chuẩn và cờ nhanh; đồng đội nam cờ nhanh và cờ truyền thống; đồng đội nữ cờ truyền thống. Nội dung cá nhân và đồng đội đấu theo hệ Thụy Sĩ (báo SGGP nêu 9 ván, báo Văn Hóa cho biết 7 hoặc 9 ván tùy số đăng ký); các nội dung đôi đấu đối kháng, chọn 4 đôi vào bán kết.\n\nLại Lý Huynh (TP.HCM), á quân cờ nhanh thế giới 2026, được kỳ vọng giành HCV, nhất là ở hai nội dung đôi nam. Đối thủ đáng gờm được nhắc tới là Nguyễn Thành Bảo (Đồng Nai). Đoàn TP.HCM còn có Nguyễn Minh Nhật Quang, Nguyễn Hoàng Yến, Đàm Thị Thùy Dung, Vũ Quốc Đạt. Đội cờ Gia Lai cũng góp mặt, người hâm mộ trong tỉnh có thể theo dõi kết quả từng ngày trên app.",
+   "src": [
+    {
+     "n": "Sài Gòn Giải Phóng",
+     "u": "https://thethao.sggp.org.vn/lai-ly-huynh-nguyen-thanh-bao-so-tai-co-tuong-tai-dai-hoi-post882929.html"
+    },
+    {
+     "n": "Báo Văn Hóa",
+     "u": "https://baovanhoa.vn/co-tuong-hoi-tu-nhung-ky-thu-hang-dau-tai-dai-hoi-the-thao-toan-quoc-2026.html"
+    }
+   ]
+  },
+  {
+   "id": "n-20261122-gia-lai-192-vdv-dai-hoi-the-thao-toan-quoc",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-22",
+   "title": "Gia Lai có 192 VĐV dự Đại hội Thể thao toàn quốc lần X, cờ tướng vào cuộc từ 22/11",
+   "body": "Đoàn thể thao Gia Lai tham dự Đại hội Thể thao toàn quốc lần thứ X năm 2026 với 192 vận động viên, tranh tài ở 16 môn, trong đó có môn cờ. Theo Báo Gia Lai, lễ khai mạc Đại hội diễn ra tối 21/11 tại Công viên Bờ sông Sài Gòn (TP.HCM) với chủ đề \"Khát vọng vinh quang\".\n\nĐại hội kéo dài từ 14/11 đến 12/12/2026, có 36 đoàn (34 tỉnh, thành và 2 ngành Công an, Quân đội) tranh 973 bộ huy chương ở 48 môn. Tính đến ngày 21/11, các môn thi đấu sớm đã mang về cho Gia Lai 3 HCV, 1 HCB, 7 HCĐ từ điền kinh, kickboxing, karate, muay và vovinam; đoàn xếp thứ 14/36 và thứ 3 trong 14 đoàn thể thao miền núi.\n\nTừ ngày 22/11, các kỳ thủ cờ tướng Gia Lai bắt đầu thi đấu cùng nhiều môn khác như bơi, boxing, võ cổ truyền, bóng ném, billiards & snooker. Môn cờ vua dự kiến diễn ra sau đó, cũng tại phường Vũng Tàu.",
+   "src": [
+    {
+     "n": "Báo Gia Lai",
+     "u": "https://baogialai.com.vn/gia-lai-co-192-vdv-tham-gia-dai-hoi-the-thao-toan-quoc-lan-thu-x-2026-post605659.html"
+    }
+   ]
+  },
+  {
+   "id": "v-20261122-tuc-xem-co-khong-noi",
+   "t": "vui",
+   "cat": "tuc",
+   "date": "2026-11-22",
+   "title": "Câu nói về cờ: “Xem cờ không nói mới là người quân tử”",
+   "body": "Câu quen thuộc của giới cờ (gốc Hán \"Quan kỳ bất ngữ chân quân tử\") nhắc người đứng xem đừng mách nước, để hai kỳ thủ tự quyết định ván cờ của mình. Mùa Đại hội này, ai ra sân xem cờ tướng nhớ giữ \"quân tử\" nhé!"
+  },
   {
    "id": "n-20261121-le-quang-liem-hang-8-co-vua-toan-nang",
    "t": "news",
