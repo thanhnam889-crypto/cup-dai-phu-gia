@@ -69,11 +69,19 @@ export async function onRequestGet(context) {
   }
 }
 
+// chess-results.com chuyển hướng sang các máy s1/s2/s3; gọi thẳng máy con, lỗi thì thử máy khác
+const HOSTS = ['s1.chess-results.com', 's2.chess-results.com', 's3.chess-results.com', 'chess-results.com'];
 async function get(t, q) {
-  const url = 'https://chess-results.com/tnr' + t + '.aspx?lan=29&' + q;
-  const r = await fetch(url, { headers: { 'user-agent': UA, 'accept-language': 'vi,en;q=0.8' }, redirect: 'follow', cf: { cacheTtl: 30 } });
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  return await r.text();
+  let last = '';
+  for (const h of HOSTS) {
+    try {
+      const url = 'https://' + h + '/tnr' + t + '.aspx?lan=29&SNode=S0&' + q;
+      const r = await fetch(url, { headers: { 'user-agent': UA, 'accept-language': 'vi,en;q=0.8', 'accept': 'text/html,application/xhtml+xml' }, redirect: 'follow', cf: { cacheTtl: 30 } });
+      if (r.ok) return await r.text();
+      last = 'HTTP ' + r.status + ' (' + h + ')';
+    } catch (e) { last = (e && e.message || 'lỗi mạng') + ' (' + h + ')'; }
+  }
+  throw new Error(last);
 }
 function pk(t, q) { return new Request('https://cr-cache.local/p4/' + t + '?' + q); }
 async function page(cache, t, q) {
