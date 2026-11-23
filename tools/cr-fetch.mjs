@@ -21,6 +21,21 @@ async function get(t, q) {
   throw new Error(last);
 }
 const LIST = JSON.parse(fs.readFileSync('data/cr/list.json', 'utf8'));
+// Thêm các mã Chess-Results mà quản trị nhập trong app Liên đoàn (trường "Kết quả trực tiếp" của giải)
+try {
+  const r = await fetch('https://firestore.googleapis.com/v1/projects/cup-dai-phu-gia-2026/databases/(default)/documents/app/ld/tours?pageSize=300', { signal: AbortSignal.timeout(15000) });
+  const j = r.ok ? await r.json() : {};
+  let add = 0;
+  for (const d of (j.documents || [])) {
+    const f = d.fields || {}, v = k => (f[k] && (f[k].stringValue ?? f[k].booleanValue)) ?? '';
+    if (v('del') === true || v('st') === 'xong' || !v('from')) continue;
+    for (const l of String(v('crs')).split(/\n+/)) {
+      const m = (l.split('|')[1] || '').match(/(\d{5,8})/);
+      if (m && !LIST.some(x => String(x.t) === m[1])) { LIST.push({ t: m[1], ten: (l.split('|')[0] || '').trim(), from: v('from'), to: v('to') || v('from') }); add++; }
+    }
+  }
+  console.log('Firestore: thêm', add, 'mã từ app Liên đoàn');
+} catch (e) { console.log('Firestore: bỏ qua (' + e.message + ')'); }
 const now = Date.now(), force = process.argv.includes('--all');
 let changed = 0;
 for (const it of LIST) {
