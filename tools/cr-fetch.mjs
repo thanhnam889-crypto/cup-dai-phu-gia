@@ -37,11 +37,12 @@ try {
   console.log('Firestore: thêm', add, 'mã từ app Liên đoàn');
 } catch (e) { console.log('Firestore: bỏ qua (' + e.message + ')'); }
 const now = Date.now(), force = process.argv.includes('--all');
-let changed = 0;
+let changed = 0, active = 0;
 for (const it of LIST) {
   const t = String(it.t);
   const from = Date.parse(it.from + 'T00:00:00+07:00') - 86400000, to = Date.parse(it.to + 'T23:59:59+07:00') + 86400000;
   if (!force && (now < from || now > to)) continue;
+  active++;
   const file = 'data/cr/' + t + '.json';
   let old = null; try { old = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) {}
   try {
@@ -84,4 +85,5 @@ for (const it of LIST) {
     console.log(t, 'LỖI', e.message);
   }
 }
-console.log('Số file thay đổi:', changed);
+console.log('Số file thay đổi:', changed, '| giải đang trong thời gian thi đấu:', active);
+try { fs.writeFileSync(process.env.RUNNER_TEMP ? process.env.RUNNER_TEMP + '/cr-active' : '/tmp/cr-active', String(active)); } catch (e) {}

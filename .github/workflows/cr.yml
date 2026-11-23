@@ -1,30 +1,47 @@
 name: Kết quả Chess-Results
+# Một lượt chạy đọc Chess-Results 5 phút/lần trong khoảng 5 giờ rưỡi rồi tự gọi lượt kế tiếp
+# (lịch 5 phút của GitHub hay bị trễ/bỏ). Lịch hằng giờ bên dưới chỉ để khởi động lại khi chuỗi bị đứt.
+# Chỉ chạy trong giờ thi đấu 07:00–23:00 (giờ VN) và khi có giải trong data/cr/list.json đang diễn ra.
 on:
   schedule:
-    - cron: '*/5 0-15 * * *'
+    - cron: '7 0-15 * * *'
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: cr-fetch
   cancel-in-progress: false
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Đọc Chess-Results
-        run: node tools/cr-fetch.mjs
-      - name: Lưu kết quả (không build lại web)
+      - name: Đọc Chess-Results 5 phút/lần
         run: |
-          if [ -n "$(git status --porcelain data/cr)" ]; then
-            git config user.name "cr-bot"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/cr
-            git commit -m "Cập nhật kết quả Chess-Results [CF-Pages-Skip]"
-            for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
-          fi
+          git config user.name "cr-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          end=$(( $(date +%s) + 330*60 ))
+          while :; do
+            git pull -q --rebase || true
+            node tools/cr-fetch.mjs || true
+            if [ -n "$(git status --porcelain data/cr)" ]; then
+              git add data/cr
+              git commit -q -m "Cập nhật kết quả Chess-Results [CF-Pages-Skip]"
+              for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
+            fi
+            [ "$(cat "$RUNNER_TEMP/cr-active" 2>/dev/null || echo 0)" = "0" ] && { echo "Không có giải đang diễn ra – dừng."; echo "stop=1" >> "$GITHUB_ENV"; break; }
+            h=$(TZ=Asia/Ho_Chi_Minh date +%H)
+            [ "$h" -ge 23 ] || [ "$h" -lt 7 ] && { echo "Ngoài giờ thi đấu – dừng."; echo "stop=1" >> "$GITHUB_ENV"; break; }
+            [ $(date +%s) -ge $end ] && break
+            sleep 300
+          done
+      - name: Gọi lượt chạy kế tiếp
+        if: env.stop != '1'
+        run: gh workflow run cr.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
