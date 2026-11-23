@@ -1,7 +1,48 @@
 {
- "updated": "2026-11-22T07:30:00+07:00",
+ "updated": "2026-11-24T07:30:00+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261123-lai-ly-huynh-nhat-quang-thang-dong-nai",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-23",
+   "title": "Lại Lý Huynh – Nguyễn Minh Nhật Quang thắng Đồng Nai, TP.HCM dẫn đầu đôi nam cờ tướng Đại hội",
+   "body": "Ngày 23/11, tại phường Vũng Tàu (TP.HCM), nội dung đôi nam cờ tiêu chuẩn môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X – 2026 diễn ra vòng 3 và vòng 4. Đôi Lại Lý Huynh – Nguyễn Minh Nhật Quang của TP.HCM thắng cả hai trận trong ngày, lần lượt trước Quảng Ninh và Đồng Nai, qua đó vươn lên dẫn đầu bảng xếp hạng với 6 điểm.\n\nTrận đáng chú ý nhất là cuộc đối đầu với Đồng Nai ở vòng 4. Cầm quân đi sau, Lại Lý Huynh hòa kỳ thủ kỳ cựu Nguyễn Thành Bảo. Ở cặp còn lại, Nguyễn Minh Nhật Quang cầm quân tiên đánh bại đương kim vô địch quốc gia Hà Văn Tiến, giúp TP.HCM thắng chung cuộc 1,5 – 0,5.\n\nTrước đó, ở ngày thi đấu đầu tiên, đôi TP.HCM có một trận thắng và một trận thua. Theo điều lệ, 4 đôi có thành tích tốt nhất sẽ vào bán kết. Môn cờ tướng Đại hội có 12 đơn vị tham dự, trong đó có Gia Lai, tranh 10 bộ huy chương từ ngày 22 đến 28/11.",
+   "src": [
+    {
+     "n": "Tuổi Trẻ",
+     "u": "https://tuoitre.vn/nghet-tho-sieu-kinh-dien-co-tuong-viet-nam-duong-kim-ky-vuong-bai-tran-100261123213727582.htm"
+    },
+    {
+     "n": "Báo Văn hóa",
+     "u": "https://baovanhoa.vn/khoi-tranh-mon-co-tuong-dai-hoi-the-thao-toan-quoc-2026.html"
+    }
+   ]
+  },
+  {
+   "id": "n-20261122-co-vua-hoc-sinh-tieu-hoc-quy-nhon",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-22",
+   "title": "100 học sinh tiểu học tranh tài Giải cờ vua phường Quy Nhơn năm 2026",
+   "body": "Sáng 22/11, UBND phường Quy Nhơn (tỉnh Gia Lai) khai mạc Giải cờ vua học sinh tiểu học phường Quy Nhơn năm 2026, thu hút 100 vận động viên nhí đến từ 5 trường tiểu học: Đống Đa, Trần Hưng Đạo, Lê Lợi, Lê Hồng Phong và Lý Thường Kiệt.\n\nCác kỳ thủ thi đấu cờ nhanh ở 4 nội dung gồm cá nhân nam, cá nhân nữ, đồng đội nam và đồng đội nữ. Giải áp dụng thể thức hệ Thụy Sĩ 7 ván, giúp mỗi em có nhiều ván đấu để cọ xát và tích lũy kinh nghiệm.\n\nTheo ban tổ chức, giải nhằm đẩy mạnh phong trào \"Toàn dân rèn luyện thân thể theo gương Bác Hồ vĩ đại\" trong trường học, đồng thời phát hiện, tuyển chọn những vận động viên có năng khiếu để bồi dưỡng cho các giải đấu tiếp theo. Đây là tín hiệu vui cho phong trào cờ vua cơ sở tại khu vực Quy Nhơn nói riêng và tỉnh Gia Lai nói chung, nơi các môn cờ đang được quan tâm phát triển ở lứa tuổi học sinh.",
+   "src": [
+    {
+     "n": "Báo Gia Lai",
+     "u": "https://baogialai.com.vn/100-vdv-tham-gia-giai-co-vua-hoc-sinh-tieu-hoc-phuong-quy-nhon-2026-post605691.html"
+    }
+   ]
+  },
+  {
+   "id": "v-20261124-do-nhap-thanh",
+   "t": "vui",
+   "cat": "do",
+   "date": "2026-11-24",
+   "title": "Đố vui cờ vua: Có nước đi nào mà một bên được di chuyển HAI quân cùng lúc không?",
+   "body": "Thông thường mỗi nước cờ chỉ được đi một quân. Nhưng luật cờ vua có một ngoại lệ rất đặc biệt. Bạn có biết đó là nước nào không?",
+   "ans": "Có, đó là nước nhập thành. Vua đi 2 ô sang phía một Xe, rồi Xe nhảy qua đứng sát cạnh Vua ở phía bên kia, tất cả tính là một nước. Điều kiện: Vua và Xe đó chưa di chuyển lần nào, giữa hai quân không còn quân nào, Vua không đang bị chiếu và không đi qua hay dừng ở ô bị đối phương khống chế."
+  },
   {
    "id": "n-20261122-co-tuong-dai-hoi-152-ky-thu-khoi-tranh",
    "t": "news",
