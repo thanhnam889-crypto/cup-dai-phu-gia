@@ -656,6 +656,30 @@ a.poi.food .go{color:var(--jade)}
   </div>
 
   <style>
+  .dhbox{padding:16px;overflow:hidden;position:relative;background:linear-gradient(135deg,#7A1418,#B81E24);color:#fff;border:0}
+  .dhbox .dhk{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;background:rgba(255,255,255,.16);padding:4px 10px;border-radius:999px}
+  .dhbox .dhk i{width:8px;height:8px;border-radius:50%;background:#FF5B5B;box-shadow:0 0 0 3px rgba(255,91,91,.35);animation:dhp 1.4s infinite}
+  @keyframes dhp{50%{opacity:.35}}
+  .dhbox h3{margin:10px 0 4px;font-size:19px;line-height:1.25}
+  .dhbox .dhs{font-size:12.5px;opacity:.88}
+  .dhm{margin-top:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:8px 10px}
+  .dht{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;opacity:.85;margin-bottom:4px}
+  .dhr{display:flex;align-items:center;gap:10px;padding:4px 0;border-top:1px solid rgba(255,255,255,.12);font-size:13.5px}
+  .dhr:first-of-type{border-top:0}.dhr span{width:20px;text-align:center;font-weight:800}.dhr div{flex:1;min-width:0}.dhr b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dhr em{display:block;font-style:normal;font-size:11.5px;opacity:.8}.dhr i{font-style:normal;font-weight:800}
+  .dhwait{margin-top:10px;font-size:12.5px;opacity:.85}
+  .dhbtn{display:block;margin-top:12px;text-align:center;background:#fff;color:#B81E24;font-weight:800;padding:11px;border-radius:12px;text-decoration:none}
+  </style>
+  <div class="sec" id="dh-sec">
+    <div class="card dhbox">
+      <span class="dhk"><i></i>Đang diễn ra</span>
+      <h3>Môn cờ tướng – Đại hội Thể thao toàn quốc lần X năm 2026</h3>
+      <div class="dhs">22–28/11 · KS Grand Palace, phường Vũng Tàu, TP.HCM · 12 đoàn · 10 bộ huy chương</div>
+      <div id="dh-body"><div class="dhwait">Đang tải kết quả trực tiếp từ Chess-Results…</div></div>
+      <a class="dhbtn" href="#ket-qua">Xem bốc thăm, kết quả, xếp hạng →</a>
+    </div>
+  </div>
+
+  <style>
   .ldbox{padding:16px;overflow:hidden;position:relative}
   .ldbox::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,#1F6E5E,#C9A24A,#C1272D)}
   .ldtop{display:flex;gap:12px;align-items:center}
@@ -1580,7 +1604,25 @@ var KQ_SEED={
 function ndHas(o){return !!(o&&o.rounds&&Object.keys(o.rounds).some(function(k){var r=o.rounds[k];return r&&((r.draw&&r.draw.length)||(r.games&&r.games.length)||(r.standings&&r.standings.length));}));}
 /* Số vòng chốt của giải chính (Chess-Results: V1/7). Ô còn để mặc định 9 vòng -> hiểu là 7; admin đặt số khác 9 thì theo admin. */
 var VONG_CHOT=7;
-function giaiList(s){var L=giaiList0(s);L.forEach(function(g){if(g.id!=='dpg')return;g.nd.forEach(function(n){if((n.id==='a'||n.id==='b')&&(+n.vong||9)===9)n.vong=VONG_CHOT;});});return L;}
+/* Giải Đại hội Thể thao toàn quốc lần X – 2026, môn cờ tướng (22–28/11, Vũng Tàu, TP.HCM): kết quả tự lấy từ Chess-Results.
+   md: ind = cá nhân, agg = đồng đội tính tổng điểm cá nhân, ko = đôi (đội đấu đội, vòng loại chọn 4 đôi vào bán kết) */
+var DH26={id:'dh26',ten:'Đại hội TT toàn quốc 2026 · Cờ tướng',nd:[
+  {id:'dh1',ten:'Cá nhân nam',vong:9,cr:'1546297',md:'ind'},
+  {id:'dh2',ten:'Cá nhân nữ',vong:9,cr:'1546298',md:'ind'},
+  {id:'dh5',ten:'Đồng đội nam',vong:9,cr:'1546299',md:'agg'},
+  {id:'dh6',ten:'Đồng đội nữ',vong:9,cr:'1546300',md:'agg'},
+  {id:'dh10',ten:'Đồng đội nam cờ nhanh',vong:9,cr:'1546373',md:'agg'},
+  {id:'dh3',ten:'Đôi nam',vong:4,cr:'1546303',md:'ko'},
+  {id:'dh4',ten:'Đôi nữ',vong:4,cr:'1546304',md:'ko'},
+  {id:'dh7',ten:'Đôi nam cờ nhanh',vong:4,cr:'1546349',md:'ko'},
+  {id:'dh8',ten:'Đôi nữ cờ nhanh',vong:4,cr:'1546358',md:'ko'},
+  {id:'dh9',ten:'Đôi nam nữ cờ nhanh',vong:4,cr:'1546359',md:'ko'}]};
+var DH_TEAM={BNI:'Bắc Ninh',DLA:'Đắk Lắk',DNA:'Đà Nẵng',DON:'Đồng Nai',GLA:'Gia Lai',HCM:'TP. Hồ Chí Minh',HNO:'Hà Nội',HUE:'Huế',LDO:'Lâm Đồng',QNI:'Quảng Ninh',THO:'Thanh Hóa',TNG:'Thái Nguyên'};
+var DH_END=new Date('2026-11-29T00:00:00+07:00');
+function dhNd(id){for(var i=0;i<DH26.nd.length;i++)if(DH26.nd[i].id===id)return DH26.nd[i];return null;}
+function giaiList(s){var L=giaiList0(s);L.forEach(function(g){if(g.id!=='dpg')return;g.nd.forEach(function(n){if((n.id==='a'||n.id==='b')&&(+n.vong||9)===9)n.vong=VONG_CHOT;});});
+  if(!L.some(function(g){return g.id==='dh26';})){var g={id:DH26.id,ten:DH26.ten,nd:DH26.nd.map(function(n){return {id:n.id,ten:n.ten,vong:n.vong};})};if(new Date()<DH_END)L.unshift(g);else L.push(g);}
+  return L;}
 function giaiList0(s){s=s||{};
   var G=Array.isArray(s.giai)?s.giai.filter(function(g){return g&&g.id;}):[];
   function nv(x,d){return +x||+d||9;}
@@ -1603,7 +1645,12 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   function escA(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
   function players(c){if(c!=='a'&&c!=='b')return null;var L=(window.DPGREG&&window.DPGREG.list())||[];
     return L.filter(function(p){var x=nk(p.nd),up=/\bup\b/.test(x),both=/\+|ca hai|ca 2/.test(x);return both||(c==='b'?up:(!up&&/tuong/.test(x)));});}
-  function listView(c){var P=players(c),f=ndFind(srcObj(),c),nm=f?f.n.ten:'';
+  function crPeople(c){var d=CR[c];if(!d)return null;var lr=0,out=[],seen={};Object.keys(d.rank||{}).forEach(function(k){if(+k>lr)lr=+k;});
+    function add(n,u){var k=nk(n);if(!n||seen[k])return;seen[k]=1;out.push({n:n,cty:d.team?'':(DH_TEAM[u]||u||'')});}
+    if(lr)d.rank[lr].forEach(function(g){add(g[1],g[2]);});
+    Object.keys(d.rounds||{}).forEach(function(r){(d.rounds[r].pairs||[]).forEach(function(p){add(p.w,p.wc);if(!p.bye)add(p.b,p.bc);});});
+    return out.length?out:null;}
+  function listView(c){var P=players(c)||(dhNd(c)?crPeople(c):null),f=ndFind(srcObj(),c),nm=f?f.n.ten:'';
     if(!P||!P.length)return '<div class="kqcap">Danh sách vận động viên</div>'+empty('Chưa có danh sách','Danh sách VĐV của nội dung này sẽ cập nhật tại đây.');
     var h='<div class="kqcap">Danh sách VĐV · '+escA(nm)+' · '+P.length+' người</div>';
     if(P.length>10)h+='<input class="kqsearch" type="search" placeholder="🔎 Tìm tên hoặc đơn vị…" aria-label="Tìm vận động viên">';
@@ -1623,7 +1670,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
   function norm(o,c){o.numRounds=gV(c)||o.numRounds||9;o.rounds=o.rounds||{};o.final=o.final||[];return o}
   function seedIn(o,c){var S=KQ_SEED[c];if(!S)return o;o=JSON.parse(JSON.stringify(o));o.rounds=o.rounds||{};
     Object.keys(S).forEach(function(r){var x=o.rounds[r]||{};['draw','games','standings'].forEach(function(f){if(S[r][f]&&S[r][f].length&&!(x[f]&&x[f].length))x[f]=S[r][f];});o.rounds[r]=x;});return o;}
-  function getData(c){return fillU(crIn(getData0(c),c));}
+  function getData(c){var o=crIn(getData0(c),c);return dhNd(c)?o:fillU(o);}
   function getData0(c){
     try{if(window.DPG&&window.DPG.cloud&&hasData(window.DPG.cloud[c]))return seedIn(norm(window.DPG.cloud[c],c),c);}catch(e){}
     try{var s=JSON.parse(localStorage.getItem('dpg-kq')||'{}');
@@ -1635,7 +1682,10 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
      a = Cờ tướng (tnr1541784), b = Cờ tướng úp (tnr1541790). Admin có thể đổi trong cấu hình: app/config.cr={a:'…',b:'…'} */
   var CR_T={a:'1541784',b:'1541790'},CR={},crAt=0,crBusy=false,CRERR={};
   try{CR=JSON.parse(localStorage.getItem('dpg-cr')||'{}')||{};}catch(e){CR={};}
-  function crIds(){var c={};try{c=(window.DPG&&window.DPG.config&&window.DPG.config.cr)||{};}catch(e){}return {a:c.a||CR_T.a,b:c.b||CR_T.b};}
+  function crIds(){var c={};try{c=(window.DPG&&window.DPG.config&&window.DPG.config.cr)||{};}catch(e){}var o={a:c.a||CR_T.a,b:c.b||CR_T.b};DH26.nd.forEach(function(n){o[n.id]=c[n.id]||n.cr;});return o;}
+  var CRT={},crPend=null;
+  function crKeys(){if(location.hash==='#ket-qua'&&cur.c&&crIds()[cur.c])return [cur.c];return new Date()<DH_END?['dh1','dh2']:[];}
+  function crMaybe(c){if(c&&crIds()[c]&&(!CRT[c]||Date.now()-CRT[c]>30000))crLoad([c]);}
   var CR_API=(/pages\.dev$|localhost|127\.0\.0\.1/.test(location.hostname)?'':'https://cup-dai-phu-gia.pages.dev')+'/api/cr';
   function uMap(){var m={};try{((window.DPGREG&&window.DPGREG.list())||[]).forEach(function(r){m[nk(r.n).replace(/\s+/g,' ').trim()]=r.cty||'';});}catch(e){}return m;}
   function fillU(o){var m=uMap();function U(n){return m[nk(n).replace(/\s+/g,' ').trim()]||'';}
@@ -1643,8 +1693,8 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       ['draw','games'].forEach(function(f){(x[f]||[]).forEach(function(g){if(!g)return;if(!g[1]&&g[0])g[1]=U(g[0]);if(!g[3]&&g[2]&&g[2]!=='Miễn đấu')g[3]=U(g[2]);});});
       (x.standings||[]).forEach(function(g){if(g&&!g[2]&&g[1])g[2]=U(g[1]);});});
     return o;}
-  function crIn(o,c){var d=CR[c];if(!d||!d.rounds||d.t!==crIds()[c])return o;var m=uMap();
-    function U(n,fb){return m[nk(n).replace(/\s+/g,' ').trim()]||fb||'';}
+  function crIn(o,c){var d=CR[c];if(!d||!d.rounds||d.t!==crIds()[c])return o;var m=uMap(),dh=!!dhNd(c);
+    function U(n,fb){if(dh)return DH_TEAM[fb]||fb||'';return m[nk(n).replace(/\s+/g,' ').trim()]||fb||'';}
     o=JSON.parse(JSON.stringify(o));o.rounds=o.rounds||{};
     Object.keys(d.rounds).forEach(function(r){var P=d.rounds[r].pairs||[];if(!P.length)return;var x=o.rounds[r]||{};
       x.draw=P.map(function(p){return [p.w,U(p.w,p.wc),p.bye?'Miễn đấu':p.b,p.bye?'':U(p.b,p.bc)];});
@@ -1652,26 +1702,35 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       o.rounds[r]=x;x._cr=1;});
     Object.keys(d.rank||{}).forEach(function(r){var L=d.rank[r];if(!L||!L.length)return;var x=o.rounds[r]||{};
       x.standings=L.map(function(g){return [g[0],g[1],U(g[1],g[2]),g[3]];});o.rounds[r]=x;x._cr=1;});
+    if(dh&&d.n)o.numRounds=+d.n;
     return o;}
-  function crLoad(){if(crBusy)return;crBusy=true;var ids=crIds(),ks=['a','b'],left=ks.length,changed=false;
+  function crLoad(keys){var ks=(keys&&keys.length)?keys:crKeys();if(!ks.length)return;if(crBusy){crPend=ks;return;}crBusy=true;var ids=crIds(),left=ks.length,changed=false;
     ks.forEach(function(c){fetch(CR_API+'?t='+ids[c],{cache:'no-store'}).then(function(r){return r.text().then(function(t){try{return JSON.parse(t);}catch(e){throw new Error('HTTP '+r.status+' – máy chủ chưa có hàm /api/cr');}});}).then(function(d){
         CRERR[c]=d&&d.error?d.error:(d&&d.rounds&&!Object.keys(d.rounds).length?'Chess-Results chưa có bốc thăm':'');
         if(d&&d.rounds&&Object.keys(d.rounds).length){var old=JSON.stringify(CR[c]&&CR[c].rounds)+JSON.stringify(CR[c]&&CR[c].rank);
           CR[c]=d;if(old!==JSON.stringify(d.rounds)+JSON.stringify(d.rank))changed=true;}
-      }).catch(function(e){CRERR[c]=(e&&e.message)||'không kết nối được';}).then(function(){if(--left)return;crBusy=false;crAt=Date.now();
+      }).catch(function(e){CRERR[c]=(e&&e.message)||'không kết nối được';}).then(function(){CRT[c]=Date.now();if(--left)return;crBusy=false;crAt=Date.now();if(window.__dhHome)window.__dhHome();
+        if(crPend){var pk=crPend;crPend=null;setTimeout(function(){crLoad(pk);},50);}
         try{localStorage.setItem('dpg-cr',JSON.stringify(CR));}catch(e){}
         if(changed&&window.__kqRefresh)window.__kqRefresh();else if(location.hash==='#ket-qua')render();});});}
   window.__crLoad=crLoad;
-  function crLink(c,tab,r){var t=crIds()[c];return 'https://chess-results.com/tnr'+t+'.aspx?lan=29&art='+(tab==='standings'?'1':'2')+(r?'&rd='+r:'');}
+  function crLink(c,tab,r){var t=crIds()[c],tm=CR[c]&&CR[c].team;return 'https://chess-results.com/tnr'+t+'.aspx?lan=29&art='+(tab==='standings'?(tm?'0':'1'):'2')+(r?'&rd='+r:'');}
   function hm2(t){var d=new Date(t);function p(x){return(x<10?'0':'')+x}return p(d.getHours())+':'+p(d.getMinutes());}
-  function crNote(c,tab,r){var d=CR[c],ok=d&&d.at&&!CRERR[c];
+  function crNote(c,tab,r){var d=CR[c],ok=d&&d.at&&!CRERR[c],crAt=CRT[c]||crAt0();
     var t=ok?'⚡ Tự cập nhật từ Chess-Results · '+hm2(crAt||d.at):(d&&d.at?'⚡ Chess-Results (bản lưu '+hm2(d.at)+')':'Nguồn: Chess-Results');
     if(CRERR[c]&&isAdm())t+=' · ⚠ '+esc(CRERR[c]);
     return '<div class="kqsrc">'+t+' · <a href="'+crLink(c,tab,r)+'" target="_blank" rel="noopener">Xem bản gốc ↗</a></div>';}
-  setTimeout(crLoad,1200);
+  function crAt0(){return crAt;}
+  setTimeout(function(){crLoad();},1200);
   setInterval(function(){if(!document.hidden&&(location.hash==='#ket-qua'||location.hash===''||location.hash==='#home'))crLoad();},60000);
+  window.__CRget=function(c){return CR[c];};
+  window.__dhHome=function(){var el=document.getElementById('dh-body'),sec=document.getElementById('dh-sec');if(!el||!sec)return;sec.hidden=!(new Date()<DH_END);if(sec.hidden)return;var h='';
+    [['dh1','Cá nhân nam'],['dh2','Cá nhân nữ']].forEach(function(x){var d=CR[x[0]];if(!d||!d.rank)return;var lr=0;Object.keys(d.rank).forEach(function(k){if(+k>lr)lr=+k;});if(!lr)return;
+      h+='<div class="dhm"><div class="dht">'+x[1]+' · sau ván '+lr+'/'+(d.n||9)+'</div>'+d.rank[lr].slice(0,3).map(function(g){return '<div class="dhr"><span>'+esc(g[0])+'</span><div><b>'+esc(g[1])+'</b><em>'+esc(DH_TEAM[g[2]]||g[2]||'')+'</em></div><i>'+esc(String(g[3]).replace('.',','))+'</i></div>';}).join('')+'</div>';});
+    el.innerHTML=h||'<div class="dhwait">Đang tải kết quả trực tiếp từ Chess-Results…</div>';};
+  setTimeout(function(){if(window.__dhHome)window.__dhHome();},300);
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-crAt>30000)crLoad();});
-  window.addEventListener('hashchange',function(){if(location.hash==='#ket-qua'&&Date.now()-crAt>20000)crLoad();});
+  window.addEventListener('hashchange',function(){if(location.hash==='#ket-qua')setTimeout(function(){crMaybe(cur.c);},50);});
   function renderToggle(){
     var L=giaiCur(),f=ndFind(srcObj(),cur.c);
     if(!cPicked||!f){ // chưa chọn: mở nội dung đang có kết quả (theo thứ tự giải/nội dung)
@@ -1686,18 +1745,28 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       gbox.innerHTML='<div class="gchips">'+L.map(function(g){return '<button type="button" data-g="'+esc(g.id)+'"'+(g.id===cur.g?' class="on"':'')+'>🏆 '+esc(g.ten)+'</button>'}).join('')+'</div>';
       gbox.querySelectorAll('button').forEach(function(b){b.onclick=function(){
         var g=L.filter(function(x){return x.id===b.dataset.g})[0];if(!g||!g.nd.length)return;
-        cPicked=true;cur.c=g.nd[0].id;g.nd.forEach(function(n){if(cur.c===g.nd[0].id&&!latestR(getData(cur.c))&&latestR(getData(n.id)))cur.c=n.id;});
+        cPicked=true;cur.c=g.nd[0].id;setTimeout(function(){crMaybe(cur.c);},30);g.nd.forEach(function(n){if(cur.c===g.nd[0].id&&!latestR(getData(cur.c))&&latestR(getData(n.id)))cur.c=n.id;});
         manual=false;manualTab=false;autoPick();renderToggle();render();};});
     }else gbox.innerHTML=G?'<div class="gtitle">🏆 '+esc(G.ten)+'</div>':'';
     tg.innerHTML=(G?G.nd:[]).map(function(n){return '<button data-kq="'+esc(n.id)+'"'+(n.id===cur.c?' class="on"':'')+'>'+esc(n.ten)+'</button>'}).join('');
-    tg.querySelectorAll('button').forEach(function(b){b.onclick=function(){cPicked=true;cur.c=b.dataset.kq;manual=false;manualTab=false;autoPick();renderToggle();render();};});
+    tg.querySelectorAll('button').forEach(function(b){b.onclick=function(){cPicked=true;cur.c=b.dataset.kq;crMaybe(cur.c);manual=false;manualTab=false;autoPick();renderToggle();render();};});
   }
 
   function esc(s){return String(s).replace(/[&<>]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})}
   function empty(t,s){return '<div class="card"><div class="kqempty"><div class="ei">♟</div><div class="et">'+t+'</div><div class="es">'+s+'</div></div></div>'}
-  function standTable(rows,fin){
+  function ptN(x){x=String(x==null?'':x).replace('½','.5').replace(',','.');if(/^\.5$/.test(x))x='0.5';var v=parseFloat(x);return isNaN(v)?0:v;}
+  function aggTable(rows,fin){var by={},L=[];(rows||[]).forEach(function(r){var u=r[2]||'—';if(!by[u]){by[u]={u:u,p:0,n:0};L.push(by[u]);}by[u].p+=ptN(r[3]);by[u].n++;});
+    L.sort(function(a,b){return b.p-a.p;});var MED={'1':'🥇','2':'🥈','3':'🥉'},PZ={'1':'HCV','2':'HCB','3':'HCĐ'},rk=0,lp=null;
+    var h='<div class="kqcap" style="margin-top:14px">Xếp hạng đoàn · tổng điểm các kỳ thủ (tạm tính)</div><div class="card kqwrap"><table class="ktab"><thead><tr><th class="rk">#</th><th>Đoàn</th><th style="text-align:right">Tổng điểm</th></tr></thead><tbody>';
+    L.forEach(function(x,i){if(x.p!==lp){rk=i+1;lp=x.p;}var m=fin&&MED[String(rk)];
+      h+='<tr'+(m?' class="kqtop"':'')+'><td class="rk"><b>'+(m?'<span class="med">'+m+'</span>':'')+rk+'</b></td><td>'+(m?'<div class="kqprize">'+PZ[String(rk)]+'</div>':'')+'<div class="nm">'+esc(x.u)+'</div><div class="un">'+x.n+' kỳ thủ</div></td><td class="pt">'+esc(String(x.p).replace('.',','))+'</td></tr>';});
+    return h+'</tbody></table></div>';}
+  function standTable(rows,fin,md){
     var MED={'1':'🥇','2':'🥈','3':'🥉','4':'🏅'},PZ={'1':'Giải Nhất','2':'Giải Nhì','3':'Giải Ba','4':'Giải Tư'};
-    var h='<div class="card kqwrap"><table class="ktab"><thead><tr><th class="rk">#</th><th>Kỳ thủ</th><th style="text-align:right">Điểm</th></tr></thead><tbody>';
+    if(md==='ind'){MED={'1':'🥇','2':'🥈','3':'🥉'};PZ={'1':'HCV','2':'HCB','3':'HCĐ'};}
+    else if(md==='agg')fin=false;
+    else if(md==='ko'){MED={'1':'🎯','2':'🎯','3':'🎯','4':'🎯'};PZ={'1':'Vào bán kết','2':'Vào bán kết','3':'Vào bán kết','4':'Vào bán kết'};}
+    var h='<div class="card kqwrap"><table class="ktab"><thead><tr><th class="rk">#</th><th>'+(md==='ko'?'Đoàn':'Kỳ thủ')+'</th><th style="text-align:right">'+(md==='ko'?'Điểm đối kháng':'Điểm')+'</th></tr></thead><tbody>';
     rows.forEach(function(r){var m=fin&&MED[String(r[0])];
       h+='<tr'+(m?' class="kqtop"':'')+'><td class="rk"><b>'+(m?'<span class="med">'+m+'</span>':'')+esc(r[0])+'</b></td><td>'+(m?'<div class="kqprize">'+PZ[String(r[0])]+'</div>':'')+'<div class="nm">'+esc(r[1])+'</div><div class="un">'+esc(r[2]||'')+'</div></td><td class="pt">'+esc(String(r[3]).replace('.',','))+(r[4]?'<span class="hsx">'+esc(r[4])+'</span>':'')+'</td></tr>'});
     return h+'</tbody></table></div>';
@@ -1711,6 +1780,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     });
     return h+'</div>';
   }
+  function MD(){var n=dhNd(cur.c);return n?n.md:'';}
   function render(){
     var d=getData(cur.c),h='';
     if(isAdm()&&fromAdm)h+='<button class="kqback" type="button" data-back="1">← Quay lại nhập kết quả</button>';
@@ -1721,8 +1791,8 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     h+='<button data-r="final"'+(cur.r==='final'?' class="on"':'')+'>Chung cuộc</button></div>';
     if(cur.r==='final'){
       var lastR=0;Object.keys(d.rounds).forEach(function(k){var x=d.rounds[k];if(x&&x.standings&&x.standings.length&&+k>lastR)lastR=+k;});
-      if(d.final&&d.final.length){h+='<div class="kqcap">Kết quả chung cuộc</div>'+standTable(d.final,true);}
-      else if(lastR&&lastR>=d.numRounds){h+='<div class="kqcap">Kết quả chung cuộc · sau Vòng '+lastR+'</div>'+crNote(cur.c,'standings',lastR)+standTable(d.rounds[lastR].standings,true);}
+      if(d.final&&d.final.length){h+='<div class="kqcap">Kết quả chung cuộc</div>'+standTable(d.final,true,MD())+(MD()==='agg'?aggTable(d.final,true):'');}
+      else if(lastR&&lastR>=d.numRounds){h+='<div class="kqcap">'+(MD()==='ko'?'Kết thúc vòng loại · 4 đôi dẫn đầu vào bán kết':'Kết quả chung cuộc · sau Vòng '+lastR)+'</div>'+crNote(cur.c,'standings',lastR)+standTable(d.rounds[lastR].standings,true,MD())+(MD()==='agg'?aggTable(d.rounds[lastR].standings,true):'');}
       else h+=empty('Chưa có kết quả chung cuộc',lastR?('Sẽ công bố sau Vòng '+d.numRounds+'. Xếp hạng tạm thời: xem Vòng '+lastR+' → Xếp hạng.'):'Sẽ công bố sau khi kết thúc toàn bộ các vòng đấu.');
       box.innerHTML=h;bind();return;
     }
@@ -1733,7 +1803,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     h+='</div>';
     if(cur.tab==='list'){h+=listView(cur.c);box.innerHTML=h;bind();return;}
     if(!rd){
-      h+=empty('Vòng '+cur.r+' chưa diễn ra','Bốc thăm, kết quả và xếp hạng của vòng này sẽ cập nhật trong ngày thi đấu 15/11.');
+      h+=empty('Vòng '+cur.r+' chưa diễn ra',(dhNd(cur.c)?'Bốc thăm, kết quả và xếp hạng của vòng này sẽ tự cập nhật từ Chess-Results.':'Bốc thăm, kết quả và xếp hạng của vòng này sẽ cập nhật trong ngày thi đấu 15/11.'));
       box.innerHTML=h;bind();return;
     }
     if(cur.tab==='draw'){
@@ -1744,7 +1814,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
       h+=(rd.games&&rd.games.length)?pairList(rd.games,true):empty('Chưa có kết quả','Kết quả các ván vòng '+cur.r+' sẽ cập nhật tại đây.');
     }else{
       h+='<div class="kqcap">Xếp hạng sau Vòng '+cur.r+'</div>'+crNote(cur.c,'standings',cur.r);
-      h+=(rd.standings&&rd.standings.length)?standTable(rd.standings):empty('Chưa có xếp hạng','Bảng xếp hạng sau vòng '+cur.r+' sẽ cập nhật tại đây.');
+      h+=(rd.standings&&rd.standings.length)?standTable(rd.standings,false,MD())+(MD()==='agg'?aggTable(rd.standings,false):''):empty('Chưa có xếp hạng','Bảng xếp hạng sau vòng '+cur.r+' sẽ cập nhật tại đây.');
     }
     box.innerHTML=h;bind();
   }
