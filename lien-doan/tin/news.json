@@ -3,6 +3,25 @@
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
   {
+   "id": "n-20261124-phan-huy-hoang-trung-quoc-de-mat",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-24",
+   "title": "Làng cờ tướng Trung Quốc “để mắt” đến kỳ thủ 18 tuổi Phan Huy Hoàng",
+   "img": "tin/img/phan-huy-hoang-trung-quoc-de-mat.jpg",
+   "body": "Sau Giải cờ tướng thế giới mở rộng 2026 (World Xiangqi Open) tại Singapore, kỳ thủ 18 tuổi Phan Huy Hoàng đang được báo chí và giới cờ tướng Trung Quốc đặc biệt chú ý.\n\nỞ nội dung đồng đội nam, Phan Huy Hoàng thắng 6, hòa 1 trong 7 ván, đạt 13 điểm và giành HCV dành cho kỳ thủ có thành tích cá nhân tốt nhất. Ván duy nhất anh không thắng là trận hòa cựu vô địch châu Á Lưu Bách Hoành ở vòng 3, khi cầm quân đen.\n\nVới thành tích bất bại, Huy Hoàng đứng trên nhiều tên tuổi hàng đầu Trung Quốc: Như Nhất Thuần (kém 1 điểm), Lưu Bách Hoành và Mạnh Phồn Duệ – kỳ thủ đang dẫn đầu bảng xếp hạng Trung Quốc.\n\nTRUNG QUỐC NÓI GÌ?\n• Dương Thành Vãn Báo đăng bài tổng kết, nhấn mạnh việc kỳ thủ Việt Nam vượt qua 3 cao thủ hàng đầu Trung Quốc ở thành tích cá nhân.\n• Trung Quốc Thể Thao Báo dành lời khen cho Huy Hoàng và lứa kỳ thủ trẻ Việt Nam, dù tuyển Việt Nam không giành HCV đồng đội.\n• Chuyên trang cờ tướng Quảng Tượng Võng cập nhật tên, kết quả và kỳ phổ ván hòa giữa Huy Hoàng với Lưu Bách Hoành.\n\nTheo Tuổi Trẻ, đây là bước tiếp nối sau khi Lại Lý Huynh trở thành kỳ thủ đầu tiên ngoài Trung Quốc vô địch cờ tướng cá nhân thế giới năm 2025.\n\nĐáng chú ý: cả 3 kỳ thủ Trung Quốc nói trên đều đang dự Giải Vô địch cá nhân toàn quốc Trung Quốc lần thứ 58 – Mạnh Phồn Duệ và Như Nhất Thuần đã vào vòng 1/16, còn Lưu Bách Hoành bị loại ngay từ vòng bảng (xem tin liên quan trong mục Cờ Việt Nam & thế giới).",
+   "src": [
+    {
+     "n": "Tuổi Trẻ – Làng cờ tướng Trung Quốc 'để mắt' đến kỳ thủ 18 tuổi của Việt Nam",
+     "u": "https://tuoitre.vn/lang-co-tuong-trung-quoc-de-mat-den-ky-thu-18-tuoi-cua-viet-nam-100261120220206629.htm"
+    },
+    {
+     "n": "Tuổi Trẻ – Kỳ thủ Việt Nam 18 tuổi giành HCV cá nhân ở giải thế giới",
+     "u": "https://tuoitre.vn/dia-chan-mon-co-tuong-ky-thu-viet-nam-18-tuoi-gianh-hcv-ca-nhan-o-giai-the-gioi-100261113172143369.htm"
+    }
+   ]
+  },
+  {
    "id": "n-20261124-vd-co-tuong-ca-nhan-trung-quoc-2026",
    "t": "news",
    "cat": "bao",
