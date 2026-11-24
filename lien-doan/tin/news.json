@@ -1,7 +1,55 @@
 {
- "updated": "2026-11-24T07:30:00+07:00",
+ "updated": "2026-11-25T07:30:00+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261125-le-quang-liem-jerusalem-masters-2026",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-25",
+   "title": "Lê Quang Liêm có 2,5 điểm sau 7 ván tại Jerusalem Masters 2026, giải cờ nhanh 250.000 USD",
+   "body": "Đại kiện tướng Lê Quang Liêm đang thi đấu tại Jerusalem Masters 2026 ở Jerusalem (Israel), giải cờ nhanh vòng tròn một lượt quy tụ 12 kỳ thủ, diễn ra từ 23 đến 26/11. Sau hai ngày đầu, anh có 2,5 điểm với 1 thắng, 3 hòa và 3 thua.\n\nNgày 23/11, Quang Liêm hòa Ilia Smirin rồi để thua Avital Boruchovsky và Arjun Erigaisi. Sang ngày 24/11, anh có chiến thắng đầu tiên trước Evgeny Postny, sau đó thua Hans Niemann và hòa liên tiếp Daniil Dubov, Alexey Sarana. Erigaisi là người dẫn đầu sau ngày thi đấu đầu tiên với 2,5 điểm.\n\nGiải áp dụng thời gian 15 phút, cộng 10 giây mỗi nước. Bốn kỳ thủ dẫn đầu vòng tròn vào bán kết đấu loại trực tiếp ngày 26/11. Tổng quỹ thưởng 250.000 USD, nhà vô địch nhận 101.000 USD. Tối 25/11 (giờ Việt Nam), Quang Liêm còn gặp Wesley So, Ian Nepomniachtchi, Maxim Rodshtein và Yahli Sokolovsky ở các ván cuối vòng tròn.",
+   "src": [
+    {
+     "n": "Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/le-quang-liem-co-chien-thang-dau-tay-tai-jerusalem-masters-2026-20261125052022186.htm"
+    },
+    {
+     "n": "Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/le-quang-liem-nhan-hai-that-bai-lien-tiep-tai-giai-co-vua-250000-usd-20261124054745179.htm"
+    },
+    {
+     "n": "VnExpress",
+     "u": "https://vnexpress.net/quang-liem-ra-quan-giai-jerusalem-masters-5147918.html"
+    }
+   ]
+  },
+  {
+   "id": "n-20261125-co-tuong-dai-hoi-doi-nam-ban-ket",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-25",
+   "title": "Cờ tướng Đại hội Thể thao toàn quốc: đôi nam cờ tiêu chuẩn dự kiến đấu bán kết 25/11, chung kết 26/11",
+   "body": "Nội dung đôi nam cờ tiêu chuẩn môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X – 2026 tại phường Vũng Tàu (TP.HCM) bước vào giai đoạn quyết định. Theo lịch được báo chí đưa tin, bán kết dự kiến diễn ra ngày 25/11 và chung kết ngày 26/11.\n\nTheo điều lệ, các đôi đấu đối kháng từng bàn, bốn đôi có thành tích tốt nhất sau vòng đấu vào bán kết; nếu hòa sẽ xét theo thứ hạng ở vòng trước. Khởi đầu chậm với 2 điểm sau hai vòng, cặp Lại Lý Huynh – Nguyễn Minh Nhật Quang của TP.HCM đã vươn lên dẫn đầu sau khi thắng Đồng Nai 1,5–0,5 ở vòng 4 ngày 23/11. Đồng Nai với Nguyễn Thành Bảo, Hà Văn Tiến, Nguyễn Anh Mẫn và Đà Nẵng là những đối thủ được chú ý.\n\nMôn cờ tướng thi đấu từ 22 đến 28/11 với 152 kỳ thủ của 12 đoàn, trong đó có Gia Lai, tranh 10 bộ huy chương ở các nội dung cá nhân, đôi và đồng đội. App sẽ cập nhật kết quả khi có thông tin chính thức.",
+   "src": [
+    {
+     "n": "Bongdaplus",
+     "u": "https://bongdaplus.vn/the-thao/lai-ly-huynh-chua-thang-tran-nao-tai-dai-hoi-the-thao-toan-quoc-2026-5298312611.html"
+    },
+    {
+     "n": "Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/kich-tinh-co-tuong-dai-hoi-the-thao-toan-quoc-2026-duong-kim-ky-vuong-bai-tran-20261124064149722.htm"
+    }
+   ]
+  },
+  {
+   "id": "v-20261125-chuyen-hoan-nuoc",
+   "t": "vui",
+   "cat": "chuyen",
+   "date": "2026-11-25",
+   "title": "Chuyện vui: Xin “hoàn” một nước thôi!",
+   "body": "Ông Ba vừa đi Xe xong thì thấy mất Pháo, vội níu tay: “Cho tôi đi lại một nước thôi!”\n\nÔng Tư cười: “Hồi nãy ông cũng nói ‘một nước thôi’ rồi mà.”\n\nÔng Ba gãi đầu: “Thì lần này là một nước khác!”\n\nCháu nội đứng xem chen vào: “Ông ơi, chạm quân là phải đi quân đó, ông dạy con vậy mà.”\n\nCả hai ông cùng bật cười, và ván cờ lại tiếp tục… đúng luật."
+  },
   {
    "id": "n-20261124-phan-huy-hoang-trung-quoc-de-mat",
    "t": "news",
