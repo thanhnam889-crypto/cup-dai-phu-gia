@@ -1,7 +1,51 @@
 {
- "updated": "2026-11-25T07:30:00+07:00",
+ "updated": "2026-11-26T07:30:00+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261126-le-quang-liem-dung-buoc-jerusalem-masters",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-26",
+   "title": "Lê Quang Liêm xếp thứ 9 với 4/11 điểm, dừng bước ở vòng bảng Jerusalem Masters 2026",
+   "body": "Đại kiện tướng Lê Quang Liêm đã khép lại hành trình tại Jerusalem Masters 2026, giải cờ nhanh có quỹ thưởng 250.000 USD, khi chỉ giành 4 điểm sau 11 ván vòng bảng (2 thắng, 4 hòa, 5 thua) và xếp thứ 9/12, không lọt vào bán kết.\n\nTrong ngày thi đấu cuối 25/11, kỳ thủ số một Việt Nam có 1,5 điểm: hòa Wesley So, thua Ian Nepomniachtchi, thắng Maxim Rodshtein rồi thua Yahli Sokolovsky. Trước đó anh từng thắng Evgeny Postny và hòa các tên tuổi như Daniil Dubov, Alexey Sarana.\n\nBốn suất bán kết thuộc về Arjun Erigaisi (9 điểm, nhất bảng), Hans Moke Niemann (8 điểm), Alexey Sarana và Wesley So (cùng 7 điểm). Các trận bán kết, tranh hạng ba và chung kết diễn ra trong ngày 26/11, theo thể thức mỗi cặp đấu 2 ván nhanh, hòa thì đánh tiếp cờ chớp và Armageddon.\n\nGiải đấu theo thể thức 15 phút cộng 10 giây mỗi nước. Theo quy chế, các vị trí từ 7 đến 12 nhận cùng mức thưởng 3.000 USD.",
+   "src": [
+    {
+     "n": "Thể thao & Văn hóa",
+     "u": "https://thethaovanhoa.vn/le-quang-liem-dung-buoc-tai-jerusalem-masters-2026-20261126052255047.htm"
+    },
+    {
+     "n": "FERZ",
+     "u": "https://www.ferz.co/blog/jerusalem-masters-2026"
+    }
+   ]
+  },
+  {
+   "id": "n-20261125-gukesh-sindarov-van-1-hoa",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-25",
+   "title": "Trận tranh ngôi vua cờ vua thế giới 2026: Gukesh và Sindarov hòa ván 1 sau 38 nước",
+   "body": "Trận tranh ngôi vô địch cờ vua thế giới 2026 giữa đương kim vua cờ Gukesh Dommaraju (Ấn Độ) và người thách đấu Javokhir Sindarov (Uzbekistan), cùng 20 tuổi, đã khởi tranh ngày 24/11 tại Cologny, ngoại ô Geneva (Thụy Sĩ). Ván mở màn kết thúc với kết quả hòa sau 38 nước, tỉ số tạm thời 0,5-0,5.\n\nCầm quân trắng, Sindarov mở đầu bằng 1.e4, Gukesh đáp lại bằng phòng thủ Berlin trong khai cuộc Tây Ban Nha. Hai bên đổi Hậu sớm và bước vào thế tàn cuộc quen thuộc. Gukesh có lúc rơi vào thế thiếu thời gian khá nặng nhưng vẫn phòng thủ chính xác để giữ cân bằng. Cuối ván, Sindarov bị phạt 2 phút vì đi nước trước rồi mới gọi trọng tài xác nhận lặp thế cờ ba lần.\n\nNgày đầu cũng gây tranh cãi khi khán giả trên ban công dùng điện thoại quay chụp. FIDE giải thích đây là máy do liên đoàn cấp, không có SIM, không kết nối mạng và phải trả lại sau buổi xem.\n\nTrận đấu kéo dài đến 12/12 với tối đa 14 ván cờ tiêu chuẩn, tổng quỹ thưởng 2,5 triệu USD.",
+   "src": [
+    {
+     "n": "VnExpress",
+     "u": "https://vnexpress.net/chung-ket-co-vua-the-gioi-gay-tranh-cai-vi-dien-thoai-5148564.html"
+    },
+    {
+     "n": "Tiền Phong",
+     "u": "https://tienphong.vn/tran-tranh-ngoi-vua-co-the-gioi-2026-cuoc-chien-trong-co-tan-berlin-post1897480.tpo"
+    }
+   ]
+  },
+  {
+   "id": "v-20261126-thang-khong-kieu-bai-khong-nan",
+   "t": "vui",
+   "cat": "tuc",
+   "date": "2026-11-26",
+   "title": "Câu nói về tinh thần thể thao: “Thắng không kiêu, bại không nản”",
+   "body": "Lời nhắc quen thuộc trong thể thao Việt Nam: thắng ván cờ thì giữ khiêm tốn, thua ván cờ thì bình tĩnh rút kinh nghiệm để ván sau chơi hay hơn. Đang mùa Đại hội, chúc các kỳ thủ Gia Lai và cả nước luôn giữ tinh thần ấy trên mọi bàn cờ!"
+  },
   {
    "id": "n-20261125-le-quang-liem-jerusalem-masters-2026",
    "t": "news",
