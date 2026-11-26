@@ -1,7 +1,70 @@
 {
- "updated": "2026-11-26T07:30:00+07:00",
+ "updated": "2026-11-27T07:30:00+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261126-tphcm-cu-dup-hcv-doi-co-tuong-dai-hoi",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-26",
+   "title": "TP.HCM giành cú đúp HCV đôi nam, đôi nữ cờ tiêu chuẩn môn cờ tướng Đại hội Thể thao toàn quốc 2026",
+   "body": "Ngày 26/11, tại phường Vũng Tàu (TP.HCM), đoàn TP.HCM đoạt cả hai HCV nội dung đôi nam và đôi nữ cờ tiêu chuẩn môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X – 2026. Cả hai trận chung kết đều kết thúc với tỷ số 1,5–0,5.\n\nỞ đôi nam, cặp Lại Lý Huynh – Nguyễn Minh Nhật Quang gặp lại Đồng Nai (Nguyễn Thành Bảo – Hà Văn Tiến) trong trận được ví là “siêu kinh điển”. Nguyễn Minh Nhật Quang thắng Nguyễn Thành Bảo, còn Lại Lý Huynh cầm quân đen hòa Hà Văn Tiến. Đồng Nai nhận HCB, Quảng Ninh và Đà Nẵng đồng hạng ba.\n\nỞ đôi nữ, Nguyễn Hoàng Yến thắng Kiều Bích Thủy, Đàm Thị Thùy Dung hòa Lê Thị Kim Loan, giúp TP.HCM vượt qua Hà Nội. HCĐ thuộc về Quảng Ninh và Gia Lai.\n\nTrước đó, HCV cá nhân nam cờ tiêu chuẩn thuộc về Đào Duy Khánh (Quảng Ninh); Quảng Ninh và Bắc Ninh lần lượt giành HCV đồng đội nam, nữ cờ truyền thống. Các nội dung cờ nhanh bắt đầu từ ngày 27/11.",
+   "src": [
+    {
+     "n": "Tuổi Trẻ",
+     "u": "https://tuoitre.vn/thang-tran-sieu-kinh-dien-lang-co-tuong-tphcm-doat-hcv-an-tuong-100261126153304399.htm"
+    },
+    {
+     "n": "Bongdaplus",
+     "u": "https://bongdaplus.vn/the-thao/tp-hcm-gianh-cu-dup-hcv-doi-nam-doi-nu-khang-dinh-suc-manh-o-mon-co-tuong-dai-hoi-2026-5300972611.html"
+    }
+   ]
+  },
+  {
+   "id": "n-20261126-gia-lai-hcd-doi-nu-co-tuong-dai-hoi",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-26",
+   "title": "Hồ Thị Thanh Hồng – Trần Thị Bích Hằng mang HCĐ đôi nữ cờ tướng Đại hội Thể thao toàn quốc về cho Gia Lai",
+   "body": "Đội cờ tướng Gia Lai đã có huy chương đầu tiên tại Đại hội Thể thao toàn quốc lần thứ X – 2026: cặp Hồ Thị Thanh Hồng – Trần Thị Bích Hằng giành HCĐ nội dung đôi nữ cờ tiêu chuẩn, kết quả được xác định ngày 26/11 tại khách sạn Grand Palace, phường Vũng Tàu (TP.HCM).\n\nNội dung đôi thi đấu theo thể thức loại trực tiếp từng bàn, bốn cặp mạnh nhất vào bán kết. Gia Lai đồng hạng ba cùng Quảng Ninh; HCV thuộc về TP.HCM, HCB thuộc về Hà Nội. Môn cờ tướng năm nay quy tụ 152 kỳ thủ từ 12 tỉnh, thành.\n\nTừ ngày 27/11, các kỳ thủ bước vào nhóm nội dung cờ nhanh, gồm đôi nam, đôi nữ và đôi nam nữ. Đây là cơ hội để đội cờ Gia Lai hướng tới mục tiêu huy chương đã đặt ra trước Đại hội.",
+   "src": [
+    {
+     "n": "Báo Gia Lai",
+     "u": "https://baogialai.com.vn/gia-lai-gianh-hcd-noi-dung-co-tieu-chuan-tai-dai-hoi-the-thao-toan-quoc-2026-post606107.html"
+    },
+    {
+     "n": "Bongdaplus",
+     "u": "https://bongdaplus.vn/the-thao/tp-hcm-gianh-cu-dup-hcv-doi-nam-doi-nu-khang-dinh-suc-manh-o-mon-co-tuong-dai-hoi-2026-5300972611.html"
+    }
+   ]
+  },
+  {
+   "id": "n-20261126-gukesh-sindarov-hoa-van-2-3",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-26",
+   "title": "Tranh ngôi vua cờ vua 2026: Gukesh và Sindarov tiếp tục hòa ván 2, ván 3, tỷ số 1,5–1,5",
+   "body": "Trận tranh chức vô địch cờ vua thế giới 2026 giữa đương kim vô địch Gukesh (Ấn Độ) và người thách đấu Javokhir Sindarov (Uzbekistan) tại Geneva (Thụy Sĩ) vẫn cân bằng sau ba ván, khi cả ba đều kết thúc hòa.\n\nỞ ván 2 ngày 25/11, Gukesh cầm trắng chọn hệ thống London. Sindarov chuẩn bị kỹ với nước 7...Hb6, hai bên lặp nước ba lần và hòa chỉ sau 20 nước, khoảng 2 giờ thi đấu.\n\nVán 3 diễn biến kịch tính hơn. Sindarov cầm trắng, Gukesh đáp lại bằng phòng thủ Berlin, có lúc dẫn trước gần 50 phút trên đồng hồ. Sindarov chỉ còn vài giây khi chạm mốc nước 40, nhưng hai bên vẫn hòa sau 60 nước.\n\nTrận đấu gồm 14 ván, ai đạt 7,5 điểm trước sẽ vô địch; nếu hòa 7–7 sẽ đấu tiếp cờ nhanh. Ván 4 diễn ra ngày 28/11, Gukesh cầm quân trắng.",
+   "src": [
+    {
+     "n": "Tiền Phong",
+     "u": "https://tienphong.vn/tran-tranh-ngoi-vua-co-the-gioi-2026-khong-mao-hiem-trong-he-thong-london-post1897831.tpo"
+    },
+    {
+     "n": "Chess.com",
+     "u": "https://www.chess.com/news/view/2026-fide-world-chess-championship-game-3"
+    }
+   ]
+  },
+  {
+   "id": "v-20261127-si-dung-may-diem",
+   "t": "vui",
+   "cat": "do",
+   "date": "2026-11-27",
+   "title": "Đố vui cờ tướng: Quân Sĩ có thể đứng ở tất cả bao nhiêu điểm trên bàn cờ (tính cho một bên)?",
+   "body": "Sĩ là “vệ sĩ” trung thành nhất của Tướng, suốt ván không rời cung nửa bước. Thử đếm xem chỗ đứng của anh vệ sĩ này có rộng không nhé!",
+   "ans": "Chỉ 5 điểm. Sĩ đi chéo một ô và không được ra khỏi cung, nên chỉ đứng được ở 4 góc cung và điểm chính giữa cung. Trong khi đó Tướng đứng được cả 9 điểm của cung."
+  },
   {
    "id": "n-20261126-le-quang-liem-dung-buoc-jerusalem-masters",
    "t": "news",
