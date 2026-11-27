@@ -1,7 +1,47 @@
 {
- "updated": "2026-11-27T07:30:00+07:00",
+ "updated": "2026-11-28T06:42:39+07:00",
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
+  {
+   "id": "n-20261127-co-nhanh-doi-nam-dong-nai-thang-tphcm",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-27",
+   "title": "Cờ nhanh đôi nam Đại hội: Đồng Nai thắng TP.HCM 1,5–0,5, Lại Lý Huynh thua Hà Văn Tiến",
+   "body": "Chiều 27/11, ở vòng 4 nội dung cờ nhanh đôi nam môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X – 2026 tại phường Vũng Tàu (TP.HCM), Đồng Nai thắng TP.HCM với tỷ số 1,5–0,5.\n\nỞ bàn một, Lại Lý Huynh cầm quân Đen thua Hà Văn Tiến. Bàn còn lại, Nguyễn Minh Nhật Quang hòa Nguyễn Thành Bảo. Đây là trận thua đầu tiên của TP.HCM ở nội dung cờ nhanh đôi nam sau 3 trận toàn thắng ở vòng bảng; theo Tuổi Trẻ, bộ đôi Huynh – Quang vẫn còn cơ hội đi tiếp.\n\nTrận đấu được xem như màn tái đấu của chung kết đôi nam cờ tiêu chuẩn trưa 26/11, khi TP.HCM thắng Đồng Nai 1,5–0,5 để giành HCV. Hà Văn Tiến cũng là kỳ thủ từng giành HCV cờ tiêu chuẩn cá nhân tại Giải vô địch cờ tướng quốc gia tháng 4/2026.\n\nCác nội dung cờ nhanh (đôi nam, đôi nữ, đôi nam nữ và đồng đội) tiếp tục thi đấu ngày 28/11 để phân định huy chương.",
+   "src": [
+    {
+     "n": "Tuổi Trẻ",
+     "u": "https://tuoitre.vn/lai-ly-huynh-thua-ky-vuong-moi-cua-viet-nam-100261127182729909.htm"
+    }
+   ]
+  },
+  {
+   "id": "n-20261126-co-tieu-chuan-khep-lai-tphcm-quang-ninh",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-26",
+   "title": "Khép lại cờ tiêu chuẩn môn cờ tướng Đại hội: TP.HCM giành 3 HCV, Quảng Ninh 2 HCV",
+   "body": "Ngày 26/11, các nội dung cờ tiêu chuẩn môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X – 2026 tại phường Vũng Tàu (TP.HCM) đã kết thúc. Đoàn TP.HCM giành 3 trong 6 bộ HCV cờ tiêu chuẩn, gồm đôi nam, đôi nữ và cá nhân nữ.\n\nĐoàn Quảng Ninh gây ấn tượng với 2 HCV: Đào Duy Khánh vô địch cá nhân nam; đồng đội nam gồm Bùi Sơn Tùng, Nguyễn Hoà Bình, Nguyễn Nhật Quang và Đặng Quốc Hưng giành HCV đồng đội nam. Quảng Ninh còn có thêm HCĐ ở đôi nam và đôi nữ. Theo Báo Quảng Ninh, tính đến 16h ngày 26/11, toàn đoàn Quảng Ninh có 29 huy chương các môn (12 HCV, 7 HCB, 10 HCĐ).\n\nỞ nội dung đôi nữ cờ tiêu chuẩn, Gia Lai có HCĐ của Hồ Thị Thanh Hồng – Trần Thị Bích Hằng.\n\nMôn cờ tướng chuyển sang các nội dung cờ nhanh trong hai ngày 27–28/11, gồm đôi nam, đôi nữ, đôi nam nữ và đồng đội.",
+   "src": [
+    {
+     "n": "Báo Quảng Ninh",
+     "u": "https://baoquangninh.vn/doi-co-tuong-gianh-2-hcv-quang-ninh-co-12-hcv-dai-hoi-the-thao-2026-post3428423.html"
+    },
+    {
+     "n": "HTV",
+     "u": "https://htv.vn/co-tuong-tp-ho-chi-minh-gianh-3-hcv-o-cac-noi-dung-co-tieu-chuan-222261126213724508.htm"
+    }
+   ]
+  },
+  {
+   "id": "v-20261128-chuyen-dong-ho-co-nhanh",
+   "t": "vui",
+   "cat": "chuyen",
+   "date": "2026-11-28",
+   "title": "Chuyện vui: Cờ nhanh mà nghĩ chậm",
+   "body": "Ông Tư rủ cháu chơi cờ nhanh, mỗi bên 10 phút.\n\nCháu: – Ông ơi, ông nghĩ nước này 6 phút rồi đó!\nÔng Tư: – Ừ, ông đang tính kỹ cho nhanh.\nCháu: – Tính kỹ cho nhanh là sao ông?\nÔng Tư: – Thì tính một lần cho xong, khỏi phải tính lại!\n\nĐồng hồ kêu “tít”, ông Tư hết giờ, cười xòa: – Thôi, ván sau ông chơi cờ… chậm cho nhanh."
+  },
   {
    "id": "n-20261126-tphcm-cu-dup-hcv-doi-co-tuong-dai-hoi",
    "t": "news",
