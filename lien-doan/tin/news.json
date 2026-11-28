@@ -3,6 +3,24 @@
  "note": "Tin cờ tự động cho app Liên đoàn Cờ tỉnh Gia Lai. Mỗi tin: id, t='news', cat='bao', date, title, body (lời văn riêng), src=[{n:tên báo,u:link}]. Mới nhất ở đầu, tối đa 80 tin.",
  "items": [
   {
+   "id": "n-20261128-live-ban-ket-co-nhanh-dai-hoi",
+   "t": "news",
+   "cat": "bao",
+   "date": "2026-11-28",
+   "live": true,
+   "title": "Trực tiếp: Bán kết cờ nhanh môn cờ tướng Đại hội Thể thao toàn quốc 2026",
+   "img": "https://i.ytimg.com/vi/ezfZLxf3x6g/hqdefault.jpg",
+   "file": "https://www.youtube.com/live/ezfZLxf3x6g",
+   "tour": "seed-dhtt-2026-co-tuong",
+   "body": "Sáng 28/11 – ngày thi đấu cuối cùng của môn cờ tướng Đại hội Thể thao toàn quốc lần thứ X tại phường Vũng Tàu (TP. Hồ Chí Minh) – diễn ra các trận bán kết cờ nhanh, thể thức 15 phút + 10 giây/nước.\n\nKênh YouTube “CỜ TƯỚNG – KỲ ĐẠO” phát trực tiếp các ván đấu. Bấm vào video bên dưới để xem ngay trong app, hoặc mở trên YouTube.\n\nBảng xếp hạng, cặp đấu và kết quả từng nội dung được cập nhật tự động từ Chess-Results – bấm “Xem kết quả giải” cuối bài.",
+   "src": [
+    {
+     "n": "YouTube – CỜ TƯỚNG – KỲ ĐẠO (phát trực tiếp)",
+     "u": "https://www.youtube.com/live/ezfZLxf3x6g"
+    }
+   ]
+  },
+  {
    "id": "n-20261127-co-nhanh-doi-nam-dong-nai-thang-tphcm",
    "t": "news",
    "cat": "bao",

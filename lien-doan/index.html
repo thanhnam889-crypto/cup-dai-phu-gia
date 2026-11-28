@@ -264,6 +264,12 @@ textarea.inp{resize:vertical;min-height:90px}
 .lvh .gl{margin:6px 12px 0;padding:8px 10px;border-radius:12px;background:rgba(0,0,0,.18);font-size:12.5px;line-height:1.45}
 .lvh .ft{display:flex;justify-content:space-between;align-items:center;padding:10px 15px 12px;font-size:12.5px;font-weight:700}
 .lvh .ft span{opacity:.8;font-weight:500;font-size:11.5px}
+.ytb{position:relative;display:block;cursor:pointer;border-radius:14px;overflow:hidden;margin-top:14px;background:#111}
+.ytb img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.ytb .pl{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.28)}
+.ytb .pl span{width:68px;height:48px;border-radius:14px;background:#E62117;color:#fff;display:grid;place-items:center;font-size:22px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.ytb .lv{position:absolute;left:10px;top:10px;background:#E62117;color:#fff;font-size:11px;font-weight:800;letter-spacing:1px;padding:3px 8px;border-radius:6px}
+.ytb .cp{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 9px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:13px;font-weight:600;line-height:1.35}
 /* khối tin theo chuyên mục */
 .blocks{display:grid;gap:26px;margin-top:24px}
 .blk{min-width:0}
@@ -833,7 +839,7 @@ $('lb-p').onclick=function(){lbi=(lbi-1+LB.length)%LB.length;lbShow()};$('lb-n')
 
 /* ---------- render: trang chủ ---------- */
 function posts(t){return all('posts').filter(function(p){return p.st!=='cho'&&(!t||p.t===t)}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||((b.ts||0)-(a.ts||0))})}
-function tours(){return all('tours').sort(function(a,b){return (b.from||'').localeCompare(a.from||'')})}
+function tours(){var td=today();return all('tours').map(function(t){return (t.st==='dang'||t.st==='sap')&&t.to&&t.to<td?Object.assign({},t,{st:'xong'}):t}).sort(function(a,b){return (b.from||'').localeCompare(a.from||'')})}
 function members(st){return all('members').filter(function(m){return !st||(m.st||'cho')===st})}
 var NCAT={bao:'Cờ Việt Nam & thế giới',giai:'Giải Liên đoàn',hd:'Hoạt động Liên đoàn',clb:'CLB & kỳ đài'};
 var CCAT={luat:'Luật thi đấu',hoc:'Học tập & kinh nghiệm'};
@@ -841,6 +847,8 @@ var VCAT={dl:'Điều lệ, quy chế',qd:'Quyết định, công văn',mau:'Bi�
 var TYPE={news:'Tin tức',event:'Sự kiện',cm:'Chuyên môn',vb:'Văn bản',vui:'Góc vui'};
 var VUICAT={anh:'Ảnh vui',video:'Video vui',do:'Đố vui',chuyen:'Chuyện vui',tuc:'Câu nói hay'};
 function ytThumb(u){var y=ytId(u);return y?'https://i.ytimg.com/vi/'+y+'/hqdefault.jpg':''}
+function ytBlock(u,cap,live){return '<div class="ytb" data-ytp="'+esc(u)+'" data-ytc="'+esc(cap||'')+'"><img src="'+esc(ytThumb(u))+'" alt="'+esc(cap||'Video')+'" loading="lazy"><div class="pl"><span>▶</span></div>'+(live?'<span class="lv">● TRỰC TIẾP</span>':'')+(cap?'<div class="cp">'+esc(cap)+'</div>':'')+'</div>'}
+document.addEventListener('click',function(e){var v=e.target.closest('[data-ytp]');if(v){e.stopPropagation();lbOpen([{t:'vid',url:v.dataset.ytp,cap:v.dataset.ytc}],0);}},true);
 function catMap(t){return t==='news'?NCAT:t==='cm'?CCAT:t==='vb'?VCAT:t==='vui'?VUICAT:null}
 function catOf(p){var M=catMap(p.t);return (M&&M[p.cat])||''}
 function postRow(p){var ev=p.t==='event';
@@ -1031,9 +1039,10 @@ function renderTin(){document.querySelectorAll('#tin-seg button').forEach(functi
   $('tin-list').innerHTML=L.length?L.map(postRow).join(''):'<div class="empty">'+(tinSeg==='event'?'Chưa có sự kiện.':tinCat?'Chưa có tin trong chuyên mục này.':'Chưa có tin.')+'</div>';}
 document.addEventListener('click',function(e){var el=e.target.closest('[data-post]');if(!el)return;var p=all('posts').filter(function(x){return x.id===el.dataset.post})[0];if(!p)return;
   var ev=p.t==='event',doc=p.t==='cm'||p.t==='vb',cat=catOf(p);
-  openSheet((p.img&&!doc?'<div class="cov" style="background-image:url(\''+esc(p.img)+'\')"></div>':'<div style="height:8px"></div>')+'<div class="sc"><span class="tag '+(ev?'ev':doc?'red':'')+'">'+esc(TYPE[p.t]||'Tin tức')+'</span><span class="note">'+[cat,fd(p.date)].filter(Boolean).map(esc).join(' · ')+'</span><h2 class="h1" style="font-size:23px;margin-top:8px">'+esc(p.title)+'</h2>'+(ev&&(p.time||p.place)?'<p class="note">🕘 '+esc(p.time||'')+(p.place?' · 📍 '+esc(p.place):'')+'</p>':'')+'<div class="body">'+esc(p.body||'')+'</div>'
+  var yv=ytId(p.file)&&!doc;
+  openSheet((p.img&&!doc&&!yv?'<div class="cov" style="background-image:url(\''+esc(p.img)+'\')"></div>':'<div style="height:8px"></div>')+'<div class="sc"><span class="tag '+(ev?'ev':doc?'red':'')+'">'+esc(TYPE[p.t]||'Tin tức')+'</span><span class="note">'+[cat,fd(p.date)].filter(Boolean).map(esc).join(' · ')+'</span><h2 class="h1" style="font-size:23px;margin-top:8px">'+esc(p.title)+'</h2>'+(ev&&(p.time||p.place)?'<p class="note">🕘 '+esc(p.time||'')+(p.place?' · 📍 '+esc(p.place):'')+'</p>':'')+'<div class="body">'+esc(p.body||'')+'</div>'
     +(doc&&p.img?'<a href="'+esc(p.img)+'" target="_blank" rel="noopener"><img src="'+esc(p.img)+'" alt="'+esc(p.title)+'" style="width:100%;border-radius:12px;margin-top:14px;border:1px solid var(--line)"></a>':'')
-    +(p.file?'<a class="btn" href="'+esc(p.file)+'" target="_blank" rel="noopener" style="margin-top:16px">📄 Mở tài liệu gốc ↗</a>':'')
+    +(yv?ytBlock(p.file,'Bấm để xem video',p.live&&(p.date||'')>=today())+'<a class="btn ghost" href="'+esc(p.file)+'" target="_blank" rel="noopener" style="margin-top:10px">▶ Mở trên YouTube ↗</a>':p.file?'<a class="btn" href="'+esc(p.file)+'" target="_blank" rel="noopener" style="margin-top:16px">📄 Mở tài liệu gốc ↗</a>':'')
     +(Array.isArray(p.src)&&p.src.length?'<div class="srcs"><b>Nguồn tham khảo</b>'+p.src.map(function(x){return Array.isArray(x)?{n:x[0],u:x[1]}:(x||{})}).filter(function(x){return /^https?:\/\//.test(x.u||'')}).map(function(x){return '<a href="'+esc(x.u)+'" target="_blank" rel="noopener">'+esc(x.n||x.u)+' ↗</a>'}).join('')+'</div>':'')
     +(p.tour?'<button class="btn ghost" type="button" data-tour="'+esc(p.tour)+'" style="margin-top:12px">🏆 Xem kết quả giải</button>':'')+'</div>');});
 
@@ -1099,6 +1108,8 @@ function tourDetail(id){var t=all('tours').filter(function(x){return x.id===id})
       +'<div class="card" style="overflow:hidden"><table class="rtab"><tbody>'
       +rows.map(function(r,j){var m=MED[String(r[0])];return '<tr class="'+(m?'rtop':'')+(j>=10?' more'+i:'')+'"'+(j>=10?' hidden':'')+'><td class="rk">'+(m?'<span class="med">'+m+'</span>':'')+esc(r[0])+'</td><td><b>'+esc(r[1])+'</b><div class="un">'+esc(r[2]||'')+'</div></td><td class="pt">'+esc(String(r[3]).replace('.',','))+'</td></tr>'}).join('')
       +'</tbody></table></div>'+(rows.length>10?'<button class="btn ghost sm" type="button" data-more="'+i+'" style="margin-top:8px">Xem đủ '+rows.length+' kỳ thủ</button>':'');});
+  var VD=all('posts').filter(function(p){return p.tour===t.id&&!p.del&&p.st!=='cho'&&ytId(p.file)}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')});
+  if(VD.length)h+='<div class="lbl" style="margin-top:18px">📺 Video &amp; trực tiếp</div>'+VD.slice(0,4).map(function(p){return ytBlock(p.file,p.title,p.live&&(p.date||'')>=today())}).join('');
   var LC=tCR(t);if(LC.length){h+='<div id="lv"></div>';}
   if(!R.length&&!LC.length)h+='<div class="card empty" style="margin-top:14px">Kết quả sẽ cập nhật sau.</div>';
   openSheet(h+'</div>');if(LC.length){if(LV.tid!==t.id)LV={tid:t.id,i:0,r:0,tab:'xh'};lvRender();}}
