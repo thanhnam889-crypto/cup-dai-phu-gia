@@ -1785,7 +1785,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     else if(md==='kob'){MED={'1':'🎯','2':'🎯'};PZ={'1':'Vào chung kết','2':'Vào chung kết'};}
     else if(md==='koc'){MED={'1':'🥇','2':'🥈'};PZ={'1':'HCV','2':'HCB'};}
     var h='<div class="card kqwrap"><table class="ktab"><thead><tr><th class="rk">#</th><th>'+(/^ko/.test(md)?'Đoàn':'Kỳ thủ')+'</th><th style="text-align:right">'+(/^ko/.test(md)?'Điểm đối kháng':'Điểm')+'</th></tr></thead><tbody>';
-    rows.forEach(function(r){var m=fin&&MED[String(r[0])];
+    rows.forEach(function(r){var m=fin&&MED[String(r[0])];if(m&&md==='kob'&&!/^\+[1-9]/.test(String(r[2]||'')))m=false;if(m&&md==='koc'&&/^\+0 =0 -0$/.test(String(r[2]||'').trim()))m=false;
       h+='<tr'+(m?' class="kqtop"':'')+'><td class="rk"><b>'+(m?'<span class="med">'+m+'</span>':'')+esc(r[0])+'</b></td><td>'+(m?'<div class="kqprize">'+PZ[String(r[0])]+'</div>':'')+'<div class="nm">'+esc(r[1])+'</div><div class="un">'+esc(r[2]||'')+'</div></td><td class="pt">'+esc(String(r[3]).replace('.',','))+(r[4]?'<span class="hsx">'+esc(r[4])+'</span>':'')+'</td></tr>'});
     return h+'</tbody></table></div>';
   }

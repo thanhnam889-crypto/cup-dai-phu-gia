@@ -894,14 +894,14 @@ function lvRender(){var box=$('lv');if(!box)return;var t=all('tours').filter(fun
     else{var nr=rd.pairs.filter(function(p){return p.res}).length;
       h+='<div class="lvnote">Vòng '+LV.r+' · '+(nr?(nr<rd.pairs.length?'đã có '+nr+'/'+rd.pairs.length+' kết quả':'đã đủ kết quả'):'bốc thăm, chưa có kết quả')+'</div>'
        +'<div class="card prs">'+rd.pairs.map(function(p){var g=isGL(p.wc)||isGL(p.bc)||isGL(p.w)||isGL(p.b);
-        return '<div class="pr'+(g?' gl':'')+'"><span class="bd">'+esc(p.bd||'')+'</span><div class="w"><b>'+esc(p.w)+'</b><span class="un">'+esc(club(p.wc))+'</span></div>'
-          +'<span class="rs'+(p.res?'':' wait')+'">'+(p.bye?'miễn':esc(p.res||'vs'))+'</span><div><b>'+esc(p.bye?'—':p.b)+'</b><span class="un">'+esc(p.bye?'':club(p.bc))+'</span></div></div>'}).join('')+'</div>';}}
+        return '<div class="pr'+(g?' gl':'')+'"><span class="bd">'+esc(p.bd||'')+'</span><div class="w"><b>'+esc(clubN(p.w))+'</b><span class="un">'+esc(club(p.wc))+'</span></div>'
+          +'<span class="rs'+(p.res?'':' wait')+'">'+(p.bye?'miễn':esc(p.res||'vs'))+'</span><div><b>'+esc(p.bye?'—':clubN(p.b))+'</b><span class="un">'+esc(p.bye?'':club(p.bc))+'</span></div></div>'}).join('')+'</div>';}}
   else{var X=crLastRank(d,LV.r);
     if(!X)h+='<div class="card empty">Chưa có xếp hạng.</div>';
     else{var fin=X.r===N&&d.rounds[N]&&(d.rounds[N].pairs||[]).every(function(p){return p.res||p.bye});
-      h+='<div class="lvnote">'+(fin?'🏁 Xếp hạng chung cuộc':'Xếp hạng sau vòng '+X.r+(X.r<LV.r?' (vòng '+LV.r+' đang thi đấu)':''))+'</div>'
+      h+='<div class="lvnote">'+(fin?(n.md==='ko'?'🏁 Kết quả':'🏁 Xếp hạng chung cuộc'):'Xếp hạng sau vòng '+X.r+(X.r<LV.r?' (vòng '+LV.r+' đang thi đấu)':''))+'</div>'
         +'<div class="card" style="overflow:hidden"><table class="rtab"><tbody>'+X.L.map(function(g,j){var m=fin&&n.md==='ind'?MED[String(g[0])]:'',gl=isGL(g[2])||isGL(g[1]);
-          return '<tr class="'+(m?'rtop':'')+(gl?' gl':'')+(j>=16?' lvm':'')+'"'+(j>=16?' hidden':'')+'><td class="rk">'+(m?'<span class="med">'+m+'</span>':'')+esc(g[0])+'</td><td><b>'+esc(g[1])+'</b>'+(gl?'<span class="glb">GIA LAI</span>':'')+'<div class="un">'+esc(clubN(g[2]))+'</div></td><td class="pt">'+esc(String(g[3]).replace('.',','))+'</td></tr>'}).join('')
+          return '<tr class="'+(m?'rtop':'')+(gl?' gl':'')+(j>=16?' lvm':'')+'"'+(j>=16?' hidden':'')+'><td class="rk">'+(m?'<span class="med">'+m+'</span>':'')+esc(g[0])+'</td><td><b>'+esc(clubN(g[1]))+'</b>'+(gl?'<span class="glb">GIA LAI</span>':'')+'<div class="un">'+esc(clubN(g[2]))+'</div></td><td class="pt">'+esc(String(g[3]).replace('.',','))+'</td></tr>'}).join('')
         +'</tbody></table></div>'+(X.L.length>16?'<button class="btn ghost sm" type="button" data-lvmore style="margin-top:8px">Xem đủ '+X.L.length+'</button>':'');
       if(n.md==='agg'){var by={},A=[];X.L.forEach(function(g){var u=clubN(g[2])||'—';if(!by[u]){by[u]={u:u,p:0,k:0};A.push(by[u])}by[u].p+=crPt(g[3]);by[u].k++;});
         A.sort(function(a,b){return b.p-a.p});
