@@ -47,22 +47,25 @@ for (const it of LIST) {
   let old = null; try { old = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) {}
   try {
     const base = await get(t, 'art=0');
-    const team = /<t[hd][^>]*>\s*(?:<[^>]+>\s*)*Đội\s*(?:<\/[^>]+>\s*)*<\/t[hd]>/i.test(base) && /HS1|Ván cờ|Matchpoints/i.test(base);
+    let team = /<t[hd][^>]*>\s*(?:<[^>]+>\s*)*Đội\s*(?:<\/[^>]+>\s*)*<\/t[hd]>/i.test(base) && /HS1|Ván cờ|Matchpoints/i.test(base);
     const rds = new Set();
     for (const m of base.matchAll(/art=2(?:&amp;|&)rd=(\d+)/g)) rds.add(+m[1]);
     for (const m of base.matchAll(/art=[01](?:&amp;|&)rd=(\d+)/g)) rds.add(+m[1]);
     let maxR = Math.min(15, Math.max(0, ...rds));
     const tot = base.match(/V\d+\s*\/\s*(\d+)/);
-    const n = Math.max(maxR, tot ? +tot[1] : 0);
+    let n = Math.max(maxR, tot ? +tot[1] : 0);
+    // giải 1 vòng (bán kết/chung kết) không có link vòng -> vẫn dò vòng 1; đang đấu thì dò thêm vòng kế tiếp
+    const probe = Math.min(15, Math.max(1, maxR + (maxR < n ? 1 : 0)));
     const rounds = {}, rank = {};
     let prevSig = '';
-    for (let r = 1; r <= maxR; r++) {
+    for (let r = 1; r <= probe; r++) {
       const o = old && old.rounds && old.rounds[r];
       if (o && o.done && old.team === team && (old.rank && old.rank[r])) { rounds[r] = o; rank[r] = old.rank[r]; prevSig = o.pairs.map(p => p.w + '|' + p.b).join(';'); continue; }
       const html = await get(t, 'art=2&rd=' + r);
       const lab = html.match(/(\d+)\.\s*(?:Ván|Round|Runde)\b/i);
       if (lab && +lab[1] !== r) continue;
-      const pairs = team ? parseTeamPairs(html) : parsePairs(html);
+      let pairs = team ? parseTeamPairs(html) : parsePairs(html);
+      if (!pairs.length && !team) { const tp = parseTeamPairs(html); if (tp.length) { team = true; pairs = tp; } } // nội dung Đôi: đội gặp đội
       const sig = pairs.map(p => p.w + '|' + p.b).join(';');
       if (!pairs.length || sig === prevSig) continue;
       prevSig = sig;
@@ -73,6 +76,7 @@ for (const it of LIST) {
         if (L.length) rank[r] = L; else rounds[r].done = false;
       }
     }
+    n = Math.max(n, ...Object.keys(rounds).map(Number), 0);
     const title = (base.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i) || [])[1];
     const out = { t, ten: it.ten || '', title: title ? txt(title) : '', team, n, rounds, rank };
     const sameAsOld = old && JSON.stringify({ ...old, at: 0 }) === JSON.stringify({ ...out, at: 0 });

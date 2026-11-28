@@ -1612,11 +1612,21 @@ var DH26={id:'dh26',ten:'Đại hội TT toàn quốc 2026 · Cờ tướng',nd:
   {id:'dh5',ten:'Đồng đội nam',vong:9,cr:'1546299',md:'agg'},
   {id:'dh6',ten:'Đồng đội nữ',vong:9,cr:'1546300',md:'agg'},
   {id:'dh10',ten:'Đồng đội nam cờ nhanh',vong:9,cr:'1546373',md:'agg'},
-  {id:'dh3',ten:'Đôi nam',vong:4,cr:'1546303',md:'ko'},
-  {id:'dh4',ten:'Đôi nữ',vong:4,cr:'1546304',md:'ko'},
-  {id:'dh7',ten:'Đôi nam cờ nhanh',vong:4,cr:'1546349',md:'ko'},
-  {id:'dh8',ten:'Đôi nữ cờ nhanh',vong:4,cr:'1546358',md:'ko'},
-  {id:'dh9',ten:'Đôi nam nữ cờ nhanh',vong:4,cr:'1546359',md:'ko'}]};
+  {id:'dh3c',ten:'Đôi nam · Chung kết',vong:1,cr:'1550525',md:'koc'},
+  {id:'dh3b',ten:'Đôi nam · Bán kết',vong:1,cr:'1550403',md:'kob'},
+  {id:'dh3',ten:'Đôi nam · Vòng loại',vong:7,cr:'1546303',md:'ko'},
+  {id:'dh4c',ten:'Đôi nữ · Chung kết',vong:1,cr:'1550568',md:'koc'},
+  {id:'dh4b',ten:'Đôi nữ · Bán kết',vong:1,cr:'1550410',md:'kob'},
+  {id:'dh4',ten:'Đôi nữ · Vòng loại',vong:7,cr:'1546304',md:'ko'},
+  {id:'dh7c',ten:'Đôi nam cờ nhanh · Chung kết',vong:1,cr:'1552931',md:'koc'},
+  {id:'dh7b',ten:'Đôi nam cờ nhanh · Bán kết',vong:1,cr:'1552213',md:'kob'},
+  {id:'dh7',ten:'Đôi nam cờ nhanh · Vòng loại',vong:7,cr:'1546349',md:'ko'},
+  {id:'dh8c',ten:'Đôi nữ cờ nhanh · Chung kết',vong:1,cr:'1552962',md:'koc'},
+  {id:'dh8b',ten:'Đôi nữ cờ nhanh · Bán kết',vong:1,cr:'1552215',md:'kob'},
+  {id:'dh8',ten:'Đôi nữ cờ nhanh · Vòng loại',vong:7,cr:'1546358',md:'ko'},
+  {id:'dh9c',ten:'Đôi nam nữ cờ nhanh · Chung kết',vong:1,cr:'1552948',md:'koc'},
+  {id:'dh9b',ten:'Đôi nam nữ cờ nhanh · Bán kết',vong:1,cr:'1552253',md:'kob'},
+  {id:'dh9',ten:'Đôi nam nữ cờ nhanh · Vòng loại',vong:7,cr:'1546359',md:'ko'}]};
 var DH_TEAM={BNI:'Bắc Ninh',DLA:'Đắk Lắk',DNA:'Đà Nẵng',DON:'Đồng Nai',GLA:'Gia Lai',HCM:'TP. Hồ Chí Minh',HNO:'Hà Nội',HUE:'Huế',LDO:'Lâm Đồng',QNI:'Quảng Ninh',THO:'Thanh Hóa',TNG:'Thái Nguyên'};
 var DH_END=new Date('2026-11-29T00:00:00+07:00');
 function dhNd(id){for(var i=0;i<DH26.nd.length;i++)if(DH26.nd[i].id===id)return DH26.nd[i];return null;}
@@ -1772,7 +1782,9 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     if(md==='ind'){MED={'1':'🥇','2':'🥈','3':'🥉'};PZ={'1':'HCV','2':'HCB','3':'HCĐ'};}
     else if(md==='agg')fin=false;
     else if(md==='ko'){MED={'1':'🎯','2':'🎯','3':'🎯','4':'🎯'};PZ={'1':'Vào bán kết','2':'Vào bán kết','3':'Vào bán kết','4':'Vào bán kết'};}
-    var h='<div class="card kqwrap"><table class="ktab"><thead><tr><th class="rk">#</th><th>'+(md==='ko'?'Đoàn':'Kỳ thủ')+'</th><th style="text-align:right">'+(md==='ko'?'Điểm đối kháng':'Điểm')+'</th></tr></thead><tbody>';
+    else if(md==='kob'){MED={'1':'🎯','2':'🎯'};PZ={'1':'Vào chung kết','2':'Vào chung kết'};}
+    else if(md==='koc'){MED={'1':'🥇','2':'🥈'};PZ={'1':'HCV','2':'HCB'};}
+    var h='<div class="card kqwrap"><table class="ktab"><thead><tr><th class="rk">#</th><th>'+(/^ko/.test(md)?'Đoàn':'Kỳ thủ')+'</th><th style="text-align:right">'+(/^ko/.test(md)?'Điểm đối kháng':'Điểm')+'</th></tr></thead><tbody>';
     rows.forEach(function(r){var m=fin&&MED[String(r[0])];
       h+='<tr'+(m?' class="kqtop"':'')+'><td class="rk"><b>'+(m?'<span class="med">'+m+'</span>':'')+esc(r[0])+'</b></td><td>'+(m?'<div class="kqprize">'+PZ[String(r[0])]+'</div>':'')+'<div class="nm">'+esc(r[1])+'</div><div class="un">'+esc(r[2]||'')+'</div></td><td class="pt">'+esc(String(r[3]).replace('.',','))+(r[4]?'<span class="hsx">'+esc(r[4])+'</span>':'')+'</td></tr>'});
     return h+'</tbody></table></div>';
@@ -1798,7 +1810,7 @@ function ndFind(s,id){var L=giaiList(s);for(var i=0;i<L.length;i++)for(var j=0;j
     if(cur.r==='final'){
       var lastR=0;Object.keys(d.rounds).forEach(function(k){var x=d.rounds[k];if(x&&x.standings&&x.standings.length&&+k>lastR)lastR=+k;});
       if(d.final&&d.final.length){h+='<div class="kqcap">Kết quả chung cuộc</div>'+standTable(d.final,true,MD())+(MD()==='agg'?aggTable(d.final,true):'');}
-      else if(lastR&&lastR>=d.numRounds){h+='<div class="kqcap">'+(MD()==='ko'?'Kết thúc vòng loại · 4 đôi dẫn đầu vào bán kết':'Kết quả chung cuộc · sau Vòng '+lastR)+'</div>'+crNote(cur.c,'standings',lastR)+standTable(d.rounds[lastR].standings,true,MD())+(MD()==='agg'?aggTable(d.rounds[lastR].standings,true):'');}
+      else if(lastR&&lastR>=d.numRounds){h+='<div class="kqcap">'+(MD()==='kob'?'Kết quả bán kết · 2 đôi thắng vào chung kết':MD()==='koc'?'Kết quả chung kết':MD()==='ko'?'Kết thúc vòng loại · 4 đôi dẫn đầu vào bán kết':'Kết quả chung cuộc · sau Vòng '+lastR)+'</div>'+crNote(cur.c,'standings',lastR)+standTable(d.rounds[lastR].standings,true,MD())+(MD()==='agg'?aggTable(d.rounds[lastR].standings,true):'');}
       else h+=empty('Chưa có kết quả chung cuộc',lastR?('Sẽ công bố sau Vòng '+d.numRounds+'. Xếp hạng tạm thời: xem Vòng '+lastR+' → Xếp hạng.'):'Sẽ công bố sau khi kết thúc toàn bộ các vòng đấu.');
       box.innerHTML=h;bind();return;
     }
